@@ -1,4 +1,6 @@
 # IPMS Project - Environment Setup
+![image](https://github.com/user-attachments/assets/2ac4e0b2-0bbe-4656-b0b9-fe5e0dc0ab09)
+
 
 ---
 
