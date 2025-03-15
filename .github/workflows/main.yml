@@ -10,7 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # Add MongoDB service container
     services:
       mongodb:
         image: mongo:latest
@@ -26,10 +25,13 @@ jobs:
         with:
           node-version: "18.x"
           cache: "npm"
-          cache-dependency-path: "**/package.json"
+          cache-dependency-path: |
+            server/package.json
+            client/package.json
 
       # Backend build
       - name: Install backend dependencies
+        working-directory: ./server
         run: npm install
 
       # Frontend build
@@ -46,11 +48,11 @@ jobs:
           echo "✅ Backend dependencies installed successfully"
           echo "✅ Frontend built successfully"
 
-  # CD
+  ## CD
   # deploy:
-  #   needs: build # Only deploy if build succeeds
+  #   needs: build
   #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main' # Only deploy on main branch
+  #   if: github.ref == 'refs/heads/main'
 
   #   steps:
   #     - name: Checkout code
@@ -61,11 +63,13 @@ jobs:
   #       with:
   #         node-version: "18.x"
   #         cache: "npm"
-  #         cache-dependency-path: "**/package.json"
+  #         cache-dependency-path: |
+  #           server/package.json
+  #           client/package.json
 
   #     - name: Install and build
   #       run: |
-  #         npm install
+  #         cd server && npm install && cd ..
   #         cd client && npm install && npm run build && cd ..
 
   #     - name: Deploy via SSH
@@ -82,8 +86,8 @@ jobs:
   #           git pull origin main
 
   #           # Install dependencies
-  #           npm install
+  #           cd server && npm install && cd ..
   #           cd client && npm install && npm run build && cd ..
 
   #           # Restart the application (adjust as needed)
-  #           pm2 restart all || pm2 start server.js
+  #           cd server && pm2 restart all || pm2 start server.js
