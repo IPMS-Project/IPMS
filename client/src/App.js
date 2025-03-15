@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 import "./styles/App.css";
+import React from 'react';
+import './App.css';
 
 function App() {
   const [fullName, setFullName] = useState("");
