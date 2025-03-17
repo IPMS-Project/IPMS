@@ -50,6 +50,21 @@ function SignUp() {
 
       <form onSubmit={createUser} className="signup-form">
         <div className="form-group">
+          <div className="form-group">
+            <label htmlFor="role">Role</label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+            >
+              <option value="-">Please select your role</option>
+              <option value="student">Student</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="coordinator">Coordinator</option>
+            </select>
+          </div>
+
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -69,21 +84,6 @@ function SignUp() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="role">Role</label>
-          <select
-            id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            required
-          >
-            <option value="-">Please select your role</option>
-            <option value="student">Student</option>
-            <option value="supervisor">Supervisor</option>
-            <option value="coordinator">Coordinator</option>
-          </select>
         </div>
 
         <button type="submit" className="submit-button">
