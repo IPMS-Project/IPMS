@@ -21,15 +21,6 @@ function Home() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(`${formData.role} sign in attempted`, formData);
-
-    // Navigate to the appropriate dashboard based on role
-    if (formData.role === "Student") {
-      navigate("/student/dashboard");
-    } else if (formData.role === "Supervisor") {
-      navigate("/supervisor/dashboard");
-    } else if (formData.role === "Coordinator") {
-      navigate("/coordinator/dashboard");
-    }
   };
 
   return (

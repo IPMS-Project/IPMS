@@ -56,10 +56,10 @@ app.get("/api/message", (req, res) => {
 });
 
 // Create User Endpoint
-app.post("/api/users", async (req, res) => {
+app.post("/api/createUser", async (req, res) => {
   try {
-    const { fullName, email, semester, academicAdvisor } = req.body;
-    const user = new User({ fullName, email, semester, academicAdvisor });
+    const { name, email } = req.body;
+    const user = new User({ name, email });
     await user.save();
     console.log("New user created:", JSON.stringify(user));
     res.status(201).json({ message: "User created successfully", user });
