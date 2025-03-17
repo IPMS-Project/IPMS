@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
-import EmailExample from "../components/EmailExample";
 
 function Home() {
   const navigate = useNavigate();
@@ -92,7 +91,6 @@ function Home() {
               {" "}
               Sign Up
             </Link>
-            <EmailExample />
           </div>
         </div>
       </div>
