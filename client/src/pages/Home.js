@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
+import EmailExample from "../components/EmailExample";
 
 function Home() {
   const navigate = useNavigate();
@@ -82,8 +83,7 @@ function Home() {
 
           <div className="new-student">
             Don't have an account?
-            <a
-              href="#"
+            <Link
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/signup");
@@ -91,7 +91,8 @@ function Home() {
             >
               {" "}
               Sign Up
-            </a>
+            </Link>
+            <EmailExample />
           </div>
         </div>
       </div>

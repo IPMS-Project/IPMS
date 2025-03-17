@@ -4,6 +4,9 @@ const cors = require("cors");
 const User = require("./models/User"); // Import User model
 require("dotenv").config();
 
+// Import routes
+const emailRoutes = require("./routes/emailRoutes");
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -54,6 +57,9 @@ app.get("/", (req, res) => {
 app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
+
+// Register routes
+app.use("/api/email", emailRoutes);
 
 // Create User Endpoint
 app.post("/api/createUser", async (req, res) => {
