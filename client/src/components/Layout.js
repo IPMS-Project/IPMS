@@ -7,7 +7,7 @@ function Layout() {
       <header className="app-header">
         <div className="logo-container">
           <img src="/OU-Logo.svg" alt="OU Logo" className="ou-logo" />
-          <h1>IPMS</h1>
+          <h1 style={{ marginLeft: "-25px" }}>IPMS</h1>
         </div>
         <nav className="main-nav">
           <ul>
