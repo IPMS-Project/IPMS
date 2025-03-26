@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 function SignUp() {
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("-");
@@ -13,8 +14,9 @@ function SignUp() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/users`,
+        `${process.env.REACT_APP_API_URL}/api/createUser`,
         {
+          userName,
           email,
           password,
           role,
@@ -50,21 +52,32 @@ function SignUp() {
 
       <form onSubmit={createUser} className="signup-form">
         <div className="form-group">
-          <div className="form-group">
-            <label htmlFor="role">Role</label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-            >
-              <option value="-">Please select your role</option>
-              <option value="student">Student</option>
-              <option value="supervisor">Supervisor</option>
-              <option value="coordinator">Coordinator</option>
-            </select>
-          </div>
+          <label htmlFor="role">Role</label>
+          <select
+            id="role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            required
+          >
+            <option value="-">Please select your role</option>
+            <option value="student">Student</option>
+            <option value="supervisor">Supervisor</option>
+            <option value="coordinator">Coordinator</option>
+          </select>
+        </div>
 
+        <div className="form-group">
+          <label htmlFor="userName">User Name</label>
+          <input
+            type="text"
+            id="userName"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
           <label htmlFor="email">Email</label>
           <input
             type="email"

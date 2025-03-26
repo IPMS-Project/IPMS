@@ -64,8 +64,8 @@ app.use("/api/email", emailRoutes);
 // Create User Endpoint
 app.post("/api/createUser", async (req, res) => {
   try {
-    const { name, email } = req.body;
-    const user = new User({ name, email });
+    const { userName, email, password, role } = req.body;
+    const user = new User({ userName, email, password, role });
     await user.save();
     console.log("New user created:", JSON.stringify(user));
     res.status(201).json({ message: "User created successfully", user });

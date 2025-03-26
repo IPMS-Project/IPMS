@@ -5,7 +5,7 @@ import "../styles/App.css";
 function Home() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
     role: "Student",
   });
@@ -50,12 +50,12 @@ function Home() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="username">Username</label>
+              <label htmlFor="email">Email</label>
               <input
                 type="text"
-                id="username"
-                name="username"
-                value={formData.username}
+                id="email"
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 className="form-control"
                 required
