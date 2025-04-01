@@ -4,6 +4,9 @@ const cors = require("cors");
 const User = require("./models/User"); // Import User model
 require("dotenv").config();
 
+// Import routes
+const emailRoutes = require("./routes/emailRoutes");
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -55,11 +58,14 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
+// Register routes
+app.use("/api/email", emailRoutes);
+
 // Create User Endpoint
-app.post("/api/users", async (req, res) => {
+app.post("/api/createUser", async (req, res) => {
   try {
-    const { fullName, email, semester, academicAdvisor } = req.body;
-    const user = new User({ fullName, email, semester, academicAdvisor });
+    const { userName, email, password, role } = req.body;
+    const user = new User({ userName, email, password, role });
     await user.save();
     console.log("New user created:", JSON.stringify(user));
     res.status(201).json({ message: "User created successfully", user });
