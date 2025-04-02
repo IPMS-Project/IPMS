@@ -8,7 +8,6 @@ let notificationLog = [];
 
 const logPath = path.join(__dirname, 'emailLogs.json');
 
-// Write log to file
 const logToFile = (logData) => {
     try {
         fs.writeFileSync(logPath, JSON.stringify(logData, null, 2), 'utf-8');
@@ -17,7 +16,6 @@ const logToFile = (logData) => {
     }
 };
 
-// Email transporter
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_SERVICE,
     port: process.env.EMAIL_PORT,
@@ -28,7 +26,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Email sending function
 const sendEmail = async () => {
     const timestamp = new Date().toLocaleString();
 
@@ -61,7 +58,6 @@ const sendEmail = async () => {
     logToFile(notificationLog);
 };
 
-/*Run cron job every 2 minutes */
 cron.schedule('*/2 * * * *', () => {
     console.log('⏳ Cron Job Triggered at', new Date().toLocaleString());
     sendEmail();
