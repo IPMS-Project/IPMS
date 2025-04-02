@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User"); // Import User model
+const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 require("dotenv").config();
 
 // Import routes
@@ -10,6 +11,8 @@ const emailRoutes = require("./routes/emailRoutes");
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+app.use("/api/reports", weeklyReportRoutes);
 
 // MongoDB Configuration
 const mongoConfig = {
