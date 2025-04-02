@@ -4,10 +4,8 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
-// In-memory tracking
 let notificationLog = [];
 
-// File path for logging
 const logPath = path.join(__dirname, 'emailLogs.json');
 
 // Write log to file
