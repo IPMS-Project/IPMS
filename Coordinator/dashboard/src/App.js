@@ -1,8 +1,8 @@
 // src/App.js
 import React from 'react';
 import logo from './OUlogo.jpg';
-import './App.css';
-import SupervisorDashboard from './dashboard.js';
+import './styles/App.css';
+import SupervisorDashboard from './components/dashboard.js';
 
 const App = () => {
     return (
