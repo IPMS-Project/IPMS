@@ -1,39 +1,55 @@
 const mongoose = require("mongoose");
 
 const weeklyReportSchema = new mongoose.Schema({
-  studentId: {
+  studentID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", // Links this report to the User model
+    ref: "User",
     required: true,
   },
-  tasksPerformed: {
+
+  logbookWeek: {
     type: String,
     required: true,
   },
-  challengesFaced: {
+
+  numberOfHours: {
+    type: Number,
+    required: true,
+  },
+
+  task: {
     type: String,
     required: true,
   },
-  lessonsLearned: {
+
+  challenge: {
     type: String,
     required: true,
   },
+
+  lesson: {
+    type: String,
+    required: true,
+  },
+
   csOutcomes: {
-    type: [String], // An array of selected CS outcomes
+    type: [String],
     required: true,
   },
+
   status: {
     type: String,
-    enum: ["draft", "submitted", "reviewed"],
-    default: "submitted", // Automatically marked submitted
+    default: "submitted",
   },
-  reminderSent: {
+
+  reminder: {
     type: Boolean,
-    default: false, // For Vinay's logic to update later
+    default: false, // Vinay has to change this as per his task
   },
-  submittedAt: {
+
+  createdAt: {
     type: Date,
-    default: Date.now, // Automatically set submission date
+    default: Date.now,
   },
 });
 
