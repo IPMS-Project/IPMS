@@ -4,6 +4,7 @@ const cors = require("cors");
 const User = require("./models/User"); // Import User model
 const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 require("dotenv").config();
+require("./services/emailService");
 
 // Import routes
 const emailRoutes = require("./routes/emailRoutes");
