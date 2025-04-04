@@ -35,24 +35,26 @@ const SupervisorDashboard = () => {
 
     return (
         <div className="dashboard-container">
-        <h1 className="dashboard-title">Supervisor Dashboard</h1>
-        <h2>Pending Approvals</h2>
-        {pendingApprovals.length === 0 ? (
-            <p>No pending approvals at this time.</p>
-        ) : (
+            <h1 className="dashboard-title">Supervisor Dashboard</h1>
+            <h2>Pending Approvals</h2>
             <ul className="pending-approvals">
-                {pendingApprovals.map(item => (
-                    <li key={item._id}>
-                        {item.name} - Details: {item.details} - Status: {item.status}
-                        <div>
-                            <button onClick={() => handleApproval(item._id)}>Approve</button>
-                            <button onClick={() => handleRejection(item._id)}>Reject</button>
-                        </div>
-                    </li>
-                ))}
+                {pendingApprovals.length === 0 ? (
+                    <div className="empty-message-container">
+                    <div className="empty-message">No pending approvals at this time.</div>
+                    </div>
+                ) : (
+                    pendingApprovals.map(item => (
+                        <li key={item._id}>
+                            {item.name} - Details: {item.details} - Status: {item.status}
+                            <div>
+                                <button className="approve" onClick={() => handleApproval(item._id)}>Approve</button>
+                                <button className="reject" onClick={() => handleRejection(item._id)}>Reject</button>
+                            </div>
+                        </li>
+                    ))
+                )}
             </ul>
-        )}
-    </div>
+        </div>
     );
 };
 

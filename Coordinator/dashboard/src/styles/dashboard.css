@@ -20,11 +20,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
-    margin: 10px 0;
+    padding: 20px;
+    margin: 40px 0;
     background-color: #fff;
     border-radius: 5px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
 }
 
 .pending-approvals li button {
@@ -36,19 +37,38 @@
     transition: background-color 0.3s;
 }
 
-.pending-approvals li button:hover {
-    background-color: #007bff;
+.approve{
+    background-color: #28a745; /* Green background for approve button */
     color: white;
+}
+
+.reject{
+    background-color: #dc3545; /* Red background for reject button */
+    color: white;
+}
+
+.approve:hover {
+    background-color: #218838;
+}
+
+.reject:hover{
+    background-color: #c82333;
 }
 
 .pending-approvals li button:focus {
     outline: none;
 }
 
+.empty-message-container{
+    display: flex; /* Use flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    height: 20vh;
+}
 .empty-message {
-    font-size: 36px; /* Adjust font size */
-    color: #666; /* Change text color for better visibility */
-    text-align: center; /* Center the message */
+    font-size: 28px; /* Adjust font size */
+    color: #000000; /* Change text color for better visibility */
+    text-align: center; /*Center the message*/
     margin: 20px 0; /* Add some margin for spacing */
     font-weight: bold; /* Make the message bold */
 }
