@@ -45,7 +45,13 @@
     outline: none;
 }
 
-/* src/dashboard.css */
+.empty-message {
+    font-size: 36px; /* Adjust font size */
+    color: #666; /* Change text color for better visibility */
+    text-align: center; /* Center the message */
+    margin: 20px 0; /* Add some margin for spacing */
+    font-weight: bold; /* Make the message bold */
+}
 
 form {
     margin-bottom: 5px;

@@ -7,8 +7,9 @@ const SupervisorDashboard = () => {
     useEffect(() => {
         const fetchSubmissions = async () => {
             try {
-                const response = await fetch('http://localhost:5000/submissions');
+                const response = await fetch('http://localhost:5001/submissions');
                 const data = await response.json();
+                console.log("Fetched Submissions: ", data)
                 setPendingApprovals(data);
             } catch (error) {
                 console.error('Error fetching submissions:', error);
@@ -22,13 +23,23 @@ const SupervisorDashboard = () => {
     };
 
     const handleRejection = async (id) => {
-        // Implement rejection logic here
+        try {
+            await fetch(`http://localhost:5001/submissions/${id}`, {
+                method: 'DELETE',
+            });
+            setPendingApprovals(prev => prev.filter(item => item._id !== id));
+        } catch (error) {
+            console.error('Error deleting submission:', error);
+        }
     };
 
     return (
         <div className="dashboard-container">
-            <h1 className="dashboard-title">Supervisor Dashboard</h1>
-            <h2>Pending Approvals</h2>
+        <h1 className="dashboard-title">Supervisor Dashboard</h1>
+        <h2>Pending Approvals</h2>
+        {pendingApprovals.length === 0 ? (
+            <p>No pending approvals at this time.</p>
+        ) : (
             <ul className="pending-approvals">
                 {pendingApprovals.map(item => (
                     <li key={item._id}>
@@ -40,7 +51,8 @@ const SupervisorDashboard = () => {
                     </li>
                 ))}
             </ul>
-        </div>
+        )}
+    </div>
     );
 };
 
