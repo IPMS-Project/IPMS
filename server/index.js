@@ -81,7 +81,6 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
-HEAD
 // Graceful shutdown
 process.on("SIGINT", () => {
   mongoose.connection.close(() => {
@@ -90,5 +89,5 @@ process.on("SIGINT", () => {
   });
 });
 
-const PORT = process.env.PORT || 5004;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
