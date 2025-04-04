@@ -1,0 +1,44 @@
+.clean-input label {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .clean-input input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1.5px solid #ccc;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .clean-input input:focus {
+    border-color: #7f1d1d;
+    outline: none;
+    background-color: #fff;
+  }
+  
+  .password-wrapper {
+    position: relative;
+  }
+  
+  .password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+  }
+  
+  .eye-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+    font-size: 1rem;
+  }
+  

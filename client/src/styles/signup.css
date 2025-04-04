@@ -1,0 +1,126 @@
+.role-cards {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+  .role-card {
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 150px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  }
+  .role-card.selected {
+    border: 2px solid #800000; /* OU Crimson */
+    background-color: #fff4f4;
+  }
+  .role-icon {
+    height: 40px;
+    margin-bottom: 0.5rem;
+  }
+  .info-icon {
+    display: block;
+    font-size: 0.8rem;
+    color: #3d3d3d;
+    margin-top: 0.5rem;
+  }
+  
+
+  .row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .col {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .step-two-header{
+    display: flex;
+    justify-content: space-between;
+  }
+
+
+
+  .password-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .password-col {
+    flex: 1 1 300px;
+    min-width: 280px;
+  }
+  
+  .password-wrapper {
+    position: relative;
+  }
+  
+  .eye-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+  
+  .strength-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  
+  .bar-segment {
+    flex: 1;
+    height: 5px;
+    background-color: #ccc;
+  }
+  
+  .bar-segment.strong {
+    background-color: green;
+  }
+  
+  .bar-segment.medium {
+    background-color: orange;
+  }
+  
+  .bar-segment.weak {
+    background-color: #800000;
+  }
+  
+  .strength-text {
+    font-size: 0.85rem;
+    margin: 0;
+  }
+  
+  .strength-text.strong {
+    color: green;
+  }
+  
+  .strength-text.medium {
+    color: orange;
+  }
+  
+  .strength-text.weak {
+    color: #800000;
+  }
+  
+  .match-warning {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 5px;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  
