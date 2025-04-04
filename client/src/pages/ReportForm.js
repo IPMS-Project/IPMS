@@ -69,7 +69,7 @@ function ReportForm() {
     }
 
     // TEMP: use a real studentID once login context is setup
-    const payload = { ...formData, studentID: "PASTE_STUDENT_ID_HERE" };
+    const payload = { ...formData, studentID: "67f051186611b86f5efb4df5" };
 
     try {
       const response = await axios.post(

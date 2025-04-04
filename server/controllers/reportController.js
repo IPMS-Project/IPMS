@@ -1,5 +1,5 @@
-const WeeklyReport = require("../models/WeeklyReport");
 const User = require("../models/User");
+const WeeklyReport = require("../models/WeeklyReport");
 
 /**
  * Report Controller – handles weekly report submissions and retrieval
