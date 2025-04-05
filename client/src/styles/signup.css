@@ -1,126 +1,147 @@
 .role-cards {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 1rem;
-  }
-  .role-card {
-    padding: 1rem;
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 150px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-  }
-  .role-card.selected {
-    border: 2px solid #800000; /* OU Crimson */
-    background-color: #fff4f4;
-  }
-  .role-icon {
-    height: 40px;
-    margin-bottom: 0.5rem;
-  }
-  .info-icon {
-    display: block;
-    font-size: 0.8rem;
-    color: #3d3d3d;
-    margin-top: 0.5rem;
-  }
-  
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.role-card {
+  padding: 1rem;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 150px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+.role-card.selected {
+  border: 2px solid #800000; /* OU Crimson */
+  background-color: #fff4f4;
+}
+.role-icon {
+  height: 40px;
+  margin-bottom: 0.5rem;
+}
+.info-icon {
+  display: block;
+  font-size: 0.8rem;
+  color: #3d3d3d;
+  margin-top: 0.5rem;
+}
 
-  .row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  
-  .col {
-    flex: 1;
-    min-width: 250px;
-  }
-  
-  .step-two-header{
-    display: flex;
-    justify-content: space-between;
-  }
+.row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
 
+.col {
+  flex: 1;
+  min-width: 250px;
+}
 
+.step-two-header {
+  display: flex;
+  justify-content: space-between;
+}
 
-  .password-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  .password-col {
-    flex: 1 1 300px;
-    min-width: 280px;
-  }
-  
-  .password-wrapper {
-    position: relative;
-  }
-  
-  .eye-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-  }
-  
-  .strength-bar {
-    display: flex;
-    gap: 4px;
-    margin-top: 6px;
-  }
-  
-  .bar-segment {
-    flex: 1;
-    height: 5px;
-    background-color: #ccc;
-  }
-  
-  .bar-segment.strong {
-    background-color: green;
-  }
-  
-  .bar-segment.medium {
-    background-color: orange;
-  }
-  
-  .bar-segment.weak {
-    background-color: #800000;
-  }
-  
-  .strength-text {
-    font-size: 0.85rem;
-    margin: 0;
-  }
-  
-  .strength-text.strong {
-    color: green;
-  }
-  
-  .strength-text.medium {
-    color: orange;
-  }
-  
-  .strength-text.weak {
-    color: #800000;
-  }
-  
-  .match-warning {
-    color: red;
-    font-size: 0.85rem;
-    margin-top: 5px;
-  }
-  
-  .form-control {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-  }
-  
+.password-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.password-col {
+  flex: 1 1 300px;
+  min-width: 280px;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.strength-bar {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.bar-segment {
+  flex: 1;
+  height: 5px;
+  background-color: #ccc;
+}
+
+.bar-segment.strong {
+  background-color: green;
+}
+
+.bar-segment.medium {
+  background-color: orange;
+}
+
+.bar-segment.weak {
+  background-color: #800000;
+}
+
+.strength-text {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.strength-text.strong {
+  color: green;
+}
+
+.strength-text.medium {
+  color: orange;
+}
+
+.strength-text.weak {
+  color: #800000;
+}
+
+.match-warning {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#semester {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #f9fafb;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20xmlns%3D%22http://www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%207L10%2012L15%207%22%20stroke%3D%22%237f1d1d%22%20stroke-width%3D%222%22/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+#semester:focus {
+  border-color: #7f1d1d;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(127, 29, 29, 0.15);
+  background-color: #fff;
+}

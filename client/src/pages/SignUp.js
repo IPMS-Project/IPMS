@@ -120,9 +120,7 @@ function SignUp() {
                         ? "Supervisors review and approve student progress."
                         : "Coordinators manage the internship workflow and approvals."
                     }
-                  >
-                    i
-                  </span>
+                  ></span>
                 </div>
               ))}
             </div>
@@ -248,7 +246,7 @@ function SignUp() {
                     </div>
                     <p
                       className={`strength-text ${passwordStrength.toLowerCase()}`}
-                      style={{margin:'0'}}
+                      style={{ margin: "0" }}
                     >
                       {passwordStrength === "Strong"
                         ? "Strong"

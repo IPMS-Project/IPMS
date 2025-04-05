@@ -71,9 +71,7 @@ function Home() {
                           ? "Supervisors review and approve student progress."
                           : "Coordinators manage the internship workflow and approvals."
                       }
-                    >
-                      i
-                    </span>
+                    ></span>
                   </div>
                 ))}
               </div>
