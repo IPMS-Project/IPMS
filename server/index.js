@@ -7,6 +7,9 @@ require("dotenv").config();
 // Import routes
 const emailRoutes = require("./routes/emailRoutes");
 
+// Import cron job manager
+const cronJobManager = require("./utils/cronUtils");
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -78,8 +81,110 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
+// Initialize cron jobs
+// Uncomment the following line to load example cron jobs
+// require('./utils/cronExample');
+
+// Cron job management API endpoints
+app.get("/api/cron/jobs", (req, res) => {
+  try {
+    const jobs = cronJobManager.listJobs();
+    res.json({ success: true, jobs });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/cron/jobs", (req, res) => {
+  try {
+    const { name, cronExpression, options } = req.body;
+
+    if (!name || !cronExpression) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: name and cronExpression",
+      });
+    }
+
+    // For security reasons, we don't allow arbitrary function execution through the API
+    // Instead, the client should reference a predefined job type
+    res.status(400).json({
+      success: false,
+      error:
+        "Job registration through API is not supported directly. Please implement your job in the server code.",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put("/api/cron/jobs/:name", (req, res) => {
+  try {
+    const { name } = req.params;
+    const { cronExpression } = req.body;
+
+    if (!cronExpression) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required field: cronExpression",
+      });
+    }
+
+    const result = cronJobManager.updateJobSchedule(name, cronExpression);
+
+    if (result) {
+      res.json({ success: true, message: `Job ${name} updated successfully` });
+    } else {
+      res
+        .status(404)
+        .json({
+          success: false,
+          error: `Job ${name} not found or invalid cron expression`,
+        });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete("/api/cron/jobs/:name", (req, res) => {
+  try {
+    const { name } = req.params;
+    const result = cronJobManager.stopJob(name);
+
+    if (result) {
+      res.json({ success: true, message: `Job ${name} stopped successfully` });
+    } else {
+      res.status(404).json({ success: false, error: `Job ${name} not found` });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/api/cron/jobs/:name/restart", (req, res) => {
+  try {
+    const { name } = req.params;
+    const result = cronJobManager.restartJob(name);
+
+    if (result) {
+      res.json({
+        success: true,
+        message: `Job ${name} restarted successfully`,
+      });
+    } else {
+      res.status(404).json({ success: false, error: `Job ${name} not found` });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Graceful shutdown
 process.on("SIGINT", () => {
+  // Stop all cron jobs before shutting down
+  cronJobManager.stopAllJobs();
+
   mongoose.connection.close(() => {
     console.log("MongoDB connection closed through app termination");
     process.exit(0);
