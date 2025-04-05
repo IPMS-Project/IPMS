@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User"); // Import User model
 require("dotenv").config();
+require("./services/emailService");
 
 // Import routes
 const emailRoutes = require("./routes/emailRoutes");
