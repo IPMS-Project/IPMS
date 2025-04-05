@@ -80,13 +80,38 @@ module.exports = emailService;
 
 const scheduleJob = require("./cronScheduler");
 
-const sendReminder = async () => {
-  await emailService.sendEmail({
-    to: process.env.EMAIL_DEFAULT_SENDER,
-    subject: "IPMS Reminder Email",
-    html: "<p>This is a reusable cron-based reminder.</p>",
-    text: "This is a reusable cron-based reminder.",
-  });
+const fs = require("fs");
+const path = require("path");
+const logPath = path.join(__dirname, "../emailLogs.json");
+
+const logToFile = (logData) => {
+  try {
+    fs.writeFileSync(logPath, JSON.stringify(logData, null, 2), "utf-8");
+  } catch (err) {
+    console.error("⚠️ Error writing log file:", err.message);
+  }
 };
+
+let notificationLog = [];
+
+
+const sendReminder = async () => {
+  const timestamp = new Date().toLocaleString();
+  try {
+    const result = await emailService.sendEmail({
+      to: process.env.EMAIL_DEFAULT_SENDER,
+      subject: "IPMS Reminder Email",
+      html: "<p>This is a reusable cron-based reminder.</p>",
+      text: "This is a reusable cron-based reminder.",
+    });
+    console.log(`✅ [${timestamp}] Email sent: ${result.messageId}`);
+    notificationLog.push({ time: timestamp, status: "Success", messageId: result.messageId });
+  } catch (err) {
+    console.error(`❌ [${timestamp}] Email failed: ${err.message}`);
+    notificationLog.push({ time: timestamp, status: "Failed", error: err.message });
+  }
+  logToFile(notificationLog);
+};
+
 
 scheduleJob("*/2 * * * *", sendReminder);
