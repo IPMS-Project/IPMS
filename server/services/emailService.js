@@ -78,9 +78,9 @@ class EmailService {
 const emailService = new EmailService();
 module.exports = emailService;
 
-/* ========== CRON JOB FOR REMINDER EMAIL ==========  */
 
-const scheduleJob = require("./cronScheduler"); // ✅ Use shared cron util
+const scheduleJob = require("./cronScheduler");
+
 
 const sendReminder = async () => {
   await emailService.sendEmail({
@@ -91,5 +91,5 @@ const sendReminder = async () => {
   });
 };
 
-// Schedule using reusable utility
+
 scheduleJob("*/2 * * * *", sendReminder);
