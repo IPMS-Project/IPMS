@@ -78,7 +78,9 @@ class EmailService {
 const emailService = new EmailService();
 module.exports = emailService;
 
+
 const scheduleJob = require("./cronScheduler");
+
 
 const sendReminder = async () => {
   await emailService.sendEmail({
