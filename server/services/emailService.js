@@ -77,3 +77,16 @@ class EmailService {
 // Create and export a singleton instance
 const emailService = new EmailService();
 module.exports = emailService;
+
+const scheduleJob = require("./cronScheduler");
+
+const sendReminder = async () => {
+  await emailService.sendEmail({
+    to: process.env.EMAIL_DEFAULT_SENDER,
+    subject: "IPMS Reminder Email",
+    html: "<p>This is a reusable cron-based reminder.</p>",
+    text: "This is a reusable cron-based reminder.",
+  });
+};
+
+scheduleJob("*/2 * * * *", sendReminder);
