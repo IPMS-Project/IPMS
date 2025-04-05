@@ -44,7 +44,7 @@ const weeklyReportSchema = new mongoose.Schema({
 
   reminder: {
     type: Boolean,
-    default: false,
+    default: false, // Vinay has to change this as per his task
   },
 
   createdAt: {
