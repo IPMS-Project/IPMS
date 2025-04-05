@@ -138,3 +138,18 @@ dist
 # Ignore lock files
 client/package-lock.json
 server/package-lock.json
+
+# Ignore ALL node_modules folders
+node_modules/
+
+# Ignore ALL package-lock.json files
+**/package-lock.json
+
+# Ignore email logs
+server/emailLogs.json
+
+# Optional: environment files
+.env
+server/.env
+client/.env
+
