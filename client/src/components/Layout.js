@@ -4,11 +4,13 @@ import { Outlet, Link } from "react-router-dom";
 function Layout() {
   return (
     <div className="App">
+      {/* Header */}
       <header className="app-header">
         <div className="logo-container">
           <img src="/OU-Logo.svg" alt="OU Logo" className="ou-logo" />
           <h1 style={{ marginLeft: "-25px" }}>IPMS</h1>
         </div>
+
         <nav className="main-nav">
           <ul>
             <li>
@@ -20,14 +22,19 @@ function Layout() {
             <li>
               <Link to="/contact">Contact</Link>
             </li>
+            <li>
+              <Link to="/weekly-report">Weekly Report</Link>
+            </li> {/* ✅ NEW MENU ITEM */}
           </ul>
         </nav>
       </header>
 
+      {/* Dynamic content based on route */}
       <main className="app-main">
         <Outlet />
       </main>
 
+      {/* Footer */}
       <footer className="app-footer">
         <div className="footer-links">
           <Link to="/privacy">Privacy</Link>
