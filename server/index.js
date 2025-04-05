@@ -81,8 +81,6 @@ app.post("/api/createUser", async (req, res) => {
     });
   }
 });
-
-HEAD
 // Graceful shutdown
 process.on("SIGINT", () => {
   mongoose.connection.close(() => {
