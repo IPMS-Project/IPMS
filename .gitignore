@@ -135,9 +135,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-<<<<<<< HEAD
-package-lock.json
-=======
 # Ignore lock files
 client/package-lock.json
 server/package-lock.json
@@ -151,6 +148,3 @@ node_modules/
 # Ignore email logs
 server/emailLogs.json
 
-
-
->>>>>>> 876e5b1dc131728b670d1f989231451997578e93
