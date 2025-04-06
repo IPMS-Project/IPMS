@@ -1,4 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
+import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
+
 
 // Layout
 import Layout from "./components/Layout";
@@ -23,6 +25,10 @@ const router = createBrowserRouter([
         path: "signup",
         element: <SignUp />,
       },
+      {
+        path: "a1-form",
+        element: <A1InternshipRequestForm />,
+      },      
       // Add more routes as needed
     ],
   },
