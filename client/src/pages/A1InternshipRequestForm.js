@@ -126,6 +126,7 @@ const A1InternshipRequestForm = () => {
       if (isValid) {
         successMsg.textContent = "✅ Form submitted successfully!";
         errorMsg.textContent = '';
+        getFormValues(inputs);
         setTimeout(() => {
           successMsg.textContent = '';
         }, 3000);
@@ -137,6 +138,78 @@ const A1InternshipRequestForm = () => {
         allInputs.forEach(i => i.classList.add('touched'));
       }
     };
+
+    async function getFormValues(inputs){
+       // MY PART
+
+          // Get all task rows (skip the header rows)
+          const taskRows = document.querySelectorAll('table:nth-of-type(2) tr:not(:first-child):not(:nth-child(2)');
+        
+          // Create a map of outcome positions to their tasks
+          const outcomeMap = {
+              0: 'problemSolving',     
+              1: 'solutionDevelopment', 
+              2: 'communication',      
+              3: 'decisionMaking',     
+              4: 'collaboration',     
+              5: 'application'         
+          };
+  
+          // Map tasks to their outcomes
+          const tasksWithOutcomes = Array.from(taskRows).map(row => {
+          // const description = row.querySelector('.task').value;
+          const descriptionInput = row.querySelector('input.task');
+          const description = descriptionInput ? descriptionInput.value.trim() : '';
+          const outcomeCheckboxes = row.querySelectorAll('.outcome');
+          const outcomes = Array.from(outcomeCheckboxes)
+          .map((checkbox, index) => ({
+              checked: checkbox.checked,
+              name: outcomeMap[index]
+          }))
+          .filter(item => item.checked)
+          .map(item => item.name);
+  
+          return {
+          description,
+          outcomes
+          };
+      });
+          console.log(tasksWithOutcomes)
+
+     // Getting rest of the form data values
+      const formData = {
+        interneeName: inputs.interneeName.value.trim(),
+        soonerId: inputs.soonerId.value.trim(),
+        interneeEmail: inputs.interneeEmail.value.trim(),
+        workplaceName: inputs.workplaceName.value.trim(),
+        website: inputs.website.value.trim(),
+        phone: inputs.phone.value.trim(),
+        startDate: inputs.startDate.value,
+        endDate: inputs.endDate.value,
+        advisorName: inputs.advisorName.value.trim(),
+        advisorJobTitle: inputs.advisorJobTitle.value.trim(),
+        advisorEmail: inputs.advisorEmail.value.trim(),
+        interneeSignature: inputs.interneeSignature.value.trim(),
+        advisorSignature: inputs.advisorSignature.value.trim(),
+        coordinatorApproval: inputs.coordinatorApproval.value.trim(),
+        creditHour: Array.from(inputs.creditHours).find(cb => cb.checked)?.value || '',
+        tasks: tasksWithOutcomes
+        // outcomes: outcomeSelections,
+      };
+
+      console.log(formData);
+      fetch("http://localhost:5000/api/form/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData), // this is your full form object
+      })
+      .then((res) => res.json())
+      .then((data) => console.log("Server response:", data))
+      .catch((err) => console.error("Error sending form:", err));
+      
+    }
   }, []);
 
   return (

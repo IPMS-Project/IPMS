@@ -6,10 +6,14 @@ require("dotenv").config();
 
 // Import routes
 const emailRoutes = require("./routes/emailRoutes");
+const formRoutes = require("./routes/formRoutes");
+
+
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use("/api/form", formRoutes); // register route as /api/form/submit
 
 // MongoDB Configuration
 const mongoConfig = {
