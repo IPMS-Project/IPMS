@@ -1,9 +1,10 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "IPMS backend",
   "main": "index.js",
   "scripts": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -13,6 +14,11 @@
     "start": "node index.js",
     "debug": "node --inspect index.js"
 >>>>>>> origin/main
+=======
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "debug": "node --inspect index.js"
+>>>>>>>
   },
   "keywords": [],
   "author": "",
@@ -22,7 +28,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mongodb": "^6.14.2",
-    "mongoose": "^8.12.1",
+    "mongoose": "^8.13.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0"
   }
