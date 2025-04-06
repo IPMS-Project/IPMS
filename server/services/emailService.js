@@ -6,7 +6,6 @@ require("dotenv").config();
  */
 class EmailService {
   constructor() {
-    // Create transporter using SMTP transport
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST || "smtp.gmail.com",
       port: process.env.EMAIL_PORT || 587,
@@ -54,7 +53,7 @@ class EmailService {
         attachments: options.attachments || [],
       };
 
-      // Add optional fields if provided
+      
       if (options.cc) mailOptions.cc = options.cc;
       if (options.bcc) mailOptions.bcc = options.bcc;
 
@@ -74,6 +73,6 @@ class EmailService {
   }
 }
 
-// Create and export a singleton instance
 const emailService = new EmailService();
 module.exports = emailService;
+
