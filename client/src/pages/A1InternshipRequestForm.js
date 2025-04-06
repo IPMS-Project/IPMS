@@ -60,11 +60,11 @@ const A1InternshipRequestForm = () => {
       }
     });
     function validateForm() {
-      const namePattern = /^[A-Za-z\\s]+$/;
+      const namePattern = /^[A-Za-z\s]+$/;
       const numberPattern = /^[0-9]+$/;
       const phonePattern = /^[0-9]{10}$/;
       const emailPattern = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
-
+    
       const requiredFieldsFilled =
         inputs.interneeName.value.trim() &&
         inputs.soonerId.value.trim() &&
@@ -78,7 +78,7 @@ const A1InternshipRequestForm = () => {
         inputs.interneeSignature.value.trim() &&
         inputs.advisorSignature.value.trim() &&
         inputs.coordinatorApproval.value.trim();
-
+    
       const patternsValid =
         namePattern.test(inputs.interneeName.value.trim()) &&
         numberPattern.test(inputs.soonerId.value.trim()) &&
@@ -90,38 +90,53 @@ const A1InternshipRequestForm = () => {
         namePattern.test(inputs.interneeSignature.value.trim()) &&
         namePattern.test(inputs.advisorSignature.value.trim()) &&
         namePattern.test(inputs.coordinatorApproval.value.trim());
-
+    
       const creditHoursChecked = Array.from(inputs.creditHours).filter(cb => cb.checked).length === 1;
       const tasksFilled = Array.from(inputs.tasks).every(task => task.value.trim() !== '');
-
+    
       const startDate = new Date(inputs.startDate.value);
       const endDate = new Date(inputs.endDate.value);
       const datesValid = endDate > startDate;
-      console.log("requiredFieldsFilled:", requiredFieldsFilled);
-      console.log("patternsValid:", patternsValid);
-      console.log("creditHoursChecked:", creditHoursChecked);
-      console.log("tasksFilled:", tasksFilled);
-      console.log("datesValid:", datesValid);
-
-      console.log("interneeName valid:", namePattern.test(inputs.interneeName.value.trim()));
-      console.log("soonerId valid:", numberPattern.test(inputs.soonerId.value.trim()));
-      console.log("interneeEmail valid:", emailPattern.test(inputs.interneeEmail.value.trim()));
-      console.log("workplaceName valid:", namePattern.test(inputs.workplaceName.value.trim()));
-      console.log("phone valid:", phonePattern.test(inputs.phone.value.trim()));
-      console.log("advisorName valid:", namePattern.test(inputs.advisorName.value.trim()));
-      console.log("advisorEmail valid:", emailPattern.test(inputs.advisorEmail.value.trim()));
-      console.log("interneeSignature valid:", namePattern.test(inputs.interneeSignature.value.trim()));
-      console.log("advisorSignature valid:", namePattern.test(inputs.advisorSignature.value.trim()));
-      console.log("coordinatorApproval valid:", namePattern.test(inputs.coordinatorApproval.value.trim()));
-
-
-
-      return requiredFieldsFilled && patternsValid && creditHoursChecked && tasksFilled && datesValid;
-    }
+    
+      // ✅ NEW: Check each task row has at least 4 checked outcomes
+      const outcomesChecked = (() => {
+        const outcomesPerTask = 6; // 6 outcomes per task
+        const totalTasks = 5;
+    
+        for (let i = 0; i < totalTasks; i++) {
+          const rowStart = i * outcomesPerTask;
+          const rowOutcomes = Array.from(inputs.outcomes).slice(rowStart, rowStart + outcomesPerTask);
+          const checkedCount = rowOutcomes.filter(cb => cb.checked).length;
+          if (checkedCount < 4) return false; // ❌ Not enough outcomes selected
+        }
+        return true; // ✅ All tasks have at least 4 outcomes
+      })();
+    
+      return requiredFieldsFilled && patternsValid && creditHoursChecked && tasksFilled && datesValid && outcomesChecked;
+    }    
 
     form.onsubmit = function (event) {
       event.preventDefault();
-      const isValid = validateForm();
+      // Extra check for outcome selections
+const outcomesPerTask = 6;
+let outcomeValidationPassed = true;
+for (let i = 0; i < 5; i++) {
+  const start = i * outcomesPerTask;
+  const rowOutcomes = Array.from(inputs.outcomes).slice(start, start + outcomesPerTask);
+  const checkedCount = rowOutcomes.filter(cb => cb.checked).length;
+  if (checkedCount < 4) {
+    outcomeValidationPassed = false;
+    break;
+  }
+}
+
+if (!outcomeValidationPassed) {
+  errorMsg.textContent = "❌ Please select at least 4 Program Outcomes for each task.";
+  successMsg.textContent = '';
+  return; // Stop submission if the rule is not met
+}
+
+const isValid = validateForm();
 
       if (isValid) {
         successMsg.textContent = "✅ Form submitted successfully!";
