@@ -13,14 +13,14 @@ function SignUp() {
   const [responseMessage, setResponseMessage] = useState("");
   const [step, setStep] = useState(1);
 
-  const [userName, setUserName] = useState("");
-  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [ouEmail, setOuEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
   const [semester, setSemester] = useState("");
-  const [advisor, setAdvisor] = useState("");
+  const [academicAdvisor, setAcademicAdvisor] = useState("");
   const [agreed, setAgreed] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -52,16 +52,22 @@ function SignUp() {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/createUser`,
         {
-          userName,
-          email,
+          fullName,
+          ouEmail,
           password,
           role,
+          semester,
+          academicAdvisor,
         }
       );
       setResponseMessage(response.data.message);
       // Reset form after successful submission
-      setEmail("");
+      setFullName("");
+      setOuEmail("");
       setPassword("");
+      setConfirmPassword("");
+      setSemester("");
+      setAcademicAdvisor("");
 
       // Redirect to home after successful signup
       setTimeout(() => {
@@ -190,8 +196,8 @@ function SignUp() {
               <input
                 type="text"
                 id="userName"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="Enter your full name"
                 required
               />
@@ -202,8 +208,8 @@ function SignUp() {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={ouEmail}
+                onChange={(e) => setOuEmail(e.target.value)}
                 placeholder="Enter your university email"
                 required
               />
@@ -291,12 +297,12 @@ function SignUp() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="advisor">Academic Advisor</label>
+              <label htmlFor="academicAdvisor">Academic Advisor</label>
               <input
                 type="text"
                 id="advisor"
-                value={advisor}
-                onChange={(e) => setAdvisor(e.target.value)}
+                value={academicAdvisor}
+                onChange={(e) => setAcademicAdvisor(e.target.value)}
                 placeholder="Enter your academic advisor's name"
                 required
               />
