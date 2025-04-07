@@ -296,17 +296,19 @@ function SignUp() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="academicAdvisor">Academic Advisor</label>
-              <input
-                type="text"
-                id="advisor"
-                value={academicAdvisor}
-                onChange={(e) => setAcademicAdvisor(e.target.value)}
-                placeholder="Enter your academic advisor's name"
-                required
-              />
-            </div>
+            {role === "student" && (
+                  <div className="form-group">
+                    <label htmlFor="academicAdvisor">Academic Advisor</label>
+                    <input
+                      type="text"
+                      id="advisor"
+                      value={academicAdvisor}
+                      onChange={(e) => setAcademicAdvisor(e.target.value)}
+                      placeholder="Enter your academic advisor's name"
+                      required
+                    />
+                  </div>
+                )}
 
             <div className="form-group">
               <label>
