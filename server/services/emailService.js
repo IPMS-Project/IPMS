@@ -1,8 +1,12 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
+ /**
+  * Simple Email Service for the Internship Management System
+  */
 class EmailService {
   constructor() {
+        // Create transporter using SMTP transport
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST || "smtp.gmail.com",
       port: process.env.EMAIL_PORT || 587,
@@ -16,7 +20,19 @@ class EmailService {
     this.defaultSender =
       process.env.EMAIL_DEFAULT_SENDER || "IPMS <noreply@ipms.edu>";
   }
-
+  /**
+    * Send an email with custom content
+    * @param {Object} options - Email options
+    * @param {string} options.to - Recipient email(s)
+    * @param {string} options.subject - Email subject
+    * @param {string} options.html - HTML content of the email
+    * @param {string} [options.text] - Plain text version (optional)
+    * @param {string} [options.from] - Sender email (defaults to system default)
+    * @param {Array} [options.attachments] - Array of attachment objects
+    * @param {Array} [options.cc] - Carbon copy recipients
+    * @param {Array} [options.bcc] - Blind carbon copy recipients
+    * @returns {Promise<Object>} - Result of the email sending operation
+    */
   async sendEmail(options) {
     try {
       if (!options.to || !options.subject || !options.html) {
@@ -34,7 +50,7 @@ class EmailService {
         text: options.text || options.html.replace(/<[^>]*>/g, ""),
         attachments: options.attachments || [],
       };
-
+            // Add optional fields if provided
       if (options.cc) mailOptions.cc = options.cc;
       if (options.bcc) mailOptions.bcc = options.bcc;
 
@@ -47,6 +63,6 @@ class EmailService {
     }
   }
 }
-
+  // Create and export a singleton instance
 const emailService = new EmailService();
 module.exports = emailService;
