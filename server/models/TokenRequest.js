@@ -10,8 +10,8 @@ const mongoose = require('mongoose');
  *
  * Fields:
  * - fullName: Student's full name.
+ * - password: Encrypted password for login authentication.
  * - ouEmail: Unique OU email for login.
- * - soonerId: Optional university ID for identification.
  * - semester: The semester in which the internship is active.
  * - academicAdvisor: Reference to the academic advisor (if using a separate collection).
  * - token: Unique access token used for login.
@@ -22,10 +22,14 @@ const mongoose = require('mongoose');
  * - deletedAt: Marks soft deletion if the student cancels.
  * - status: Optional string enum for tracking token state.
  * - activationLinkSentAt: Timestamp when the activation email was sent.
+ * - password: Encrypted password for login authentication.
  *
- * Indexes:
- * - ouEmail and token are unique.
- * - Indexes on token, isActivated, and expiresAt for performance.
+ * Additional Features:
+ * - Automatically sets `expiresAt` to 6 months from `requestedAt`.
+ * - Uses `timestamps` to auto-generate `createdAt` and `updatedAt`.
+ * - `ouEmail` and `token` are unique.
+ * - Partial TTL index for auto-deletion of inactive token requests 
+ *   5 days (432000 seconds) after `requestedAt` if not activated.
  */
 
 const userTokenRequestSchema = new mongoose.Schema(
