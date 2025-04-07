@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const User = require("./models/User"); // Import User model
+const User = require("./models/User");
 require("dotenv").config();
 
 // Import routes
@@ -24,7 +24,6 @@ const mongoConfig = {
   family: 4,
 };
 
-// MongoDB Local Connection
 mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
   .then(() => {
@@ -58,7 +57,7 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-// Register routes
+// Email API routes
 app.use("/api/email", emailRoutes);
 
 // Create User Endpoint
@@ -75,61 +74,11 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
-// Cron job management API endpoints
-app.get("/api/cron/jobs", (req, res) => {
-  try {
-    const jobs = cronJobManager.listJobs();
-    res.json({ success: true, jobs });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-app.put("/api/cron/jobs/:name", (req, res) => {
-  const { name } = req.params;
-  const { cronExpression } = req.body;
-  if (!cronExpression) {
-    return res.status(400).json({
-      success: false,
-      error: "Missing required field: cronExpression",
-    });
-  }
-  const result = cronJobManager.updateJobSchedule(name, cronExpression);
-  if (result) {
-    res.json({ success: true, message: `Job ${name} updated successfully` });
-  } else {
-    res.status(404).json({
-      success: false,
-      error: `Job ${name} not found or invalid cron expression`,
-    });
-  }
-});
-
-app.delete("/api/cron/jobs/:name", (req, res) => {
-  const { name } = req.params;
-  const result = cronJobManager.stopJob(name);
-  if (result) {
-    res.json({ success: true, message: `Job ${name} stopped successfully` });
-  } else {
-    res.status(404).json({ success: false, error: `Job ${name} not found` });
-  }
-});
-
-app.post("/api/cron/jobs/:name/restart", (req, res) => {
-  const { name } = req.params;
-  const result = cronJobManager.restartJob(name);
-  if (result) {
-    res.json({ success: true, message: `Job ${name} restarted successfully` });
-  } else {
-    res.status(404).json({ success: false, error: `Job ${name} not found` });
-  }
-});
-
-// Graceful shutdown (async Mongoose support)
+// Graceful shutdown
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
-    await mongoose.connection.close(); // updated to promise version
+    await mongoose.connection.close();
     console.log("✅ MongoDB connection closed through app termination");
     process.exit(0);
   } catch (err) {
