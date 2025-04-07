@@ -98,7 +98,7 @@ const A1InternshipRequestForm = () => {
       const endDate = new Date(inputs.endDate.value);
       const datesValid = endDate > startDate;
     
-      // ✅ NEW: Check each task row has at least 4 checked outcomes
+      //Check each task row has at least 4 checked outcomes
       const outcomesChecked = (() => {
         const outcomesPerTask = 6; // 6 outcomes per task
         const totalTasks = 5;
@@ -107,9 +107,9 @@ const A1InternshipRequestForm = () => {
           const rowStart = i * outcomesPerTask;
           const rowOutcomes = Array.from(inputs.outcomes).slice(rowStart, rowStart + outcomesPerTask);
           const checkedCount = rowOutcomes.filter(cb => cb.checked).length;
-          if (checkedCount < 4) return false; // ❌ Not enough outcomes selected
+          if (checkedCount < 4) return false; // Not enough outcomes selected
         }
-        return true; // ✅ All tasks have at least 4 outcomes
+        return true; // All tasks have at least 4 outcomes
       })();
     
       return requiredFieldsFilled && patternsValid && creditHoursChecked && tasksFilled && datesValid && outcomesChecked;
@@ -191,7 +191,7 @@ const isValid = validateForm();
       });
           console.log(tasksWithOutcomes)
 
-     // Getting rest of the form data values
+     // Getting form data values
       const formData = {
         interneeName: inputs.interneeName.value.trim(),
         soonerId: inputs.soonerId.value.trim(),

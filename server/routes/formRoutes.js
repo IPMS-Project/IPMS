@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { insertFormData } = require("../services/insertData"); // <-- import it
+const { insertFormData } = require("../services/insertData"); 
 
 router.post("/submit", async (req, res) => {
   try {
     const formData = req.body;
-
     // Send form data to insertData.js function
     await insertFormData(formData);
     res.status(200).json({ message: "Form received and handled!" });
