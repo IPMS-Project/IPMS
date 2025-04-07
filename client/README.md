@@ -80,6 +80,20 @@ These libraries are already included in the project:
 
 ---
 
+📝 Viewing Signatures from the Database
+
+If you're checking stored evaluation data in a database tool (like Studio 3T), you might see a Base64 string under the signature field. It looks something like this:
+"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAACWCAYAA..."
+
+👉 How to View the Drawn Signature:
+
+Right-click the value field in the database view.
+Choose Copy → Copy Value.
+Paste the copied string into your web browser’s address bar.
+Important: Remove the surrounding double quotes (") before hitting Enter.
+The browser will render and display the signature image.
+
+
 ## File Structure (Frontend)
 
 ```
