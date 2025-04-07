@@ -1,27 +1,25 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const User = require("./models/User"); // Import User model
+const User = require("./models/User");
 require("dotenv").config();
 
-// Import routes
 const emailRoutes = require("./routes/emailRoutes");
+const tokenRoutes = require("./routes/token"); 
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Configuration
+
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
   autoIndex: true,
   maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
   family: 4,
 };
 
-// MongoDB Local Connection
 mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
   .then(() => {
@@ -29,17 +27,15 @@ mongoose
   })
   .catch((err) => {
     console.error("MongoDB Connection Error:", err);
-    process.exit(1); // Exit if cannot connect to database
+    process.exit(1);
   });
 
-// Handle MongoDB connection errors after initial connection
 mongoose.connection.on("error", (err) => {
   console.error("MongoDB error after initial connection:", err);
 });
 
 mongoose.connection.on("disconnected", () => {
   console.log("Lost MongoDB connection...");
-  // Attempt to reconnect
   if (!mongoose.connection.readyState) {
     mongoose
       .connect(process.env.MONGO_URI, mongoConfig)
@@ -48,20 +44,20 @@ mongoose.connection.on("disconnected", () => {
   }
 });
 
-// Basic Route
+
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
 });
 
-// Test Communication Route
 app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-// Register routes
-app.use("/api/email", emailRoutes);
 
-// Create User Endpoint
+app.use("/api/email", emailRoutes);
+app.use("/api/token", tokenRoutes); 
+
+
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -78,7 +74,7 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
-// Graceful shutdown
+
 process.on("SIGINT", () => {
   mongoose.connection.close(() => {
     console.log("MongoDB connection closed through app termination");
@@ -88,3 +84,4 @@ process.on("SIGINT", () => {
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

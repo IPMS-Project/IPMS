@@ -49,17 +49,14 @@ function SignUp() {
   const createUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/createUser`,
-        {
-          fullName,
-          ouEmail,
-          password,
-          role,
-          semester,
-          academicAdvisor,
-        }
-      );
+      const response = await axios.post("/api/token/request", {
+        fullName,
+        ouEmail,
+        password,
+        semester,
+        academicAdvisor: role === "student" ? academicAdvisor : "",
+      });
+      
       setResponseMessage(response.data.message);
       // Reset form after successful submission
       setFullName("");
