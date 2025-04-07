@@ -8,11 +8,8 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import ReportForm from "./pages/ReportForm";
+import WeeklyProgressReportForm from "./components/WeeklyProgressReportForm"; // Don't forget this import
 
-// ✅ Weekly Progress Report component
-import WeeklyProgressReportForm from "./components/WeeklyProgressReportForm";
-
-// Create and export the router configuration
 const router = createBrowserRouter([
   {
     path: "/",
@@ -20,24 +17,20 @@ const router = createBrowserRouter([
     errorElement: <NotFound />,
     children: [
       {
-        index: true, // ✅ this becomes the default route
-        element: <WeeklyProgressReportForm />,
+        index: true, // 👈 this should stay Home
+        element: <Home />,
       },
       {
         path: "signup",
         element: <SignUp />,
       },
       {
-        path: "weekly-report", // optional: allows visiting this via direct link
+        path: "weekly-report", // 👈 this should NOT be default
         element: <WeeklyProgressReportForm />,
       },
       {
-        path: "report", // backend testing route
+        path: "report",
         element: <ReportForm />,
-      },
-      {
-        path: "home", // optional: still keep home if needed
-        element: <Home />,
       },
     ],
   },
