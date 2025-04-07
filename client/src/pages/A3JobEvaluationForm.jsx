@@ -150,7 +150,7 @@ const renderSignaturePreview = (field) => {
   };
   
   return (
-    <div className="position-absolute top-50 start-50 translate-middle w-100 bg-white">
+    <div className="page-content">
      <h2 className="heading-maroon">A.3 – Job Performance Evaluation</h2>
       <Container className="p-4 rounded shadow-lg" style={{ backgroundColor: '#fff', maxWidth: '900px', width: '100%' }}>
         <Form onSubmit={handleSubmit}>
