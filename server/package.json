@@ -7,7 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "debug": "node --inspect index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -20,5 +20,18 @@
     "mongoose": "^8.13.2",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "**/*.js",     
+      "!node_modules/**",
+      "!**/test/**" 
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov"]
   }
 }
