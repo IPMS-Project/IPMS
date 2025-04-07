@@ -48,7 +48,6 @@ mongoose.connection.on("disconnected", () => {
   }
 });
 
-// Basic Route
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
 });
@@ -57,10 +56,8 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-// Email API routes
 app.use("/api/email", emailRoutes);
 
-// Create User Endpoint
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -74,7 +71,7 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
-// Graceful shutdown
+// Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
