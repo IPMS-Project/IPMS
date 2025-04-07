@@ -57,6 +57,8 @@ function SignUp() {
         academicAdvisor: role === "student" ? academicAdvisor : "",
         role,
       });
+
+      console.log("Signup response:", response.data);
       
       if (role === "student") {
         setResponseMessage("Token requested and email sent.");
