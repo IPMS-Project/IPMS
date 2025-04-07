@@ -155,7 +155,6 @@ const isValid = validateForm();
     };
 
     async function getFormValues(inputs){
-       // MY PART
 
           // Get all task rows (skip the header rows)
           const taskRows = document.querySelectorAll('table:nth-of-type(2) tr:not(:first-child):not(:nth-child(2)');
@@ -218,7 +217,7 @@ const isValid = validateForm();
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData), // this is your full form object
+        body: JSON.stringify(formData), 
       })
       .then((res) => res.json())
       .then((data) => console.log("Server response:", data))
