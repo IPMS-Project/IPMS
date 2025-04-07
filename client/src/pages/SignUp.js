@@ -55,9 +55,15 @@ function SignUp() {
         password,
         semester,
         academicAdvisor: role === "student" ? academicAdvisor : "",
+        role,
       });
       
-      setResponseMessage(response.data.message);
+      if (role === "student") {
+        setResponseMessage("Token requested and email sent.");
+      } else {
+        setResponseMessage("Account created successfully.");
+      }
+      
       // Reset form after successful submission
       setFullName("");
       setOuEmail("");

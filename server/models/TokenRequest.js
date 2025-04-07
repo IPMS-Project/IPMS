@@ -57,12 +57,13 @@ const userTokenRequestSchema = new mongoose.Schema(
     },
     academicAdvisor: {
       type: String,
-      required: [true, 'Academic advisor is required'],
-      trim: true,
+      required: function () {
+        return this.role === "student"; 
+      }
     },
     isStudent: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     token: {
       type: String,

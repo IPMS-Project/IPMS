@@ -10,11 +10,12 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 
 router.post("/request", async (req, res) => {
   try {
-    const { fullName, ouEmail, password, semester, academicAdvisor } = req.body;
+    const { fullName, ouEmail, password, semester, academicAdvisor,role } = req.body;
 
-    if (!fullName || !ouEmail || !password || !semester || !academicAdvisor) {
+    if (!fullName || !ouEmail || !password || !semester) {
       return res.status(400).json({ error: "All fields are required." });
     }
+    
 
     const token = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
 
@@ -23,7 +24,8 @@ router.post("/request", async (req, res) => {
       ouEmail,
       password,
       semester,
-      academicAdvisor,
+      academicAdvisor: role === "student" ? academicAdvisor : "",
+      isStudent: role === "student", 
       token,
     });
 
