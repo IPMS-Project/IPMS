@@ -6,10 +6,12 @@ const WeeklyProgressReportForm = () => {
     challenges: "",
     lessons: "",
     week: "Week 1",
+    hours: "",
     outcomes: [],
   });
 
   const [submittedReports, setSubmittedReports] = useState([]);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -26,48 +28,95 @@ const WeeklyProgressReportForm = () => {
     }
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.tasks.trim()) newErrors.tasks = "Tasks field is required.";
+    if (!formData.challenges.trim()) newErrors.challenges = "Challenges field is required.";
+    if (!formData.lessons.trim()) newErrors.lessons = "Lessons field is required.";
+    if (!formData.hours || Number(formData.hours) <= 0)
+      newErrors.hours = "Hours must be greater than 0.";
+    if (formData.outcomes.length < 3)
+      newErrors.outcomes = "Please select at least 3 CS outcomes.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.outcomes.length < 3) {
-      alert("Please select at least 3 CS Outcomes.");
-      return;
-    }
+    if (!validateForm()) return;
+
     setSubmittedReports([...submittedReports, formData]);
+
+    alert("Report submitted successfully!");
+
     setFormData({
       tasks: "",
       challenges: "",
       lessons: "",
       week: "Week 1",
+      hours: "",
       outcomes: [],
     });
+
+    setErrors({});
   };
 
   return (
     <div className="dashboard">
       <h1>Weekly Progress Report</h1>
       <form onSubmit={handleSubmit} className="signup-form">
+
         <div className="form-group">
           <label>Tasks Done</label>
-          <textarea name="tasks" value={formData.tasks} onChange={handleChange} />
+          <textarea
+            name="tasks"
+            value={formData.tasks}
+            onChange={handleChange}
+          />
+          {errors.tasks && <p style={{ color: "red" }}>{errors.tasks}</p>}
         </div>
 
         <div className="form-group">
           <label>Challenges</label>
-          <textarea name="challenges" value={formData.challenges} onChange={handleChange} />
+          <textarea
+            name="challenges"
+            value={formData.challenges}
+            onChange={handleChange}
+          />
+          {errors.challenges && <p style={{ color: "red" }}>{errors.challenges}</p>}
         </div>
 
         <div className="form-group">
           <label>Lessons Learned</label>
-          <textarea name="lessons" value={formData.lessons} onChange={handleChange} />
+          <textarea
+            name="lessons"
+            value={formData.lessons}
+            onChange={handleChange}
+          />
+          {errors.lessons && <p style={{ color: "red" }}>{errors.lessons}</p>}
         </div>
 
         <div className="form-group">
-          <label>Week</label>
+          <label>Logbook Week</label>
           <select name="week" value={formData.week} onChange={handleChange}>
             {Array.from({ length: 10 }, (_, i) => (
               <option key={i}>Week {i + 1}</option>
             ))}
           </select>
+        </div>
+
+        <div className="form-group">
+          <label>Hours Worked</label>
+          <input
+            type="number"
+            name="hours"
+            value={formData.hours}
+            onChange={handleChange}
+            placeholder="Enter hours worked this week"
+          />
+          {errors.hours && <p style={{ color: "red" }}>{errors.hours}</p>}
         </div>
 
         <div className="form-group">
@@ -84,6 +133,7 @@ const WeeklyProgressReportForm = () => {
               {outcome}
             </label>
           ))}
+          {errors.outcomes && <p style={{ color: "red" }}>{errors.outcomes}</p>}
         </div>
 
         <button className="submit-button" type="submit">
@@ -91,17 +141,22 @@ const WeeklyProgressReportForm = () => {
         </button>
       </form>
 
-      <div className="submitted-reports">
+      <div className="submitted-reports" style={{ marginTop: "30px" }}>
         <h2>Submitted Reports</h2>
-        {submittedReports.map((report, index) => (
-          <div key={index} className="dashboard-card">
-            <p><strong>Week:</strong> {report.week}</p>
-            <p><strong>Tasks:</strong> {report.tasks}</p>
-            <p><strong>Challenges:</strong> {report.challenges}</p>
-            <p><strong>Lessons:</strong> {report.lessons}</p>
-            <p><strong>Outcomes:</strong> {report.outcomes.join(", ")}</p>
-          </div>
-        ))}
+        {submittedReports.length === 0 ? (
+          <p>No reports submitted yet.</p>
+        ) : (
+          submittedReports.map((report, index) => (
+            <div key={index} className="dashboard-card">
+              <p><strong>Week:</strong> {report.week}</p>
+              <p><strong>Tasks:</strong> {report.tasks}</p>
+              <p><strong>Challenges:</strong> {report.challenges}</p>
+              <p><strong>Lessons:</strong> {report.lessons}</p>
+              <p><strong>Hours:</strong> {report.hours}</p>
+              <p><strong>Outcomes:</strong> {report.outcomes.join(", ")}</p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
