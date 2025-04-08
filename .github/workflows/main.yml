@@ -29,10 +29,16 @@ jobs:
             server/package.json
             client/package.json
 
-      # Backend build
+      # Backend build and test
       - name: Install backend dependencies
         working-directory: ./server
         run: npm install
+
+      - name: Run backend tests
+        working-directory: ./server
+        run: npm test
+        env:
+          CI: true
 
       # Frontend build
       - name: Install frontend dependencies
@@ -46,6 +52,7 @@ jobs:
       - name: Verify build succeeded
         run: |
           echo "✅ Backend dependencies installed successfully"
+          echo "✅ Backend tests passed successfully"
           echo "✅ Frontend built successfully"
 
   ## CD
