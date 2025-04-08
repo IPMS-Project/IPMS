@@ -21,7 +21,7 @@ const emailController = {
         });
       }
 
-      // Send the email with all provided options
+    
       const result = await emailService.sendEmail({
         to,
         subject,
@@ -58,3 +58,4 @@ const emailController = {
 };
 
 module.exports = emailController;
+
