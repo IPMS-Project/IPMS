@@ -7,6 +7,7 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
+import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import SignIn from "./pages/SignIn";
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
       {
         path: "signin",
         element: <SignIn />,
+      },
+      {
+	path: "evaluation",
+        element: <A3JobEvaluationForm />,
       },
       {
         path: "supervisor-dashboard",
