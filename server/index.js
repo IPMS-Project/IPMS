@@ -9,7 +9,7 @@ const emailRoutes = require("./routes/emailRoutes");
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
-require("./jobs/registerCronJobs");
+// require("./jobs/registerCronJobs");
 
 const app = express();
 app.use(express.json());
@@ -67,17 +67,19 @@ app.post("/api/createUser", async (req, res) => {
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "Failed to create user", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to create user", error: error.message });
   }
 });
 app.post("/api/evaluation", async (req, res) => {
   try {
     const { formData, ratings, comments } = req.body;
 
-    const evaluations = Object.keys(ratings).map(category => ({
+    const evaluations = Object.keys(ratings).map((category) => ({
       category,
       rating: ratings[category],
-      comment: comments[category] || ''
+      comment: comments[category] || "",
     }));
 
     const newEvaluation = new Evaluation({
@@ -85,7 +87,7 @@ app.post("/api/evaluation", async (req, res) => {
       advisorAgreement: formData.advisorAgreement,
       coordinatorSignature: formData.coordinatorSignature,
       coordinatorAgreement: formData.coordinatorAgreement,
-      evaluations
+      evaluations,
     });
 
     await newEvaluation.save();
