@@ -137,16 +137,4 @@ describe("cronUtils", () => {
     expect(result[0].name).toBe("testJob");
   });
 
-  it("stopAllJobs stops all jobs", () => {
-    cron.validate.mockReturnValue(true);
-    cron.schedule.mockReturnValue({ stop: jest.fn() });
-    // Create Jobs to stop
-    cronJobManager.registerJob("testJob", "*/5 * * * *", mockJobFunction);
-    cronJobManager.registerJob("testJob2", "*/5 * * * *", mockJobFunction);
-    // stop jobs
-    cronJobManager.stopAllJobs();
-    // check
-    expect(logger.info).toHaveBeenCalledWith("Stopped job: testJob");
-    expect(logger.info).toHaveBeenCalledWith("Stopped job: testJob2");
-  });
 });

@@ -5,16 +5,15 @@ const User = require("./models/User");
 require("dotenv").config();
 
 const emailRoutes = require("./routes/emailRoutes");
-const tokenRoutes = require("./routes/token"); 
+const tokenRoutes = require("./routes/token");
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
-require("./jobs/registerCronJobs");
+const { registerAllJobs } = require("./jobs/registerCronJobs");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
@@ -26,8 +25,15 @@ const mongoConfig = {
 
 mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
-  .then(() => {
+  .then(async () => {
     console.log("Connected to Local MongoDB");
+    // Initialize cron jobs after database connection is established
+    try {
+      await registerAllJobs();
+      console.log("✅ Cron jobs initialized successfully");
+    } catch (error) {
+      console.error("❌ Failed to initialize cron jobs:", error);
+    }
   })
   .catch((err) => {
     console.error("MongoDB Connection Error:", err);
@@ -56,10 +62,8 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-
 app.use("/api/email", emailRoutes);
-app.use("/api/token", tokenRoutes); 
-
+app.use("/api/token", tokenRoutes);
 
 app.post("/api/createUser", async (req, res) => {
   try {
@@ -115,4 +119,3 @@ process.on("SIGINT", async () => {
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
