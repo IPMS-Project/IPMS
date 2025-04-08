@@ -7,8 +7,8 @@ exports.login = async (req, res) => {
     console.log("Login attempt:", { email, password, role });
 
     const user = await User.findOne({
-      Email: { $regex: new RegExp("^" + email + "$", "i") }, // case-insensitive
-      Password: password,
+      email: { $regex: new RegExp("^" + email + "$", "i") }, // case-insensitive
+      password: password,
       role: role,
     });
 
@@ -17,7 +17,7 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    console.log("Login success:", user.Email);
+    console.log("Login success:", user.email);
     res.json({ message: "Login successful", user });
 
   } catch (err) {
