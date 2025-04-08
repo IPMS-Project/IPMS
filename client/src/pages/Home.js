@@ -31,7 +31,6 @@ function Home() {
     console.log(`${formData.role} sign in attempted`, formData);
   };
 
-const Home = () => {
   return (
     <div className="content-container">
       <div className="login-container">
