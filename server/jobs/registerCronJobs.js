@@ -6,7 +6,6 @@ cronJobManager.registerJob(
   "*/2 * * * *",
   coordinatorReminder,
   {
-    runOnInit: true,
     timezone: "Asia/Kolkata",
   }
 );

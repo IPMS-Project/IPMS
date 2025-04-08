@@ -9,7 +9,7 @@ const emailRoutes = require("./routes/emailRoutes");
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
-// require("./jobs/registerCronJobs");
+require("./jobs/registerCronJobs");
 
 const app = express();
 app.use(express.json());
