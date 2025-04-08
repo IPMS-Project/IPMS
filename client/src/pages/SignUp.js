@@ -11,17 +11,20 @@ function SignUp() {
   const [responseMessage, setResponseMessage] = useState("");
 
   const createUser = async (e) => {
+    console.log("trigerred");
     e.preventDefault();
     try {
+      
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/createUser`,
         {
-          userName,
-          email,
-          password,
-          role,
+          userName:userName,
+          email:email,
+          password:password,
+         role:role,
         }
       );
+      
       setResponseMessage(response.data.message);
       // Reset form after successful submission
       setEmail("");
@@ -31,10 +34,12 @@ function SignUp() {
       setTimeout(() => {
         navigate("/");
       }, 2000);
-    } catch (error) {
+    } 
+    catch (error) {
+      console.error(process.env.REACT_APP_API_URL+"/api/createUser");
       console.error("Error creating user:", error);
-      setResponseMessage(
-        "Failed to create user, please check the server connection"
+      setResponseMessage( process.env.REACT_APP_API_URL+"/api/createUser"+" "+
+        "Failed to cr server connection"
       );
     }
   };
@@ -43,7 +48,7 @@ function SignUp() {
     <div className="signup-container">
       <h1>Sign Up for IPMS</h1>
       <p>
-        Create your account to access the Internship Program Management System
+        Create your account nowwww the Internship Program Management System
       </p>
 
       {responseMessage && (
