@@ -66,3 +66,4 @@ class EmailService {
   // Create and export a singleton instance
 const emailService = new EmailService();
 module.exports = emailService;
+

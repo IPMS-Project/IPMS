@@ -4,8 +4,8 @@ const cors = require("cors");
 const User = require("./models/User");
 require("dotenv").config();
 
-// Import routes
 const emailRoutes = require("./routes/emailRoutes");
+const tokenRoutes = require("./routes/token"); 
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Configuration
+
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
   autoIndex: true,
@@ -56,7 +56,10 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
+
 app.use("/api/email", emailRoutes);
+app.use("/api/token", tokenRoutes); 
+
 
 app.post("/api/createUser", async (req, res) => {
   try {
@@ -110,5 +113,6 @@ process.on("SIGINT", async () => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
