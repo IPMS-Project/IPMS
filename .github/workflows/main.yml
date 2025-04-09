@@ -1,0 +1,100 @@
+name: MERN Stack CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+          cache: "npm"
+          cache-dependency-path: |
+            server/package.json
+            client/package.json
+
+      # Backend build and test
+      - name: Install backend dependencies
+        working-directory: ./server
+        run: npm install
+
+      - name: Run backend tests
+        working-directory: ./server
+        run: npm test
+        env:
+          CI: true
+
+      # Frontend build
+      - name: Install frontend dependencies
+        working-directory: ./client
+        run: npm install
+
+      - name: Build frontend
+        working-directory: ./client
+        run: npm run build
+
+      - name: Verify build succeeded
+        run: |
+          echo "✅ Backend dependencies installed successfully"
+          echo "✅ Backend tests passed successfully"
+          echo "✅ Frontend built successfully"
+
+  ## CD
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main'
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: "18.x"
+  #         cache: "npm"
+  #         cache-dependency-path: |
+  #           server/package.json
+  #           client/package.json
+
+  #     - name: Install and build
+  #       run: |
+  #         cd server && npm install && cd ..
+  #         cd client && npm install && npm run build && cd ..
+
+  #     - name: Deploy via SSH
+  #       uses: appleboy/ssh-action@master
+  #       with:
+  #         host: ${{ secrets.SERVER_HOST }}
+  #         username: ${{ secrets.SERVER_USERNAME }}
+  #         password: ${{ secrets.SERVER_PASSWORD }}
+  #         script: |
+  #           # Navigate to project directory (adjust path as needed)
+  #           cd ${{ secrets.PROJECT_PATH }}
+
+  #           # Pull latest changes
+  #           git pull origin main
+
+  #           # Install dependencies
+  #           cd server && npm install && cd ..
+  #           cd client && npm install && npm run build && cd ..
+
+  #           # Restart the application (adjust as needed)
+  #           cd server && pm2 restart all || pm2 start server.js
