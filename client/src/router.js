@@ -13,7 +13,6 @@ import NotFound from "./pages/NotFound";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
-import SignIn from "./pages/SignIn";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -29,10 +28,6 @@ const router = createBrowserRouter([
       {
         path: "signup",
         element: <SignUp />,
-      },
-      {
-        path: "signin",
-        element: <SignIn />,
       },
       {
 	path: "evaluation",
