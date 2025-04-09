@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import '../styles/SupervisorDashboard.css';
 
@@ -6,18 +6,19 @@ const SupervisorDashboard = () => {
     const [submissions, setSubmissions] = useState([]);
     const url = process.env.REACT_APP_API_URL  
 
-    useEffect(() => {
-	fetchPendingSubmissions();
-    }, []);
+    const fetchPendingSubmissions = useCallback(async () => {
+        try {
+            const response = await axios.get(url + "/api/submissions/pending");
+            setSubmissions(response.data);
+        } catch (err) {
+            console.error("Error fetching submissions:", err);
+        }
+    }, [url]);
 
-    const fetchPendingSubmissions = async () => {
-	try {
-	    const response = await axios.get(url + "/api/submissions/pending");
-	    setSubmissions(response.data);
-	} catch (err) {
-	    console.error("Error fetching submissions:", err);
-	}
-    };
+    useEffect(() => {
+        fetchPendingSubmissions();
+    }, [fetchPendingSubmissions]);
+    
 
     const handleDecision = async (id, action) => {
 	try {
