@@ -4,7 +4,7 @@ import '../styles/SupervisorDashboard.css';
 
 const SupervisorDashboard = () => {
     const [submissions, setSubmissions] = useState([]);
-    const url = "http://localhost:5001"  
+    const url = process.env.REACT_APP_API_URL  
 
     useEffect(() => {
 	fetchPendingSubmissions();

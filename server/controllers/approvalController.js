@@ -17,7 +17,7 @@ exports.approveSubmission = async (req, res) => {
   try {
     const submission = await Submission.findByIdAndUpdate(
       id,
-      { supervisor_status: "approved_by_supervisor" },
+      { supervisor_status: "Approved" },
       { new: true }
     );
 
@@ -42,7 +42,7 @@ exports.rejectSubmission = async (req, res) => {
   try {
     const submission = await Submission.findByIdAndUpdate(
       id,
-      { supervisor_status: "rejected_by_supervisor" },
+      { supervisor_status: "Rejected" },
       { new: true }
     );
 
