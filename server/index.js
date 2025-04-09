@@ -5,12 +5,15 @@ const User = require("./models/User");
 require("dotenv").config();
 
 const emailRoutes = require("./routes/emailRoutes");
-const tokenRoutes = require("./routes/token"); 
+const tokenRoutes = require("./routes/token");
+
+// Import cron job manager and register jobs
+const cronJobManager = require("./utils/cronUtils");
+const { registerAllJobs } = require("./jobs/registerCronJobs");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
@@ -22,8 +25,15 @@ const mongoConfig = {
 
 mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
-  .then(() => {
+  .then(async () => {
     console.log("Connected to Local MongoDB");
+    // Initialize cron jobs after database connection is established
+    try {
+      await registerAllJobs();
+      console.log("✅ Cron jobs initialized successfully");
+    } catch (error) {
+      console.error("❌ Failed to initialize cron jobs:", error);
+    }
   })
   .catch((err) => {
     console.error("MongoDB Connection Error:", err);
@@ -44,7 +54,6 @@ mongoose.connection.on("disconnected", () => {
   }
 });
 
-
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
 });
@@ -53,10 +62,8 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-
 app.use("/api/email", emailRoutes);
-app.use("/api/token", tokenRoutes); 
-
+app.use("/api/token", tokenRoutes);
 
 app.post("/api/createUser", async (req, res) => {
   try {
@@ -67,21 +74,48 @@ app.post("/api/createUser", async (req, res) => {
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({
-      message: "Failed to create user",
-      error: error.message,
+    res
+      .status(500)
+      .json({ message: "Failed to create user", error: error.message });
+  }
+});
+app.post("/api/evaluation", async (req, res) => {
+  try {
+    const { formData, ratings, comments } = req.body;
+
+    const evaluations = Object.keys(ratings).map((category) => ({
+      category,
+      rating: ratings[category],
+      comment: comments[category] || "",
+    }));
+
+    const newEvaluation = new Evaluation({
+      advisorSignature: formData.advisorSignature,
+      advisorAgreement: formData.advisorAgreement,
+      coordinatorSignature: formData.coordinatorSignature,
+      coordinatorAgreement: formData.coordinatorAgreement,
+      evaluations,
     });
+
+    await newEvaluation.save();
+    res.status(201).json({ message: "Evaluation saved successfully!" });
+  } catch (error) {
+    console.error("Error saving evaluation:", error);
+    res.status(500).json({ error: "Failed to save evaluation" });
+  }
+});
+// Graceful shutdown (async Mongoose support)
+process.on("SIGINT", async () => {
+  try {
+    cronJobManager.stopAllJobs();
+    await mongoose.connection.close();
+    console.log("✅ MongoDB connection closed through app termination");
+    process.exit(0);
+  } catch (err) {
+    console.error("❌ Error during shutdown:", err);
+    process.exit(1);
   }
 });
 
-
-process.on("SIGINT", () => {
-  mongoose.connection.close(() => {
-    console.log("MongoDB connection closed through app termination");
-    process.exit(0);
-  });
-});
-
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
