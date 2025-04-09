@@ -47,36 +47,17 @@ function SignUp() {
   const passwordsMatch = password === confirmPassword;
 
   const createUser = async (e) => {
-    console.log("trigerred");
     e.preventDefault();
     try {
-      
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/token/request`,
         {
-          fullName,
-          ouEmail,
+          userName,
+          email,
           password,
-          semester,
-          academicAdvisor: role === "student" ? academicAdvisor : "",
           role,
-          userName:userName,
-          email:email,
-          password:password,
-         role:role,
         }
       );
-      
-
-      console.log("Signup response:", response.data);
-      
-      if (role === "student") {
-        setResponseMessage("Token requested and email sent.");
-      } else {
-        setResponseMessage("Account created successfully.");
-      }
-      
-      
       setResponseMessage(response.data.message);
       // Reset form after successful submission
       setFullName("");
@@ -90,12 +71,10 @@ function SignUp() {
       setTimeout(() => {
         navigate("/");
       }, 2000);
-    } 
-    catch (error) {
-      console.error(process.env.REACT_APP_API_URL+"/api/createUser");
+    } catch (error) {
       console.error("Error creating user:", error);
-      setResponseMessage( process.env.REACT_APP_API_URL+"/api/createUser"+" "+
-        "Failed to cr server connection"
+      setResponseMessage(
+        "Failed to create user, please check the server connection"
       );
     }
   };
@@ -104,7 +83,7 @@ function SignUp() {
     <div className="signup-container">
       <h1>Sign Up for IPMS</h1>
       <p>
-        Create your account nowwww the Internship Program Management System
+        Create your account to access the Internship Program Management System
       </p>
 
       {responseMessage && (
