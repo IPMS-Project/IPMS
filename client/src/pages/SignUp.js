@@ -27,10 +27,15 @@ function SignUp() {
       setEmail("");
       setPassword("");
 
-      // Redirect to home after successful signup
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      // Redirect based on role after successful signup
+setTimeout(() => {
+  if (role === "student") {
+    navigate("/a1-form");
+
+  } else {
+    navigate("/");
+  }
+}, 2000);
     } catch (error) {
       console.error("Error creating user:", error);
       setResponseMessage(

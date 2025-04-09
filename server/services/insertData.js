@@ -1,19 +1,14 @@
 const mongoose = require("mongoose");
-const InternshipRequest = require("../models/InternshipRequest"); 
+const InternshipRequest = require("../models/InternshipRequest");
 
 async function insertFormData(formData) {
   try {
-    console.log(JSON.stringify(formData, null, 2));
-    if (mongoose.connection.readyState === 0) {
-      await mongoose.connect("mongodb://localhost:27017/internshipDB", {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
-      console.log("Connected to MongoDB");
-    }
+    console.log("Received Form Data:\n", JSON.stringify(formData, null, 2));
+
+    // Assumes global mongoose connection is already established elsewhere in app
 
     const formattedData = {
-      student: new mongoose.Types.ObjectId(), // To be integrated with signin ???
+      student: new mongoose.Types.ObjectId(), // TODO: Replace with actual signed-in student ID
       workplace: {
         name: formData.workplaceName,
         website: formData.website,
@@ -31,20 +26,22 @@ async function insertFormData(formData) {
         description: task.description,
         outcomes: task.outcomes,
       })),
-      status: "submitted",       // Default for now TBD ???
-      approvals: ["advisor","coordinator"],       // default for now TBD ??
-      reminders: [],             // TBD ??
-      completedHours: parseInt(formData.creditHour)*60,         
+      status: "submitted", // Default status — adjust as needed
+      approvals: ["advisor", "coordinator"], // TODO: Might be dynamic later
+      reminders: [], // Placeholder for future reminder logic
+      completedHours: parseInt(formData.creditHour) * 60, // Assuming 1 credit = 60 hours
     };
 
     const savedForm = await InternshipRequest.create(formattedData);
-    console.log("Form saved successfully:", savedForm._id);
+    console.log("✅ Form saved successfully with ID:", savedForm._id);
+    return savedForm;
 
   } catch (error) {
-    console.error("Error saving form:", error.message);
+    console.error("❌ Error saving form:", error.message);
+    throw error;
   }
 }
+
 module.exports = {
   insertFormData,
 };
-

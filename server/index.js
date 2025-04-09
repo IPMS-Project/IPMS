@@ -46,7 +46,7 @@ mongoose.connection.on("disconnected", () => {
   // Attempt to reconnect
   if (!mongoose.connection.readyState) {
     mongoose
-      .connect("mongodb://127.0.0.1:27017//IPMS", mongoConfig)
+      .connect(process.env.MONGO_URI, mongoConfig)
       .then(() => console.log("Reconnected to MongoDB"))
       .catch((err) => console.error("Error reconnecting to MongoDB:", err));
   }

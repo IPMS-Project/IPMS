@@ -18,10 +18,31 @@ function Home() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(`${formData.role} sign in attempted`, formData);
+  
+    try {
+      // TODO: Replace this with your actual API call
+      // const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/login`, formData);
+  
+      // Simulated login success
+      const { role } = formData;
+  
+      // Redirect based on role
+      if (role === "Student") {
+        navigate("/a1-form");
+      } else if (role === "Supervisor") {
+        navigate("/supervisor-dashboard"); // adjust as needed
+      } else if (role === "Coordinator") {
+        navigate("/coordinator-dashboard"); // adjust as needed
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      alert("Login failed. Please check your credentials or try again.");
+    }
   };
+  
 
   return (
     <div className="content-container">
