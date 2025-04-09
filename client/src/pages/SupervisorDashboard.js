@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import '../styles/SupervisorDashboard.css';
 
 const SupervisorDashboard = () => {
     const [submissions, setSubmissions] = useState([]);
@@ -30,80 +31,27 @@ const SupervisorDashboard = () => {
     };
 
     return (
-	<div style={{ padding: "20px" }}>
-	    <h2>Supervisor Dashboard</h2>
-	    <p>Welcome, Supervisor!</p>
-
-	    <h3>Pending Submissions</h3>
-	    {submissions.length === 0 ? (
-		<p>No pending submissions.</p>
-	    ) : (
-		<div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "20px" }}>
-		    <div style={{
-			     display: "grid",
-			     gridTemplateColumns: "1fr 2fr 2fr 2fr",
-			     fontWeight: "bold",
-			     backgroundColor: "#f2f2f2",
-			     padding: "12px",
-			     borderRadius: "8px",
-			     border: "1px solid #ccc"
-			 }}>
-			<div>ID</div>
-			<div>Title</div>
-			<div>Submitted By</div>
-			<div>Action</div>
-		    </div>
-
-		    {submissions.map((submission) => (
-			<div
-			    key={submission._id}
-			    style={{
-				display: "grid",
-				gridTemplateColumns: "1fr 2fr 2fr 2fr",
-				padding: "12px",
-				border: "1px solid #ddd",
-				borderRadius: "8px",
-				backgroundColor: "#fff",
-				alignItems: "center",
-				boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)"
-			    }}
-			>
-			    <div>{submission._id}</div>
-			    <div>{submission.title || "N/A"}</div>
-			    <div>{submission.studentName || "N/A"}</div>
-			    <div style={{ display: "flex", gap: "8px" }}>
-				<button
-				    style={{
-					padding: "6px 12px",
-					borderRadius: "4px",
-					border: "none",
-					backgroundColor: "#4CAF50",
-					color: "#fff",
-					cursor: "pointer"
-				    }}
-				    onClick={() => handleDecision(submission._id, "approve")}
-				>
-				    Approve
-				</button>
-				<button
-				    style={{
-					padding: "6px 12px",
-					borderRadius: "4px",
-					border: "none",
-					backgroundColor: "#f44336",
-					color: "#fff",
-					cursor: "pointer"
-				    }}
-				    onClick={() => handleDecision(submission._id, "reject")}
-				>
-				    Reject
-				</button>
-			    </div>
-			</div>
-		    ))}
-		</div>
-	    )}
-	</div>
+	<div className="dashboard-container">
+            <h1 className="dashboard-title">Supervisor Dashboard</h1>
+            <h2>Pending Approvals</h2>
+            <ul className="pending-approvals">
+                {submissions.length === 0 ? (
+                    <div className="empty-message-container">
+                    <div className="empty-message">No pending approvals at this time.</div>
+                    </div>
+                ) : (
+                    submissions.map(item => (
+                        <li key={item._id}>
+                            {item.name} - Details: {item.details} - Status: {item.supervisor_status}
+                            <div>
+                                <button className="approve" onClick={() => handleDecision(item._id, "approve")}>Approve</button>
+                                <button className="reject" onClick={() => handleDecision(item._id, "reject")}>Reject</button>
+                            </div>
+                        </li>
+                    ))
+                )}
+            </ul>
+        </div>
     );
 };
 

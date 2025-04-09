@@ -3,7 +3,7 @@ const Submission = require("../models/Submission");
 // ✅ Get pending submissions for supervisor
 exports.getPendingSubmissions = async (req, res) => {
   try {
-    const submissions = await Submission.find({ status: "pending" });
+    const submissions = await Submission.find({ supervisor_status: "pending" });
     res.json(submissions);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch pending submissions", error: err });
@@ -17,7 +17,7 @@ exports.approveSubmission = async (req, res) => {
   try {
     const submission = await Submission.findByIdAndUpdate(
       id,
-      { status: "approved_by_supervisor" },
+      { supervisor_status: "approved_by_supervisor" },
       { new: true }
     );
 
@@ -42,7 +42,7 @@ exports.rejectSubmission = async (req, res) => {
   try {
     const submission = await Submission.findByIdAndUpdate(
       id,
-      { status: "rejected_by_supervisor" },
+      { supervisor_status: "rejected_by_supervisor" },
       { new: true }
     );
 
