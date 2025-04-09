@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React from "react";
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -30,7 +29,7 @@ const router = createBrowserRouter([
         element: <SignUp />,
       },
       {
-	path: "evaluation",
+        path: "evaluation",
         element: <A3JobEvaluationForm />,
       },
       {
@@ -40,7 +39,6 @@ const router = createBrowserRouter([
       {
         path: "coordinator-dashboard",
         element: <CoordinatorDashboard />,
-      
       },
       // Add more routes as needed
     ],
