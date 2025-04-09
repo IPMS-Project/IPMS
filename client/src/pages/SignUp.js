@@ -52,13 +52,24 @@ function SignUp() {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/token/request`,
         {
-          userName,
-          email,
+          fullName,
+          ouEmail,
           password,
+          semester,
+          academicAdvisor: role === "student" ? academicAdvisor : "",
           role,
         }
       );
-      setResponseMessage(response.data.message);
+      
+
+      console.log("Signup response:", response.data);
+      
+      if (role === "student") {
+        setResponseMessage("Token requested and email sent.");
+      } else {
+        setResponseMessage("Account created successfully.");
+      }
+      
       // Reset form after successful submission
       setFullName("");
       setOuEmail("");
@@ -81,11 +92,6 @@ function SignUp() {
 
   return (
     <div className="signup-container">
-      <h1>Sign Up for IPMS</h1>
-      <p>
-        Create your account to access the Internship Program Management System
-      </p>
-
       {responseMessage && (
         <div className="response-message">{responseMessage}</div>
       )}
