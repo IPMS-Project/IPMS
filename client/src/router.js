@@ -12,6 +12,8 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import ReportForm from "./pages/ReportForm";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
+import SupervisorDashboard from "./pages/SupervisorDashboard";
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 
 // Create and export the router configuration
@@ -29,7 +31,6 @@ const router = createBrowserRouter([
         path: "signup",
         element: <SignUp />,
       },
-      // Add more routes as needed
       {
         path: "weekly-report", // "/weekly-report"
         element: <WeeklyProgressReportForm />,
@@ -39,9 +40,18 @@ const router = createBrowserRouter([
         element: <ReportForm />,
       },
       {
-        path: "evaluation", 
+        path: "evaluation",
         element: <A3JobEvaluationForm />,
       },
+      {
+        path: "supervisor-dashboard",
+        element: <SupervisorDashboard />,
+      },
+      {
+        path: "coordinator-dashboard",
+        element: <CoordinatorDashboard />,
+      },
+      // Add more routes as needed
     ],
   },
 ]);
