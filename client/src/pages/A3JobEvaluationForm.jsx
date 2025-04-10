@@ -101,7 +101,7 @@ const A3JobEvaluationForm = () => {
       return;
     }
     try {
-      const response = await fetch('http://localhost:5001/api/evaluation', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/evaluation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ formData, ratings, comments }),

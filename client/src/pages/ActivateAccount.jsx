@@ -13,7 +13,7 @@ const ActivateAccount = () => {
         didActivate = true;
 
         try {
-        const res = await fetch(`${BACKEND_URL}/api/token/activate/${token}`);
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/token/activate/${token}`);
         const data = await res.json();
 
         if (res.ok) {
@@ -24,8 +24,8 @@ const ActivateAccount = () => {
             setMessage(`❌ Activation failed: ${data.error}`);
         }
       } catch (err) {
-        console.log(`❌ Something went wrong: ${err}`)
-        setMessage("❌ Something went wrong.");
+        console.log(`❌ Something went wrong: ${err.data}`)
+        setMessage(`❌ Something went wrong. ${err.data}`);
       }
     };
 
