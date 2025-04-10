@@ -66,7 +66,7 @@ router.get("/activate/:token", async (req, res) => {
 
     user.isActivated = true;
     user.activatedAt = new Date();
-    user.status = "Activated";
+    user.status = "activated";
 
     await user.save();
 

@@ -1,6 +1,7 @@
 import React from 'react';
 
 
+import ActivateAccount from "./pages/ActivateAccount";
 import { createBrowserRouter } from "react-router-dom";
 
 // Layout
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
       {
         path: "evaluation", 
         element: <A3JobEvaluationForm />,
+      },
+      {
+        path: "activate/:token",
+        element: <ActivateAccount />,
       },
     ],
   },
