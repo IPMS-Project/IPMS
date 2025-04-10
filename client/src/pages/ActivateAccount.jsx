@@ -1,40 +1,38 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const ActivateAccount = () => {
   const { token } = useParams();
-  const navigate = useNavigate();
   const [message, setMessage] = useState("Activating your account...");
 
-  const FRONTEND_URL = process.env.FRONTEND_URL;
-
   useEffect(() => {
-    fetch(`${FRONTEND_URL}/activate/${token}`)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(
-            "Activation failed. Please try again or contact support."
-          );
+    let didActivate = false;
+
+    const activateToken = async () => {
+        if (didActivate) return;
+        didActivate = true;
+
+        try {
+        const res = await fetch(`http://localhost:5001/api/token/activate/${token}`);
+        const data = await res.json();
+
+        if (res.ok) {
+            console.log("✅ Account activated successfully!")
+            setMessage("✅ Account activated successfully!");
+        } else {
+            console.log(`❌ Activation failed: ${data.error}`)
+            setMessage(`❌ Activation failed: ${data.error}`);
         }
-        return res.json();
-      })
-      .then((data) => {
-        setMessage("Your account has been activated successfully!");
+      } catch (err) {
+        console.log(`❌ Something went wrong: ${err}`)
+        setMessage("❌ Something went wrong.");
+      }
+    };
 
-        setTimeout(() => {
-          navigate("/activation-success"); // this route page needs to be created.
-        }, 5000);
-      })
-      .catch((err) => {
-        setMessage(err.message);
-      });
-  }, [token, navigate]);
+    activateToken();
+  }, [token]);
 
-  return (
-    <div style={{ padding: "2rem", textAlign: "center" }}>
-      <h2>{message}</h2>
-    </div>
-  );
+  return <div style={{ padding: "2rem" }}>{message}</div>;
 };
 
 export default ActivateAccount;

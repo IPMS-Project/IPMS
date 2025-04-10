@@ -1,5 +1,6 @@
 import React from "react";
 
+import ActivateAccount from "./pages/ActivateAccount";
 import { createBrowserRouter } from "react-router-dom";
 
 // Layout
