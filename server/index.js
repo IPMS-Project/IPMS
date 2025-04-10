@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User");
+const formRoutes = require("./routes/formRoutes");
+
 require("dotenv").config();
 
 const emailRoutes = require("./routes/emailRoutes");
@@ -16,6 +18,7 @@ const Evaluation = require("./models/Evaluation");
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use("/api/form", formRoutes); // register route as /api/form/submit
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
