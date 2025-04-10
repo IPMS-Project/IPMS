@@ -13,7 +13,7 @@ const ActivateAccount = () => {
         didActivate = true;
 
         try {
-        const res = await fetch(`http://localhost:5001/api/token/activate/${token}`);
+        const res = await fetch(`${BACKEND_URL}/api/token/activate/${token}`);
         const data = await res.json();
 
         if (res.ok) {
