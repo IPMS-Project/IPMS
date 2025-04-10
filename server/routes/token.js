@@ -7,15 +7,14 @@ const emailService = require("../services/emailService");
 const JWT_SECRET = process.env.JWT_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
-
 router.post("/request", async (req, res) => {
   try {
-    const { fullName, ouEmail, password, semester, academicAdvisor,role } = req.body;
+    const { fullName, ouEmail, password, semester, academicAdvisor, role } =
+      req.body;
 
     if (!fullName || !ouEmail || !password || !semester) {
       return res.status(400).json({ error: "All fields are required." });
     }
-    
 
     const token = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
 
@@ -25,7 +24,7 @@ router.post("/request", async (req, res) => {
       password,
       semester,
       academicAdvisor: role === "student" ? academicAdvisor : "",
-      isStudent: role === "student", 
+      isStudent: role === "student",
       token,
     });
 
@@ -55,14 +54,15 @@ router.post("/request", async (req, res) => {
   }
 });
 
-
 router.get("/activate/:token", async (req, res) => {
   try {
     const { token } = req.params;
+    console.log("Received token:", token);
     const user = await TokenRequest.findOne({ token });
 
     if (!user) return res.status(404).json({ error: "Token not found." });
-    if (user.isActivated) return res.status(400).json({ error: "Token already activated." });
+    if (user.isActivated)
+      return res.status(400).json({ error: "Token already activated." });
 
     user.isActivated = true;
     user.activatedAt = new Date();
@@ -76,21 +76,20 @@ router.get("/activate/:token", async (req, res) => {
   }
 });
 
-
 router.post("/login", async (req, res) => {
   try {
     const { token } = req.body;
     const user = await TokenRequest.findOne({ token });
 
     if (!user) return res.status(404).json({ error: "Invalid token." });
-    if (!user.isActivated) return res.status(403).json({ error: "Token not activated." });
+    if (!user.isActivated)
+      return res.status(403).json({ error: "Token not activated." });
 
     res.json({ message: "Login successful", user });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 router.delete("/deactivate", async (req, res) => {
   try {
@@ -108,4 +107,3 @@ router.delete("/deactivate", async (req, res) => {
 });
 
 module.exports = router;
-

@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React from "react";
 
 import { createBrowserRouter } from "react-router-dom";
 
@@ -11,7 +10,7 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
-
+import ActivateAccount from "./pages/ActivateAccount";
 // Create and export the router configuration
 const router = createBrowserRouter([
   {
@@ -29,8 +28,12 @@ const router = createBrowserRouter([
       },
       // Add more routes as needed
       {
-        path: "evaluation", 
+        path: "evaluation",
         element: <A3JobEvaluationForm />,
+      },
+      {
+        path: "activate/:token",
+        element: <ActivateAccount />,
       },
     ],
   },
