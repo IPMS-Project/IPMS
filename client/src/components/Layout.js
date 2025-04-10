@@ -20,6 +20,9 @@ function Layout() {
             <li>
               <Link to="/contact">Contact</Link>
             </li>
+            <li>
+              <Link to="/weekly-report">Weekly Report</Link>
+            </li>
           </ul>
         </nav>
       </header>

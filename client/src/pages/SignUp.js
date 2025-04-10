@@ -22,6 +22,11 @@ function SignUp() {
           role,
         }
       );
+
+      if (response.data) {
+        localStorage.setItem("user", JSON.stringify(response.data));
+      }
+
       setResponseMessage(response.data.message);
       // Reset form after successful submission
       setEmail("");

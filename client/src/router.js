@@ -7,7 +7,7 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-import ReportForm from "./pages/ReportForm";
+import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -25,8 +25,8 @@ const router = createBrowserRouter([
         element: <SignUp />,
       },
       {
-        path: "report", // New route added for testing backend functionality
-        element: <ReportForm />,
+        path: "weekly-report", // New route added for testing backend functionality
+        element: <WeeklyProgressReportForm />,
       },
       // Add more routes as needed
     ],

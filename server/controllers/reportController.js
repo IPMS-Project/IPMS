@@ -10,17 +10,18 @@ const reportController = {
   createReport: async (req, res) => {
     try {
       const {
-        studentID,
+        studentId,
         logbookWeek,
         numberOfHours,
-        task,
-        challenge,
-        lesson,
+        tasksPerformed,
+        challengesFaced,
+        lessonsLearned,
         csOutcomes,
+        status, // optional
       } = req.body;
 
       // Role-check: Only students can submit (based on their ID)
-      const user = await User.findById(studentID);
+      const user = await User.findById(studentId);
       if (!user || user.role.toLowerCase() !== "student") {
         return res.status(403).json({
           success: false,
@@ -33,9 +34,9 @@ const reportController = {
         !logbookWeek ||
         numberOfHours === undefined ||
         isNaN(numberOfHours) ||
-        !task ||
-        !challenge ||
-        !lesson ||
+        !tasksPerformed ||
+        !challengesFaced ||
+        !lessonsLearned ||
         !csOutcomes ||
         csOutcomes.length === 0
       ) {
@@ -47,25 +48,28 @@ const reportController = {
 
       // Save the report
       const newReport = new WeeklyReport({
-        studentID,
+        studentId,
         logbookWeek,
         numberOfHours,
-        task,
-        challenge,
-        lesson,
+        tasksPerformed,
+        challengesFaced,
+        lessonsLearned,
         csOutcomes,
+        status: status || "submitted", // Use provided status or default to submitted
       });
 
       await newReport.save();
 
-      res
-        .status(201)
-        .json({ success: true, message: "Report submitted successfully." });
+      res.status(201).json({
+        success: true,
+        message: "Report submitted successfully.",
+      });
     } catch (error) {
       console.error("Error in createReport:", error);
-      res
-        .status(500)
-        .json({ success: false, message: "Internal server error." });
+      res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
     }
   },
 
@@ -74,7 +78,7 @@ const reportController = {
     try {
       const { userId } = req.params;
 
-      const reports = await WeeklyReport.find({ studentID: userId }).sort({
+      const reports = await WeeklyReport.find({ studentId: userId }).sort({
         createdAt: -1,
       });
 
