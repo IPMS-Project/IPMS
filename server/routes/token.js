@@ -67,6 +67,10 @@ router.get("/activate/:token", async (req, res) => {
     user.isActivated = true;
     user.activatedAt = new Date();
     user.status = "activated";
+    
+    const sixMonthsLater = new Date(user.activatedAt);
+    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+    user.expiresAt = sixMonthsLater;
 
     await user.save();
 

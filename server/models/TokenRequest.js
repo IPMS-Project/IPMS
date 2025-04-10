@@ -101,12 +101,12 @@ const userTokenRequestSchema = new mongoose.Schema(
   }
 );
 
-// Automatically set expiresAt to 6 months after requestedAt
+// Automatically set expiresAt to 5 days after requestedAt
 userTokenRequestSchema.pre('save', function (next) {
   if (!this.expiresAt) {
-    const sixMonthsLater = new Date(this.requestedAt);
-    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-    this.expiresAt = sixMonthsLater;
+    const fiveDaysLater = new Date(this.requestedAt);
+    fiveDaysLater.setDate(fiveDaysLater.getDate() + 5);
+    this.expiresAt = fiveDaysLater;
   }
   next();
 });
