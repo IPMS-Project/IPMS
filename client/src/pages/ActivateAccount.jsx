@@ -6,14 +6,16 @@ const ActivateAccount = () => {
   const [message, setMessage] = useState("Activating your account...");
 
   useEffect(() => {
-    let didActivate = false;
 
     const activateToken = async () => {
-        if (didActivate) return;
-        didActivate = true;
-
         try {
-        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/token/activate/${token}`);
+          const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/token/activate`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token }),
+          });
         const data = await res.json();
 
         if (res.ok) {

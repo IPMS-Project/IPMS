@@ -54,9 +54,9 @@ router.post("/request", async (req, res) => {
   }
 });
 
-router.get("/activate/:token", async (req, res) => {
+router.post("/activate", async (req, res) => {
   try {
-    const { token } = req.params;
+    const { token } = req.body;
     console.log("Received token:", token);
     const user = await TokenRequest.findOne({ token });
 
