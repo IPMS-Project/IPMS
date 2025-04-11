@@ -1,4 +1,8 @@
+import React from "react";
+
 import { createBrowserRouter } from "react-router-dom";
+import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
+
 
 // Layout
 import Layout from "./components/Layout";
@@ -7,7 +11,10 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-import ReportForm from "./pages/ReportForm";
+import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
+import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
+import SupervisorDashboard from "./pages/SupervisorDashboard";
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -25,12 +32,28 @@ const router = createBrowserRouter([
         element: <SignUp />,
       },
       {
-        path: "report", // New route added for testing backend functionality
-        element: <ReportForm />,
+        path: "weekly-report",
+        element: <WeeklyProgressReportForm />,
       },
-      // Add more routes as needed
+      {
+        path: "a1-form",
+        element: <A1InternshipRequestForm />,
+      },
+      {
+        path: "evaluation",
+        element: <A3JobEvaluationForm />,
+      },
+      {
+        path: "supervisor-dashboard",
+        element: <SupervisorDashboard />,
+      },
+      {
+        path: "coordinator-dashboard",
+        element: <CoordinatorDashboard />,
+      },
     ],
   },
 ]);
+
 
 export default router;
