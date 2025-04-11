@@ -11,6 +11,7 @@ const approvalRoutes = require("./routes/approvalRoutes");
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
+const Evaluation = require("./models/Evaluation");
 
 const app = express();
 app.use(express.json());
