@@ -47,6 +47,8 @@ function SignUp() {
   const passwordsMatch = password === confirmPassword;
 
   const createUser = async (e) => {
+    console.log("createUser() called");
+
     e.preventDefault();
     try {
       const response = await axios.post(
@@ -60,16 +62,17 @@ function SignUp() {
           role,
         }
       );
-      
-
       console.log("Signup response:", response.data);
-      
+      // if (response.data && response.data.user) {
+      //   localStorage.setItem("user", JSON.stringify({ user: response.data.user }));
+      // }
+
       if (role === "student") {
         setResponseMessage("Token requested and email sent.");
       } else {
         setResponseMessage("Account created successfully.");
       }
-      
+
       // Reset form after successful submission
       setFullName("");
       setOuEmail("");
@@ -306,18 +309,18 @@ function SignUp() {
             </div>
 
             {role === "student" && (
-                  <div className="form-group">
-                    <label htmlFor="academicAdvisor">Academic Advisor</label>
-                    <input
-                      type="text"
-                      id="advisor"
-                      value={academicAdvisor}
-                      onChange={(e) => setAcademicAdvisor(e.target.value)}
-                      placeholder="Enter your academic advisor's name"
-                      required
-                    />
-                  </div>
-                )}
+              <div className="form-group">
+                <label htmlFor="academicAdvisor">Academic Advisor</label>
+                <input
+                  type="text"
+                  id="advisor"
+                  value={academicAdvisor}
+                  onChange={(e) => setAcademicAdvisor(e.target.value)}
+                  placeholder="Enter your academic advisor's name"
+                  required
+                />
+              </div>
+            )}
 
             <div className="form-group">
               <label>
