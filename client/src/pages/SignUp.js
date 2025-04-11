@@ -63,9 +63,9 @@ function SignUp() {
         }
       );
       console.log("Signup response:", response.data);
-      if (response.data && response.data.user) {
-        localStorage.setItem("user", JSON.stringify({ user: response.data.user }));
-      }
+      // if (response.data && response.data.user) {
+      //   localStorage.setItem("user", JSON.stringify({ user: response.data.user }));
+      // }
 
       if (role === "student") {
         setResponseMessage("Token requested and email sent.");
@@ -309,18 +309,18 @@ function SignUp() {
             </div>
 
             {role === "student" && (
-                  <div className="form-group">
-                    <label htmlFor="academicAdvisor">Academic Advisor</label>
-                    <input
-                      type="text"
-                      id="advisor"
-                      value={academicAdvisor}
-                      onChange={(e) => setAcademicAdvisor(e.target.value)}
-                      placeholder="Enter your academic advisor's name"
-                      required
-                    />
-                  </div>
-                )}
+              <div className="form-group">
+                <label htmlFor="academicAdvisor">Academic Advisor</label>
+                <input
+                  type="text"
+                  id="advisor"
+                  value={academicAdvisor}
+                  onChange={(e) => setAcademicAdvisor(e.target.value)}
+                  placeholder="Enter your academic advisor's name"
+                  required
+                />
+              </div>
+            )}
 
             <div className="form-group">
               <label>
