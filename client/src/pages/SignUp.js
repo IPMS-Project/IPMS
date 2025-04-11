@@ -47,6 +47,8 @@ function SignUp() {
   const passwordsMatch = password === confirmPassword;
 
   const createUser = async (e) => {
+    console.log("createUser() called");
+
     e.preventDefault();
     try {
       const response = await axios.post(
@@ -60,6 +62,7 @@ function SignUp() {
           role,
         }
       );
+      console.log("Signup response:", response.data);
       if (response.data && response.data.user) {
         localStorage.setItem("user", JSON.stringify({ user: response.data.user }));
       }

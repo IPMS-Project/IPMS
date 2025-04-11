@@ -11,14 +11,13 @@ const reportController = {
     try {
       const {
         studentId,
-        logbookWeek,
-        numberOfHours,
-        tasksPerformed,
-        challengesFaced,
-        lessonsLearned,
-        csOutcomes,
-        status, // optional
+        week,
+        hours,
+        tasks,
+        lessons,
+        supervisorComments
       } = req.body;
+       
 
       // Role-check: Only students can submit (based on their ID)
       const user = await User.findById(studentId);
@@ -30,33 +29,24 @@ const reportController = {
       }
 
       // Basic field validation
-      if (
-        !logbookWeek ||
-        numberOfHours === undefined ||
-        isNaN(numberOfHours) ||
-        !tasksPerformed ||
-        !challengesFaced ||
-        !lessonsLearned ||
-        !csOutcomes ||
-        csOutcomes.length === 0
-      ) {
+      if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
         return res.status(400).json({
           success: false,
-          message: "All fields are required and must be valid.",
+          message: "All required fields must be valid.",
         });
       }
+      
 
       // Save the report
       const newReport = new WeeklyReport({
         studentId,
-        logbookWeek,
-        numberOfHours,
-        tasksPerformed,
-        challengesFaced,
-        lessonsLearned,
-        csOutcomes,
-        status: status || "submitted", // Use provided status or default to submitted
+        week,
+        hours,
+        tasks,
+        lessons,
+        supervisorComments: supervisorComments || "",
       });
+      
 
       await newReport.save();
 
