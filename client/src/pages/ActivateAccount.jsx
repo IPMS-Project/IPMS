@@ -9,7 +9,7 @@ const ActivateAccount = () => {
 
     const activateToken = async () => {
         try {
-          const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/token/activate`, {
+          const res = await fetch(`${process.env.REACT_APP_API_URL}/api/token/activate`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

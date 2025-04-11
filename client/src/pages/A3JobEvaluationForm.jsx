@@ -126,7 +126,7 @@ const A3JobEvaluationForm = () => {
     }
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/evaluation`, 
+        `${process.env.REACT_APP_API_URL}/api/evaluation`, 
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
