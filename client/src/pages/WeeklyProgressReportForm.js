@@ -254,8 +254,8 @@ const WeeklyProgressReportForm = () => {
     e.preventDefault();
 
     const user = JSON.parse(localStorage.getItem("user"));
-    const studentId = user?.user?._id;
-
+    // const studentId = user?.user?._id;
+    const studentId = "123456";
     if (!studentId) {
       setMessage("Student ID not found. Please log in again.");
       return;
@@ -263,7 +263,10 @@ const WeeklyProgressReportForm = () => {
 
     try {
       const payload = { studentId, ...formData };
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, payload);
+      console.log("Payload sending from frontend:", payload);
+      const res = await axios.post("http://localhost:5001/api/reports", payload);
+
+      // const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, payload);
 
       setMessage(res.data.message || "Report submitted!");
       setFormData({

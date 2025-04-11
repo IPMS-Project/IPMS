@@ -3,6 +3,10 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User");
 const formRoutes = require("./routes/formRoutes");
+// const reportRoutes = require("./routes/reportRoutes");
+const reportRoutes = require("./routes/weeklyReportRoutes");
+
+
 
 require("dotenv").config();
 
@@ -70,6 +74,9 @@ app.get("/api/message", (req, res) => {
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
+app.use("/api/reports", reportRoutes);
+
+app.use("/api/form", formRoutes);
 
 app.post("/api/createUser", async (req, res) => {
   try {
