@@ -20,13 +20,13 @@ const reportController = {
        
 
       // Role-check: Only students can submit (based on their ID)
-      const user = await User.findById(studentId);
-      if (!user || user.role.toLowerCase() !== "student") {
-        return res.status(403).json({
-          success: false,
-          message: "Only students can submit reports.",
-        });
-      }
+      // const user = await User.findById(studentId);
+      // if (!user || user.role.toLowerCase() !== "student") {
+      //   return res.status(403).json({
+      //     success: false,
+      //     message: "Only students can submit reports.",
+      //   });
+      // }
 
       // Basic field validation
       if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
@@ -39,7 +39,7 @@ const reportController = {
 
       // Save the report
       const newReport = new WeeklyReport({
-        studentId,
+        //studentId,
         week,
         hours,
         tasks,

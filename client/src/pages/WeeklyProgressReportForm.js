@@ -24,14 +24,14 @@ const WeeklyProgressReportForm = () => {
     e.preventDefault();
   
     // Get the user ID from localStorage (ensure it exists)
-    const user = JSON.parse(localStorage.getItem("user"));
-    const studentId = user?.user?._id;
+    // const user = JSON.parse(localStorage.getItem("user"));
+    // const studentId = user?.user?._id;
   
-    // Check if studentId exists in localStorage
-    if (!studentId) {
-      setMessage("Student ID not found. Please log in again.");
-      return;
-    }
+    // // Check if studentId exists in localStorage
+    // if (!studentId) {
+    //   setMessage("Student ID not found. Please log in again.");
+    //   return;
+    // }
   
     // Check that all required fields are filled
     if (!formData.week || !formData.hours || !formData.tasks || !formData.lessons) {
@@ -39,7 +39,8 @@ const WeeklyProgressReportForm = () => {
       return;
     }
   
-    const payload = { studentId, ...formData };
+    //const payload = { studentId, ...formData };
+    const payload = {  ...formData };
   
     try {
       // Sending the form data to the backend

@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
 const weeklyReportSchema = new mongoose.Schema({
-  studentId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
+  // studentId: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "User",
+  //   required: true,
+  // },
 
   week: {
     type: String,
