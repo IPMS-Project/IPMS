@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -13,10 +12,15 @@ function Home() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "Student",
+    role: "student",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("-");
+  const [role, setRole] = useState("student");
+
+  // Sync role into formData.role
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, role }));
+  }, [role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,6 +33,17 @@ function Home() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(`${formData.role} sign in attempted`, formData);
+
+    // Redirect user based on role
+    if (formData.role === "coordinator") {
+      navigate("/coordinator/dashboard");
+    } else if (formData.role === "student") {
+      navigate("/student/dashboard");
+    } else if (formData.role === "supervisor") {
+      navigate("/supervisor/dashboard");
+    } else {
+      alert("Please select a valid role.");
+    }
   };
 
   return (
@@ -39,9 +54,7 @@ function Home() {
         </div>
 
         <div className="login-options">
-          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>
-            Welcome back
-          </h2>
+          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>Welcome back</h2>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -63,16 +76,6 @@ function Home() {
                     <p className="role-label">
                       {r.charAt(0).toUpperCase() + r.slice(1)}
                     </p>
-                    <span
-                      className="info-icon"
-                      title={
-                        r === "student"
-                          ? "Students request internships and submit weekly reports."
-                          : r === "supervisor"
-                          ? "Supervisors review and approve student progress."
-                          : "Coordinators manage the internship workflow and approvals."
-                      }
-                    ></span>
                   </div>
                 ))}
               </div>
@@ -80,9 +83,7 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="email">
-                <FaEnvelope
-                  style={{ marginRight: "6px", verticalAlign: "middle" }}
-                />
+                <FaEnvelope style={{ marginRight: "6px", verticalAlign: "middle" }} />
                 Email
               </label>
               <input
@@ -98,9 +99,7 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="password">
-                <FaLock
-                  style={{ marginRight: "6px", verticalAlign: "middle" }}
-                />
+                <FaLock style={{ marginRight: "6px", verticalAlign: "middle" }} />
                 Password
               </label>
               <div className="password-wrapper">
@@ -122,26 +121,14 @@ function Home() {
               </div>
             </div>
 
-            <div
-              className="form-subtext"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "0.9rem",
-                marginBottom: "1rem",
-              }}
-            >
+            <div className="form-subtext">
               <label>
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
-              <Link
-                to="/"
-                style={{ color: "#7f1d1d", fontWeight: "500", textDecoration: "underline" }}
-              >
+              <Link to="/" style={{ color: "#7f1d1d", fontWeight: "500", textDecoration: "underline" }}>
                 Forgot password?
               </Link>
-
             </div>
 
             <button type="submit" className="login-button">
