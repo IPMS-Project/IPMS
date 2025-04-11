@@ -17,7 +17,8 @@ const hashToken = (token) => {
 
 router.post("/request", async (req, res) => {
   try {
-    const { fullName, ouEmail, password, semester, academicAdvisor, role } = req.body;
+    const { fullName, ouEmail, password, semester, academicAdvisor, role } =
+      req.body;
 
     if (!fullName || !ouEmail || !password || !semester) {
       return res.status(400).json({ error: "All fields are required." });
@@ -77,12 +78,11 @@ router.post("/request", async (req, res) => {
   }
 });
 
-
-router.get("/activate/:token", async (req, res) => {
+router.post("/activate", async (req, res) => {
   try {
-    const { token } = req.params;
+    const { token } = req.body;
     const hashedToken = hashToken(token);
-
+    console.log("Received token:", token);
     const user = await TokenRequest.findOne({ token: hashedToken });
 
     if (!user) return res.status(404).json({ error: "Token not found." });
@@ -93,6 +93,10 @@ router.get("/activate/:token", async (req, res) => {
     user.isActivated = true;
     user.activatedAt = new Date();
     user.status = "activated";
+    
+    const sixMonthsLater = new Date(user.activatedAt);
+    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+    user.expiresAt = sixMonthsLater;
 
     await user.save();
 
@@ -101,7 +105,6 @@ router.get("/activate/:token", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 router.post("/login", async (req, res) => {
   try {
@@ -119,7 +122,6 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 router.delete("/deactivate", async (req, res) => {
   try {

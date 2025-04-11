@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
@@ -134,9 +135,13 @@ function Home() {
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
-              <a href="#" style={{ color: "#7f1d1d", fontWeight: "500" }}>
+              <Link
+                to="/"
+                style={{ color: "#7f1d1d", fontWeight: "500", textDecoration: "underline" }}
+              >
                 Forgot password?
-              </a>
+              </Link>
+
             </div>
 
             <button type="submit" className="login-button">

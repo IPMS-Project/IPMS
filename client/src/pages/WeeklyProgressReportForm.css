@@ -1,0 +1,45 @@
+/* WeeklyProgressReportForm.css */
+
+.a2-form-container {
+    max-width: 700px;
+    margin: auto;
+    padding: 2rem;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    justify-content: space-between;
+  }
+  
+  .form-row label {
+    flex: 1;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  textarea {
+    width: 100%;
+    height: 100px;
+  }
+  
+  .submit-button {
+    background: maroon;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .form-message {
+    margin-top: 1rem;
+    color: green;
+  }
+  
