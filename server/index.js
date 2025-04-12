@@ -1,3 +1,5 @@
+const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -16,6 +18,7 @@ const coordinatorRoutes = require("./routes/coordinator");
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
+
 
 const app = express();
 app.use(express.json());
@@ -75,6 +78,7 @@ app.use("/api", approvalRoutes);
 app.use("/api/coordinator", coordinatorRoutes);
 
 
+app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
