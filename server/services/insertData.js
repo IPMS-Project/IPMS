@@ -23,10 +23,13 @@ async function insertFormData(formData) {
       creditHours: parseInt(formData.creditHour),
       startDate: new Date(formData.startDate),
       endDate: new Date(formData.endDate),
-      tasks: formData.tasks.map(task => ({
+      tasks: formData.tasks
+      .map(task => ({
         description: task.description,
         outcomes: task.outcomes,
-      })),
+      }))
+      .filter(task => task.description.trim() !== ""), // Remove empty tasks
+      status: "submitted", // Default status — adjust as needed
       status: formData.status, // Default status — adjust as needed
       approvals: ["advisor", "coordinator"], // TODO: Might be dynamic later
       reminders: [], // Placeholder for future reminder logic

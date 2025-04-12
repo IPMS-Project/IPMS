@@ -29,13 +29,17 @@ function validateFormData(formData) {
     return "Tasks must be a non-empty array";
   }
 
-  for (const [index, task] of formData.tasks.entries()) {
-    if (!task.description || !task.outcomes) {
-      return `Task at index ${index} is missing description or outcomes`;
-    }
-  }
+  // for (const [index, task] of formData.tasks.entries()) {
+  //   if (!task.description || !task.outcomes) {
+  //     return `Task at index ${index} is missing description or outcomes`;
+  //   }
+  // }
 
-  //SPRINT 2 - TASK VALIDATION
+  // const filledTasks = formData.tasks.entries().filter(entry => entry[1].description && entry[1].outcomes);
+  const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
+  if (filledTasks.length < 3)
+    return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`
+
   const tasks=formData.tasks
   console.log(tasks)
   if (!Array.isArray(tasks) || tasks.length < 3) {
@@ -49,29 +53,27 @@ function validateFormData(formData) {
     } 
   });
   if (uniqueOutcomes.size < 3) {
-    console.log(uniqueOutcomes)
-    console.log("At least 3 unique CS outcomes must be present across all tasks. Task not aligned with CS outcomes, sending the form to coordinator for manual review")
-    status="pending for manual review"
+    // console.log(uniqueOutcomes)
+    // console.log("At least 3 unique CS outcomes must be present across all tasks. Task not aligned with CS outcomes, sending the form to coordinator for manual review")
+    status="pending manual review"
     formData.status = status;
     }
     else{
-      console.log("task aligned. ")
-      formData.status="submitted"// to supervisor
+      // console.log("task aligned. ")
+      status="submitted"
+      formData.status=status;// to supervisor
     }
     return null; 
   }
 
 router.post("/submit", async (req, res) => {
   const formData = req.body;
-
-
   const validationError = validateFormData(formData);
   if (validationError) {
     return res.status(400).json({ message: validationError });
   }
 
   try {
-    console.log("formroute",formData.status)
     await insertFormData(formData);
     res.status(200).json({ message: "Form received and handled!" ,status});
   } catch (error) {

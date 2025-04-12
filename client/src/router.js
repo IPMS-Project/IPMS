@@ -34,7 +34,6 @@ const router = createBrowserRouter([
         path: "a1-form",
         element: <A1InternshipRequestForm />,
       },      
-      // Add more routes as needed
       {
         path: "evaluation",
         element: <A3JobEvaluationForm />,

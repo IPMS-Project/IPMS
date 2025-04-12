@@ -102,7 +102,7 @@ const A1InternshipRequestForm = () => {
       namePattern.test(advisorSignature) &&
       namePattern.test(coordinatorApproval);
 
-    const tasksFilled = tasks.every(task => task.trim() !== '');
+    // const tasksFilled = tasks.every(task => task.trim() !== '');
 
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -117,6 +117,13 @@ const A1InternshipRequestForm = () => {
     //   taskOutcomes.filter(val => val).length >= 4
     // );
 
+    const outcomesValid = new Set(tasks.map((task, i) => [task, formData.outcomes[i]]) // zip tasks and outcomes
+      .filter(pair => pair[0].trim() !== '') // ignore empty tasks
+      .map(pair => pair[1].flatMap((outcome, i) => outcome ? i : [])) // retrieve each task's outcomes (each outcome is a boolean and the flat map gets true outcomes' indices)
+      .flat()).size >= 3; // merge per-task outcomes, count at least 3
+    // console.log(`nonempty tasks: ${tasks.filter(task => task.trim() !== '')}`);
+    const tasksFilled = tasks.filter(task => task.trim() !== '').length >= 3;
+
     // return requiredFieldsFilled && patternsValid && tasksFilled && datesValid && outcomesValid;
 
     
@@ -130,11 +137,22 @@ const A1InternshipRequestForm = () => {
     if (isValid) {
       setSuccessMsg('Form submitted successfully!');
       setErrorMsg('');
-      submitFormData(formData);
+      submitFormData(formData)
+      .then(response => {
+        if (response.status === "pending manual review") {
+          alert("Form sent to coordinator for manual review.");
+        } else if (response.status === "submitted") {
+          alert("Form sent to supervisor.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert(`Something went wrong with the submission!\n${err}`);
+      });
       setTimeout(() => setSuccessMsg(''), 3000);
       setFormData(initialState);
     } else {
-      setErrorMsg('Please fill all required fields with valid data.');
+      setErrorMsg('Please fill all required fields with valid data. Minimum of three tasks are required to be filled.');
       setSuccessMsg('');
     }
   };
@@ -186,7 +204,7 @@ const A1InternshipRequestForm = () => {
         },
         body: JSON.stringify(payload),
       });
-       await response.json();
+       return response.json();
         } catch (err) {
     console.error(err);
   }
