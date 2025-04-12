@@ -82,7 +82,8 @@ router.post("/request", async (req, res) => {
 
 router.post("/activate", async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ error: "Token is missing." });
     const hashedToken = hashToken(token);
     console.log("Received token:", token);
     const user = await TokenRequest.findOne({ token: hashedToken });
