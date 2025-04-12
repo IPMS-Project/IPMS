@@ -14,7 +14,6 @@ const hashToken = (token) => {
   return crypto.createHash("sha256").update(token).digest("hex");
 };
 
-
 router.post("/request", async (req, res) => {
   try {
     const { fullName, ouEmail, password, semester, academicAdvisor, role } =
@@ -26,7 +25,9 @@ router.post("/request", async (req, res) => {
 
     const existing = await TokenRequest.findOne({ ouEmail });
     if (existing) {
-      return res.status(400).json({ error: "Token request already exists for this email." });
+      return res
+        .status(400)
+        .json({ error: "Token request already exists for this email." });
     }
 
     const plainToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
@@ -41,6 +42,7 @@ router.post("/request", async (req, res) => {
       ouEmail,
       password: hashedPassword,
       semester,
+      role,
       academicAdvisor: role === "student" ? academicAdvisor : "",
       isStudent: role === "student",
       token: hashedToken,
@@ -86,14 +88,17 @@ router.post("/activate", async (req, res) => {
     const user = await TokenRequest.findOne({ token: hashedToken });
 
     if (!user) return res.status(404).json({ error: "Token not found." });
-    if (user.deletedAt) return res.status(403).json({ error: "Token has been deactivated." });
-    if (user.isActivated) return res.status(400).json({ error: "Token already activated." });
-    if (new Date() > user.expiresAt) return res.status(400).json({ error: "Token has expired." });
+    if (user.deletedAt)
+      return res.status(403).json({ error: "Token has been deactivated." });
+    if (user.isActivated)
+      return res.status(400).json({ error: "Token already activated." });
+    if (new Date() > user.expiresAt)
+      return res.status(400).json({ error: "Token has expired." });
 
     user.isActivated = true;
     user.activatedAt = new Date();
     user.status = "activated";
-    
+
     const sixMonthsLater = new Date(user.activatedAt);
     sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
     user.expiresAt = sixMonthsLater;
@@ -114,12 +119,75 @@ router.post("/login", async (req, res) => {
     const user = await TokenRequest.findOne({ token: hashedToken });
 
     if (!user) return res.status(404).json({ error: "Invalid token." });
-    if (user.deletedAt) return res.status(403).json({ error: "Token is deactivated." });
-    if (!user.isActivated) return res.status(403).json({ error: "Token not activated." });
+    if (user.deletedAt)
+      return res.status(403).json({ error: "Token is deactivated." });
+    if (!user.isActivated)
+      return res.status(403).json({ error: "Token not activated." });
 
     res.json({ message: "Login successful", user });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// login api
+router.post("/user-login", async (req, res) => {
+  const { ouEmail, password, role } = req.body;
+  console.log(role);
+  if (!ouEmail || !password || !role) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+  try {
+    const user = await TokenRequest.findOne({ ouEmail });
+
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: "Email or password is incorrect" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ message: "Email or password is incorrect" });
+    }
+
+    // First, check if the entered role matches the user's actual role
+    if (user.role.toLowerCase() !== role.toLowerCase()) {
+      return res.status(403).json({ message: "User role mismatch." });
+    }
+
+    // If the role is student, do additional token checks
+    if (role.toLowerCase() === "student") {
+      if (!user.isStudent) {
+        return res
+          .status(403)
+          .json({ message: "User is not registered as a student." });
+      }
+
+      if (!user.token || user.token === "") {
+        return res.status(403).json({ message: "Token not issued yet." });
+      }
+
+      if (user.status !== "activated") {
+        return res.status(403).json({ message: "Token is not activated yet." });
+      }
+
+      const now = new Date();
+      const tokenExpiry = new Date(user.expiresAt);
+
+      if (tokenExpiry < now) {
+        return res
+          .status(403)
+          .json({ message: "Token has expired. Please request a new one." });
+      }
+    }
+
+    res.status(200).json({ message: "Login successful", user });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Something went wrong on the server." });
   }
 });
 

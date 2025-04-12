@@ -51,6 +51,11 @@ const userTokenRequestSchema = new mongoose.Schema(
       lowercase: true,
       match: [/^[\w-.]+@ou\.edu$/, 'Email must be a valid OU address'],
     },
+    role: {
+      type: String,
+      required: true,
+      enum: ['student', 'supervisor', 'coordinator'],
+    },
     semester: {
       type: String,
       required: [true, 'Semester is required'],
@@ -70,6 +75,7 @@ const userTokenRequestSchema = new mongoose.Schema(
       required: [true, 'Token is required'],
       unique: true,
     },
+  
     isActivated: {
       type: Boolean,
       default: false,

@@ -6,6 +6,7 @@ import StudentIcon from "../Icons/StudentIcon";
 import CoordinatorIcon from "../Icons/CoordinatorIcon";
 import SupervisorIcon from "../Icons/SupervisorIcon";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -50,6 +51,17 @@ function SignUp() {
     console.log("createUser() called");
 
     e.preventDefault();
+
+    // Step 1: Check OU email format
+    if (!ouEmail.endsWith("@ou.edu")) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please use your university email (must end with @ou.edu)",
+      });
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/token/request`,
@@ -62,18 +74,19 @@ function SignUp() {
           role,
         }
       );
-      console.log("Signup response:", response.data);
-      // if (response.data && response.data.user) {
-      //   localStorage.setItem("user", JSON.stringify({ user: response.data.user }));
-      // }
 
-      if (role === "student") {
-        setResponseMessage("Token requested and email sent.");
-      } else {
-        setResponseMessage("Account created successfully.");
-      }
+      // console.log("Signup response:", response.data);
 
-      // Reset form after successful submission
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text:
+          role === "student"
+            ? `Your token request has been submitted. If ${ouEmail} is valid, a confirmation email will be sent shortly.`
+            : "Account created successfully.",
+      });
+
+      // Clear form
       setFullName("");
       setOuEmail("");
       setPassword("");
@@ -81,15 +94,26 @@ function SignUp() {
       setSemester("");
       setAcademicAdvisor("");
 
-      // Redirect to home after successful signup
+      // Navigate home
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } catch (error) {
       console.error("Error creating user:", error);
-      setResponseMessage(
-        "Failed to create user, please check the server connection"
-      );
+
+      if (error.response && error.response.status === 400) {
+        Swal.fire({
+          icon: "error",
+          title: "Email Already Exists",
+          text: "The provided email ID is already registered. Try logging in.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong",
+          text: "Please check your internet or server connection.",
+        });
+      }
     }
   };
 
@@ -147,8 +171,17 @@ function SignUp() {
               type="button"
               className="submit-button"
               style={{ marginTop: "2rem" }}
-              disabled={role === "-"}
-              onClick={() => setStep(2)}
+              onClick={() => {
+                if (role === "-") {
+                  Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Please select a role to continue",
+                  });
+                  return;
+                }
+                setStep(2);
+              }}
             >
               Continue
             </button>
@@ -322,14 +355,18 @@ function SignUp() {
               </div>
             )}
 
-            <div className="form-group">
-              <label>
+            <div>
+              <label
+                className="d-flex align-items-center"
+                style={{ gap: "8px" }}
+              >
                 <input
                   type="checkbox"
+                  style={{ appearance: "none" }}
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
                   required
-                />{" "}
+                />
                 I agree to the Internship Guidelines
               </label>
             </div>
