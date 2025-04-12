@@ -88,7 +88,7 @@ describe("supervisorReminder escalation", () => {
 	jest.restoreAllMocks();
     });
 
-    it("should escalate to the student after multiple reminders", async () => {
+    it("should return to the student after multiple reminders", async () => {
 	const submissionId = new mongoose.Types.ObjectId();
 	const studentId = new mongoose.Types.ObjectId();
 	const studentMail = "student@example.com"

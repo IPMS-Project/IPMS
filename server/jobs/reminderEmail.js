@@ -39,19 +39,20 @@ const supervisorReminder = async () => {
 		await emailService.sendEmail({
 		    to: student.email,
 		    subject: `Supervisor Not Responding for "${submission.name}"`,
-		    html: `<p>Your submission "${submission.name}" has not been reviewed by the supervisor after multiple reminders.</p><p>Please consider resending the form or deleting the request.</p>`,
+		    html: `<p>Your submission "${submission.name}" has not been reviewed by the supervisor after multiple reminders.</p>
+			<p>Please consider resending the form or deleting the request.</p>`,
 		    text: `Your submission "${submission.name}" is still awaiting supervisor review.`,
 		});
 
-		// Log in database the notification
+		// Log notification in database
 		await NotificationLog.create({
 		    submissionId: submission._id,
 		    type: "studentEscalation",
 		    recipientEmail: student.email,
-		    message: `Student notified for escalation on submission "${submission.name}"`,
+		    message: `Student notified about supervisor status on: "${submission.name}"`,
 		});
 		
-		console.log(`Escalated to student for submission "${submission.name}"`);
+		console.log(`Returned to student for resubmit/delete: "${submission.name}"`);
 	    } else if (shouldRemindAgain) {
 		// Gentle reminder to supervisor
 		await emailService.sendEmail({

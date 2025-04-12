@@ -1,4 +1,4 @@
-const CronJob = require("./models/CronJob");
+const CronJob = require("../models/CronJob");
 
 const defaultJobs = [
   {

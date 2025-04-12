@@ -43,7 +43,7 @@ const SupervisorDashboard = () => {
                 ) : (
                     submissions.map(item => (
                         <li key={item._id}>
-                            {item.name} - Details: {item.details} - Status: {item.supervisor_status}
+                            Name:{item.name} - StudentID: {item.student_id} - Form Type: {item.form_type} - Details: {item.details}
                             <div>
                                 <button className="approve" onClick={() => handleDecision(item._id, "approve")}>Approve</button>
                                 <button className="reject" onClick={() => handleDecision(item._id, "reject")}>Reject</button>
