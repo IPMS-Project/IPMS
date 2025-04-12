@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React from "react";
 
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
@@ -13,6 +12,8 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
+import SupervisorDashboard from "./pages/SupervisorDashboard";
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -33,11 +34,19 @@ const router = createBrowserRouter([
         path: "a1-form",
         element: <A1InternshipRequestForm />,
       },      
-      // Add more routes as needed
       {
-        path: "evaluation", 
+        path: "evaluation",
         element: <A3JobEvaluationForm />,
       },
+      {
+        path: "supervisor-dashboard",
+        element: <SupervisorDashboard />,
+      },
+      {
+        path: "coordinator-dashboard",
+        element: <CoordinatorDashboard />,
+      },
+      // Add more routes as needed
     ],
   },
 ]);

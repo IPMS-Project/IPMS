@@ -33,11 +33,11 @@ async function insertFormData(formData) {
     };
 
     const savedForm = await InternshipRequest.create(formattedData);
-    console.log("✅ Form saved successfully with ID:", savedForm._id);
+    console.log("Form saved successfully with ID:", savedForm._id);
     return savedForm;
 
   } catch (error) {
-    console.error("❌ Error saving form:", error.message);
+    console.error("Error saving form:", error.message);
     throw error;
   }
 }

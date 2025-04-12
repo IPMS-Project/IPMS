@@ -8,12 +8,14 @@ require("dotenv").config();
 
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
+const approvalRoutes = require("./routes/approvalRoutes");
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
+const Evaluation = require("./models/Evaluation");
 
 const app = express();
 app.use(express.json());
@@ -73,6 +75,7 @@ app.get("/api/message", (req, res) => {
 
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
+app.use("/api", approvalRoutes);
 
 app.post("/api/createUser", async (req, res) => {
   try {

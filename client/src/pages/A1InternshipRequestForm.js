@@ -127,6 +127,7 @@ const A1InternshipRequestForm = () => {
     if (isValid) {
       setSuccessMsg('Form submitted successfully!');
       setErrorMsg('');
+      submitFormData(formData);
       setTimeout(() => setSuccessMsg(''), 3000);
       setFormData(initialState);
     } else {
@@ -134,7 +135,60 @@ const A1InternshipRequestForm = () => {
       setSuccessMsg('');
     }
   };
+  const submitFormData = async () => {
+    const outcomeMap = {
+      0: 'problemSolving',
+      1: 'solutionDevelopment',
+      2: 'communication',
+      3: 'decisionMaking',
+      4: 'collaboration',
+      5: 'application'
+    };
 
+    const tasksWithOutcomes = formData.tasks.map((taskDesc, i) => {
+      const selectedOutcomes = formData.outcomes[i]
+        .map((checked, j) => (checked ? outcomeMap[j] : null))
+        .filter(Boolean);
+      return {
+        description: taskDesc.trim(),
+        outcomes: selectedOutcomes
+      };
+    });
+
+    const payload = {
+      interneeName: formData.interneeName.trim(),
+      soonerId: formData.soonerId.trim(),
+      interneeEmail: formData.interneeEmail.trim(),
+      workplaceName: formData.workplaceName.trim(),
+      website: formData.website.trim(),
+      phone: formData.phone.trim(),
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      advisorName: formData.advisorName.trim(),
+      advisorJobTitle: formData.advisorJobTitle.trim(),
+      advisorEmail: formData.advisorEmail.trim(),
+      interneeSignature: formData.interneeSignature.trim(),
+      advisorSignature: formData.advisorSignature.trim(),
+      coordinatorApproval: formData.coordinatorApproval.trim(),
+      creditHour: formData.creditHours,
+      tasks: tasksWithOutcomes
+    };
+
+    try {
+      const response = await fetch("http://localhost:5001/api/form/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+       await response.json();
+        } catch (err) {
+    console.error(err);
+  }
+};
+
+      
   return (
     <div className="form-container">
       <h2>A.1 - Internship Request Form</h2>
