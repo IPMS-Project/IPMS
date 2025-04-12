@@ -80,37 +80,32 @@ router.post("/request", async (req, res) => {
   }
 });
 
-router.post("/activate", async (req, res) => {
+router.get("/activate/:token", async (req, res) => {
   try {
-    const { token } = req.body;
-    const hashedToken = hashToken(token);
-    console.log("Received token:", token);
-    const user = await TokenRequest.findOne({ token: hashedToken });
+    const { token } = req.params;
 
-    if (!user) return res.status(404).json({ error: "Token not found." });
-    if (user.deletedAt)
-      return res.status(403).json({ error: "Token has been deactivated." });
-    if (user.isActivated)
-      return res.status(400).json({ error: "Token already activated." });
-    if (new Date() > user.expiresAt)
-      return res.status(400).json({ error: "Token has expired." });
+    // Check if the token is valid and not expired
+    jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        return res.status(400).json({ error: "Token expired or invalid." });
+      }
+      const hashedToken = hashToken(token);
+      const user = await TokenRequest.findOne({ token: hashedToken });
+      
+      if (!user) return res.status(404).json({ error: "Token not found." });
+      if (user.isActivated) return res.status(400).json({ error: "Token already activated." });
 
-    user.isActivated = true;
-    user.activatedAt = new Date();
-    user.status = "activated";
+      user.isActivated = true;
+      user.activatedAt = new Date();
+      user.status = "activated";
+      await user.save();
 
-    const sixMonthsLater = new Date(user.activatedAt);
-    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-    user.expiresAt = sixMonthsLater;
-
-    await user.save();
-
-    res.json({ message: "Token activated successfully." });
+      res.json({ message: "Token activated successfully." });
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 router.post("/login", async (req, res) => {
   try {
     const { token } = req.body;
@@ -193,28 +188,45 @@ router.post("/user-login", async (req, res) => {
 
 router.delete("/deactivate", async (req, res) => {
   try {
-    const { token } = req.body;
-    const hashedToken = hashToken(token);
+    const { token, ouEmail, reason } = req.body;
 
-    const user = await TokenRequest.findOne({ token: hashedToken });
+    if (!token && !ouEmail) {
+      return res.status(400).json({ error: "Token or Email is required for deactivation." });
+    }
+
+    // Step 1: Find the user based on either token or email
+    const filter = token ? { token: hashToken(token) } : { ouEmail };
+    const user = await TokenRequest.findOne(filter);
 
     if (!user) {
-      return res.status(404).json({ error: "Token not found." });
+      return res.status(404).json({ error: "Token or user not found." });
     }
 
-    if (user.deletedAt) {
-      return res.status(400).json({ error: "Token already deactivated." });
+    // Step 2: Determine deactivation logic
+    let statusUpdate = "deleted"; // fallback
+
+    if (reason === "internship_completed") {
+      statusUpdate = "deactivated_internship_completed";
+    } else if (reason === "account_deleted") {
+      statusUpdate = "deactivated_account_deleted";
+    } else if (!user.isActivated && new Date() > new Date(user.expiresAt)) {
+      statusUpdate = "expired"; 
     }
 
-    user.deletedAt = new Date();
-    user.status = "deleted";
-
+    // Step 3: Invalidate
+    user.token = null;
+    user.isActivated = false;
+    user.status = statusUpdate;
     await user.save();
 
-    res.json({ message: "Token soft-deleted successfully." });
+    res.json({
+      message: `Token ${statusUpdate}`,
+      status: user.status,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
 module.exports = router;
+
+
