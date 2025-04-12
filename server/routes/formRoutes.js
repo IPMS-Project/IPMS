@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { insertFormData } = require("../services/insertData");
 
-// Utility: Validate required fields
+let status = "";
+
+// Validate required fields
 function validateFormData(formData) {
   const requiredFields = [
     "workplaceName",
@@ -33,11 +35,35 @@ function validateFormData(formData) {
     }
   }
 
-  return null; // No errors
-}
+  //SPRINT 2 - TASK VALIDATION
+  const tasks=formData.tasks
+  console.log(tasks)
+  if (!Array.isArray(tasks) || tasks.length < 3) {
+    console.log("You must provide b/w 3 to 5 tasks")
+    return "You must provide between 3 to 5 tasks.";
+  }
+  const uniqueOutcomes = new Set();
+  tasks.forEach((task) => {
+    if (Array.isArray(task.outcomes)) {
+      task.outcomes.forEach(outcome => uniqueOutcomes.add(outcome));
+    } 
+  });
+  if (uniqueOutcomes.size < 3) {
+    console.log(uniqueOutcomes)
+    console.log("At least 3 unique CS outcomes must be present across all tasks. Task not aligned with CS outcomes, sending the form to coordinator for manual review")
+    status="pending for manual review"
+    formData.status = status;
+    }
+    else{
+      console.log("task aligned. ")
+      formData.status="submitted"// to supervisor
+    }
+    return null; 
+  }
 
 router.post("/submit", async (req, res) => {
   const formData = req.body;
+
 
   const validationError = validateFormData(formData);
   if (validationError) {
@@ -45,8 +71,9 @@ router.post("/submit", async (req, res) => {
   }
 
   try {
+    console.log("formroute",formData.status)
     await insertFormData(formData);
-    res.status(200).json({ message: "Form received and handled!" });
+    res.status(200).json({ message: "Form received and handled!" ,status});
   } catch (error) {
     console.error("Error handling form data:", error);
     res.status(500).json({ message: "Something went wrong" });

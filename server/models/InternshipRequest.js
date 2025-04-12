@@ -54,7 +54,7 @@ const formA1 = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['draft', 'submitted', 'approved']
+        enum: ['draft', 'submitted','pending for manual review' ,'approved']
     },
     approvals: {
         type: [String],

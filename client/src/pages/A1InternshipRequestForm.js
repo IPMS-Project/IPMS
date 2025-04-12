@@ -83,7 +83,7 @@ const A1InternshipRequestForm = () => {
       interneeName, soonerId, interneeEmail, workplaceName, phone,
       startDate, endDate, advisorName, advisorEmail,
       interneeSignature, advisorSignature, coordinatorApproval,
-      creditHours, tasks, outcomes
+      creditHours, tasks,
     } = formData;
 
     const requiredFieldsFilled = interneeName && soonerId && interneeEmail &&
@@ -113,11 +113,14 @@ const A1InternshipRequestForm = () => {
       return false;
     }
 
-    const outcomesValid = outcomes.every(taskOutcomes =>
-      taskOutcomes.filter(val => val).length >= 4
-    );
+    // const outcomesValid = outcomes.every(taskOutcomes =>
+    //   taskOutcomes.filter(val => val).length >= 4
+    // );
 
-    return requiredFieldsFilled && patternsValid && tasksFilled && datesValid && outcomesValid;
+    // return requiredFieldsFilled && patternsValid && tasksFilled && datesValid && outcomesValid;
+
+    
+    return requiredFieldsFilled && patternsValid && tasksFilled && datesValid;
   };
 
   const handleSubmit = (e) => {
@@ -131,11 +134,12 @@ const A1InternshipRequestForm = () => {
       setTimeout(() => setSuccessMsg(''), 3000);
       setFormData(initialState);
     } else {
-      setErrorMsg('Please fill all required fields with valid data. Each task must have at least 4 outcomes selected.');
+      setErrorMsg('Please fill all required fields with valid data.');
       setSuccessMsg('');
     }
   };
   const submitFormData = async () => {
+    const BASE_URL=process.env.REACT_APP_API_URL
     const outcomeMap = {
       0: 'problemSolving',
       1: 'solutionDevelopment',
@@ -175,7 +179,7 @@ const A1InternshipRequestForm = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5001/api/form/submit", {
+      const response = await fetch(`${BASE_URL}/api/form/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -186,6 +190,18 @@ const A1InternshipRequestForm = () => {
         } catch (err) {
     console.error(err);
   }
+
+  // try {
+  //   const response = await axios.post("http://localhost:5001/api/form/submit", payload);
+
+  //   if (response.data.status === "pending for manual review") {
+  //     navigate("coordinator-dashboard");
+  //   } else {
+  //     navigate("/supervisor-dashboard");
+  //   }
+  // } catch (err) {
+  //   console.error("Form submission failed:", err);
+  // }
 };
 
       
