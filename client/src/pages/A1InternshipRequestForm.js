@@ -208,18 +208,6 @@ const A1InternshipRequestForm = () => {
         } catch (err) {
     console.error(err);
   }
-
-  // try {
-  //   const response = await axios.post("http://localhost:5001/api/form/submit", payload);
-
-  //   if (response.data.status === "pending for manual review") {
-  //     navigate("coordinator-dashboard");
-  //   } else {
-  //     navigate("/supervisor-dashboard");
-  //   }
-  // } catch (err) {
-  //   console.error("Form submission failed:", err);
-  // }
 };
 
       
