@@ -28,15 +28,6 @@ function validateFormData(formData) {
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
     return "Tasks must be a non-empty array";
   }
-
-  // for (const [index, task] of formData.tasks.entries()) {
-  //   if (!task.description || !task.outcomes) {
-  //     return `Task at index ${index} is missing description or outcomes`;
-  //   }
-  // }
-  const filledTasks = formData.tasks.entries().filter(entry => entry[1].description && entry[1].outcomes);
-  if (filledTasks.length < 3)
-    return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`
   // for (const [index, task] of formData.tasks.entries()) {
   //   if (!task.description || !task.outcomes) {
   //     return `Task at index ${index} is missing description or outcomes`;
