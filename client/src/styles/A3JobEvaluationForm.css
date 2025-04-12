@@ -56,3 +56,13 @@
     min-height: 100vh;
     padding: 10px;
 }
+
+.form-control {
+    font-size: 14px;
+    padding: 6px 10px;
+    height: 38px;
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
