@@ -25,7 +25,7 @@ async function insertFormData(formData) {
       tasks: formData.tasks.map(task => ({
         description: task.description,
         outcomes: task.outcomes,
-      })),
+      })).filter(task => task.description.trim() !== ''), // remove empty tasks
       status: "submitted", // Default status — adjust as needed
       approvals: ["advisor", "coordinator"], // TODO: Might be dynamic later
       reminders: [], // Placeholder for future reminder logic
