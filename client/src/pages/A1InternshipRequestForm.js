@@ -133,11 +133,19 @@ const A1InternshipRequestForm = () => {
     if (isValid) {
       setSuccessMsg('Form submitted successfully!');
       setErrorMsg('');
-      submitFormData(formData);
+      submitFormData()
+        .then(response => {
+          if (response.manualReview)
+            alert('Form sent to internship coordinator for manual task review.');
+        })
+        .catch(err => {
+          console.error(err);
+          alert(`Something went wrong with the submission!\n${err}`);
+        });
       setTimeout(() => setSuccessMsg(''), 3000);
       setFormData(initialState);
     } else {
-      setErrorMsg('Please fill all required fields with valid data. Each task must have at least 4 outcomes selected.');
+      setErrorMsg('Please fill all required fields with valid data. There must be at least 3 tasks with at least 3 distinct outcomes between them.');
       setSuccessMsg('');
     }
   };
@@ -180,19 +188,15 @@ const A1InternshipRequestForm = () => {
       tasks: tasksWithOutcomes
     };
 
-    try {
-      const response = await fetch("http://localhost:5001/api/form/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-       await response.json();
-        } catch (err) {
-    console.error(err);
-  }
-};
+    const response = await fetch("http://localhost:5001/api/form/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+    return response.json();
+  };
 
       
   return (

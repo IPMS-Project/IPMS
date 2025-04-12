@@ -34,7 +34,7 @@ function validateFormData(formData) {
   // }
   const filledTasks = formData.tasks.entries().filter(entry => entry[1].description && entry[1].outcomes);
   if (filledTasks.length < 3)
-    return `At least 3 tasks have description and outcomes; only ${filledTasks.length} do`
+    return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`
 
   return null; // No errors
 }
@@ -49,7 +49,7 @@ router.post("/submit", async (req, res) => {
 
   try {
     await insertFormData(formData);
-    res.status(200).json({ message: "Form received and handled!" });
+    res.status(200).json({ message: "Form received and handled!", manualReview: false }); // TODO
   } catch (error) {
     console.error("Error handling form data:", error);
     res.status(500).json({ message: "Something went wrong" });
