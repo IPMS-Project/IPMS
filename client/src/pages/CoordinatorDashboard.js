@@ -52,9 +52,10 @@ function CoordinatorDashboard() {
     }
   };
 
-  const daysRemaining = (deadline) => {
+  // 🔢 Calculate remaining days until expiration
+  const daysRemaining = (expiresAt) => {
     const now = new Date();
-    const due = new Date(deadline);
+    const due = new Date(expiresAt);
     const diff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
     return diff;
   };
@@ -72,6 +73,11 @@ function CoordinatorDashboard() {
             <p><strong>Advisor:</strong> {req.academicAdvisor}</p>
             <p><strong>Status:</strong> {req.status}</p>
             <p><strong>Requested At:</strong> {new Date(req.requestedAt).toLocaleDateString()}</p>
+            <p><strong>Expires In:</strong> 
+              <span style={{ color: daysRemaining(req.expiresAt) <= 5 ? "red" : "green", fontWeight: "bold", marginLeft: "6px" }}>
+                {daysRemaining(req.expiresAt)} days
+              </span>
+            </p>
 
             <div className="action-buttons">
               <button className="approve-btn" onClick={() => handleApprove(req._id)}>
