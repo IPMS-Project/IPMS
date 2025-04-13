@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const InternshipRequest = require("../models/InternshipRequest");
+const Submission =  require("../models/Submission")
 
 async function insertFormData(formData) {
   try {
@@ -22,11 +23,13 @@ async function insertFormData(formData) {
       creditHours: parseInt(formData.creditHour),
       startDate: new Date(formData.startDate),
       endDate: new Date(formData.endDate),
-      tasks: formData.tasks.map(task => ({
+      tasks: formData.tasks
+      .map(task => ({
         description: task.description,
         outcomes: task.outcomes,
-      })),
+      })).filter(task => task.description.trim() !== ''), // remove empty tasks
       status: "submitted", // Default status — adjust as needed
+      status: formData.status, // Default status — adjust as needed
       approvals: ["advisor", "coordinator"], // TODO: Might be dynamic later
       reminders: [], // Placeholder for future reminder logic
       completedHours: parseInt(formData.creditHour) * 60, // Assuming 1 credit = 60 hours
@@ -34,6 +37,24 @@ async function insertFormData(formData) {
 
     const savedForm = await InternshipRequest.create(formattedData);
     console.log("Form saved successfully with ID:", savedForm._id);
+
+    if (formData.status === "submitted") {
+      const submission = {
+        name:`Internship at ${formData.workplaceName}`,
+        student_name: formData.interneeName,
+        details: formData.website,  
+        supervisor_status: "pending",
+        coordinator_status: "pending",
+      };
+      await Submission.create(submission);
+      console.log("Submission sent to Supervisor Dashboard.");
+    } else if (formData.status === "pending manual review") {
+      // const instance={
+      //   // group a schema attributes
+      // };
+      // await groupaschema.create(instance) // group A schema
+      console.log("Task not aligned with CS Outcomes. Sent to coordinator for manual review.");
+    }
     return savedForm;
 
   } catch (error) {
@@ -41,6 +62,8 @@ async function insertFormData(formData) {
     throw error;
   }
 }
+
+//Inserting data in supervisor db
 
 module.exports = {
   insertFormData,
