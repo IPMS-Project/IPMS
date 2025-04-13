@@ -196,3 +196,27 @@ To set up secrets:
   - Incorrect server credentials
 
 ---
+# Four Week Report API Endpoints 🚀
+
+## API Base URL
+
+---
+
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| POST   | /api/fourWeekReports | To Submit & Save 4-Week Report data from frontend form to MongoDB |
+| GET    | /api/fourWeekReports/:studentId | To Fetch & Display all reports of a particular student based on their ID |
+
+---
+
+## Request Body for POST (Example)
+
+```json
+{
+  "studentId": "123456",
+  "week": "Week 4",
+  "tasks": "Completed Login API integration",
+  "lessons": "Learned API error handling",
+  "challenges": "CORS Issue faced",
+  "supervisorComments": "Excellent progress"
+}
