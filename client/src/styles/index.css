@@ -305,17 +305,23 @@ body {
 
 .form-group input,
 .form-group select {
-  padding: 14px 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 8px 16px;
   transition: all 0.2s ease;
-  background-color: #f9fafb;
+  font-size: 16px;
+  line-height: 1.6;
+  height: auto;
+  border-radius: 6px;
+  background-color: #fdfdfd;
+  border: 1px solid #ddd;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  vertical-align: middle;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #9d2235;
+  /* border-color: #9d2235; */
   outline: none;
   box-shadow: 0 0 0 3px rgba(157, 34, 53, 0.15);
   background-color: #fff;

@@ -6,7 +6,9 @@ exports.getPendingSubmissions = async (req, res) => {
     const submissions = await Submission.find({ supervisor_status: "pending" });
     res.json(submissions);
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch pending submissions", error: err });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch pending submissions", error: err });
   }
 };
 
@@ -27,9 +29,8 @@ exports.approveSubmission = async (req, res) => {
 
     res.json({
       message: "Submission approved and forwarded to Coordinator",
-      updatedSubmission: submission
+      updatedSubmission: submission,
     });
-
   } catch (err) {
     res.status(500).json({ message: "Approval failed", error: err });
   }
@@ -52,9 +53,8 @@ exports.rejectSubmission = async (req, res) => {
 
     res.json({
       message: "Submission rejected",
-      updatedSubmission: submission
+      updatedSubmission: submission,
     });
-
   } catch (err) {
     res.status(500).json({ message: "Rejection failed", error: err });
   }

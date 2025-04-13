@@ -32,6 +32,16 @@ const weeklyReportSchema = new mongoose.Schema({
     default: "",
   },
 
+  //! Temporary fields for combining reports until we use the studentid in future
+  student_name: {
+    type: String,
+    required: true,
+  },
+  groupNumber: {
+    type: Number,
+    required: true,
+  },
+
   submittedAt: {
     type: Date,
     default: Date.now,

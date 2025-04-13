@@ -1,106 +1,129 @@
 .dashboard-container {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-container h2 {
-    font-size: 20px;
-    margin-bottom: 20px;
-    color: #333;
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .dashboard-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .pending-approvals {
-    list-style-type: none;
-    padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 
 .pending-approvals li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    margin: 40px 0;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
+  padding: 20px;
+  margin: 30px 0;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
 }
 
-.pending-approvals li button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+.submission-header {
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
 }
 
-.approve{
-    background-color: #28a745; /* Green background for approve button */
-    color: white;
+.week-entry {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #fefefe;
 }
 
-.reject{
-    background-color: #dc3545; /* Red background for reject button */
-    color: white;
+.status {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 10px 0;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.approve {
+  background-color: #28a745;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reject {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 .approve:hover {
-    background-color: #218838;
+  background-color: #218838;
 }
 
-.reject:hover{
-    background-color: #c82333;
+.reject:hover {
+  background-color: #c82333;
 }
 
 .pending-approvals li button:focus {
-    outline: none;
+  outline: none;
 }
 
-.empty-message-container{
-    display: flex; /* Use flexbox */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    height: 20vh;
+.empty-message-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20vh;
 }
+
 .empty-message {
-    font-size: 28px; /* Adjust font size */
-    color: #000000; /* Change text color for better visibility */
-    text-align: center; /*Center the message*/
-    margin: 20px 0; /* Add some margin for spacing */
-    font-weight: bold; /* Make the message bold */
+  font-size: 28px;
+  color: #000;
+  text-align: center;
+  margin: 20px 0;
+  font-weight: bold;
 }
 
+/* Optional form styling if used */
 form {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 form input,
 form textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 form button {
-    padding: 10px 15px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 form button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }

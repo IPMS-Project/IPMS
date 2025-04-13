@@ -73,6 +73,9 @@ function SignUp() {
         setResponseMessage("Account created successfully.");
       }
 
+      //! Temporary
+      localStorage.setItem("student_name", fullName);
+
       // Reset form after successful submission
       setFullName("");
       setOuEmail("");

@@ -1,0 +1,127 @@
+.a2-form-container {
+  max-width: 720px;
+  margin: auto;
+  padding: 2.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.form-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  color: #9d2235;
+  text-align: center;
+  font-weight: 600;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%239d2235' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 0.8rem;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+
+.optional {
+  font-weight: normal;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+input,
+select,
+textarea {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #fdfdfd;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #9d2235;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(157, 34, 53, 0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: auto;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: auto;
+}
+
+input[type="number"],
+select {
+  height: 44px;
+}
+
+.submit-button {
+  background-color: #9d2235;
+  color: white;
+  padding: 0.8rem 1.6rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 6px rgba(157, 34, 53, 0.2);
+}
+
+.submit-button:hover {
+  background-color: #8a1e2e;
+  transform: translateY(-1px);
+}
+
+.form-message {
+  margin-top: 1rem;
+  font-weight: 500;
+  color: green;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+  }
+
+  .submit-button {
+    width: 100%;
+  }
+}
