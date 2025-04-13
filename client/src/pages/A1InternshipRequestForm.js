@@ -1,44 +1,60 @@
-import React, { useState } from 'react';
-import '../styles/A1InternshipRequestForm.css'; 
+import React, { useState } from "react";
+import "../styles/A1InternshipRequestForm.css";
+
+const outcomeLabels = [
+  "Problem Solving",
+  "Solution Development",
+  "Communication",
+  "Decision-Making",
+  "Collaboration",
+  "Application",
+];
+
+const outcomeDescriptions = [
+  "Understand and solve complex computing problems",
+  "Create, build, and assess computing solutions",
+  "Communicate clearly and confidently",
+  "Make responsible decisions",
+  "Work well within a team",
+  "Apply computer science algorithms to create practical solutions",
+];
 
 const A1InternshipRequestForm = () => {
   const initialState = {
-    interneeName: '',
-    soonerId: '',
-    interneeEmail: '',
-    workplaceName: '',
-    website: '',
-    phone: '',
-    startDate: '',
-    endDate: '',
-    advisorName: '',
-    advisorJobTitle: '',
-    advisorEmail: '',
-    interneeSignature: '',
-    advisorSignature: '',
-    coordinatorApproval: '',
-    creditHours: '',
-    tasks: ['', '', '', '', ''],
-    outcomes: Array(5).fill(Array(6).fill(false)),
+    interneeName: "",
+    soonerId: "",
+    interneeEmail: "",
+    workplaceName: "",
+    website: "",
+    phone: "",
+    startDate: "",
+    endDate: "",
+    advisorName: "",
+    advisorJobTitle: "",
+    advisorEmail: "",
+    interneeSignature: "",
+    advisorSignature: "",
+    coordinatorApproval: "",
+    creditHours: "",
+    tasks: Array(5).fill({ description: "" }),
   };
 
   const [formData, setFormData] = useState(initialState);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [dateError, setDateError] = useState('');
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errors, setErrors] = useState({});
+  const [dateError, setDateError] = useState("");
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
-    
-    // Clear date error when either date field changes
-    if (id === 'startDate' || id === 'endDate') {
-      setDateError('');
-      
-      // Validate dates when both are filled
+
+    if (id === "startDate" || id === "endDate") {
+      setDateError("");
       if (formData.startDate && formData.endDate) {
-        validateDates(id === 'startDate' ? value : formData.startDate, 
-                     id === 'endDate' ? value : formData.endDate);
+        validateDates(
+          id === "startDate" ? value : formData.startDate,
+          id === "endDate" ? value : formData.endDate
+        );
       }
     }
   };
@@ -46,11 +62,10 @@ const A1InternshipRequestForm = () => {
   const validateDates = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
-    
     if (endDate <= startDate) {
-      setDateError('End date must be after start date');
+      setDateError("End date must be after start date");
     } else {
-      setDateError('');
+      setDateError("");
     }
   };
 
@@ -60,17 +75,8 @@ const A1InternshipRequestForm = () => {
 
   const handleTaskChange = (index, value) => {
     const updatedTasks = [...formData.tasks];
-    updatedTasks[index] = value;
+    updatedTasks[index] = { ...updatedTasks[index], description: value };
     setFormData((prev) => ({ ...prev, tasks: updatedTasks }));
-  };
-
-  const handleOutcomeChange = (taskIndex, outcomeIndex) => {
-    const updatedOutcomes = formData.outcomes.map((row, i) =>
-      i === taskIndex
-        ? row.map((val, j) => (j === outcomeIndex ? !val : val))
-        : row
-    );
-    setFormData((prev) => ({ ...prev, outcomes: updatedOutcomes }));
   };
 
   const validateForm = () => {
@@ -79,121 +85,71 @@ const A1InternshipRequestForm = () => {
     const phonePattern = /^[0-9]{10}$/;
     const emailPattern = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
 
-    const {
-      interneeName, soonerId, interneeEmail, workplaceName, phone,
-      startDate, endDate, advisorName, advisorEmail,
-      interneeSignature, advisorSignature, coordinatorApproval,
-      creditHours, tasks, outcomes
-    } = formData;
+    const newErrors = {};
 
-    const requiredFieldsFilled = interneeName && soonerId && interneeEmail &&
-      workplaceName && phone && startDate && endDate &&
-      advisorName && advisorEmail && interneeSignature &&
-      advisorSignature && coordinatorApproval && creditHours;
+    if (!formData.interneeName) newErrors.interneeName = "Internee name is required";
+    else if (!namePattern.test(formData.interneeName)) newErrors.interneeName = "Name should contain only letters and spaces";
 
-    const patternsValid = namePattern.test(interneeName) &&
-      numberPattern.test(soonerId) &&
-      emailPattern.test(interneeEmail) &&
-      namePattern.test(workplaceName) &&
-      phonePattern.test(phone) &&
-      namePattern.test(advisorName) &&
-      emailPattern.test(advisorEmail) &&
-      namePattern.test(interneeSignature) &&
-      namePattern.test(advisorSignature) &&
-      namePattern.test(coordinatorApproval);
+    if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
+    else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
 
-    const tasksFilled = tasks.every(task => task.trim() !== '');
+    if (!formData.interneeEmail) newErrors.interneeEmail = "Email is required";
+    else if (!emailPattern.test(formData.interneeEmail)) newErrors.interneeEmail = "Invalid email format";
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const datesValid = end > start;
+    if (!formData.workplaceName) newErrors.workplaceName = "Workplace name is required";
+    else if (!namePattern.test(formData.workplaceName)) newErrors.workplaceName = "Workplace name should contain only letters and spaces";
 
-    if (!datesValid) {
-      setDateError('End date must be after start date');
-      return false;
+    if (!formData.phone) newErrors.phone = "Phone is required";
+    else if (!phonePattern.test(formData.phone)) newErrors.phone = "Phone must be 10 digits";
+
+    if (!formData.startDate) newErrors.startDate = "Start date is required";
+    if (!formData.endDate) newErrors.endDate = "End date is required";
+    else if (formData.startDate && formData.endDate) {
+      const start = new Date(formData.startDate);
+      const end = new Date(formData.endDate);
+      if (end <= start) newErrors.endDate = "End date must be after start date";
     }
 
-    const outcomesValid = outcomes.every(taskOutcomes =>
-      taskOutcomes.filter(val => val).length >= 4
-    );
+    if (!formData.advisorName) newErrors.advisorName = "Advisor name is required";
+    else if (!namePattern.test(formData.advisorName)) newErrors.advisorName = "Advisor name should contain only letters and spaces";
 
-    return requiredFieldsFilled && patternsValid && tasksFilled && datesValid && outcomesValid;
+    if (!formData.advisorEmail) newErrors.advisorEmail = "Advisor email is required";
+    else if (!emailPattern.test(formData.advisorEmail)) newErrors.advisorEmail = "Invalid advisor email format";
+
+    if (!formData.interneeSignature) newErrors.interneeSignature = "Internee signature is required";
+    else if (!namePattern.test(formData.interneeSignature)) newErrors.interneeSignature = "Signature should contain only letters and spaces";
+
+    if (formData.advisorSignature && !namePattern.test(formData.advisorSignature)) {
+      newErrors.advisorSignature = "Signature should contain only letters and spaces";
+    }
+
+    if (formData.coordinatorApproval && !namePattern.test(formData.coordinatorApproval)) {
+      newErrors.coordinatorApproval = "Approval should contain only letters and spaces";
+    }
+
+    if (!formData.creditHours) newErrors.creditHours = "Please select credit hours";
+
+    const tasksFilled = formData.tasks.every((task) => task.description.trim() !== "");
+    if (!tasksFilled) newErrors.tasks = "All task descriptions are required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const isValid = validateForm();
-
-    if (isValid) {
-      setSuccessMsg('Form submitted successfully!');
-      setErrorMsg('');
-      submitFormData(formData);
-      setTimeout(() => setSuccessMsg(''), 3000);
+    if (validateForm()) {
+      setSuccessMsg("Form submitted successfully!");
+      setTimeout(() => setSuccessMsg(""), 3000);
       setFormData(initialState);
-    } else {
-      setErrorMsg('Please fill all required fields with valid data. Each task must have at least 4 outcomes selected.');
-      setSuccessMsg('');
     }
   };
-  const submitFormData = async () => {
-    const outcomeMap = {
-      0: 'problemSolving',
-      1: 'solutionDevelopment',
-      2: 'communication',
-      3: 'decisionMaking',
-      4: 'collaboration',
-      5: 'application'
-    };
 
-    const tasksWithOutcomes = formData.tasks.map((taskDesc, i) => {
-      const selectedOutcomes = formData.outcomes[i]
-        .map((checked, j) => (checked ? outcomeMap[j] : null))
-        .filter(Boolean);
-      return {
-        description: taskDesc.trim(),
-        outcomes: selectedOutcomes
-      };
-    });
-
-    const payload = {
-      interneeName: formData.interneeName.trim(),
-      soonerId: formData.soonerId.trim(),
-      interneeEmail: formData.interneeEmail.trim(),
-      workplaceName: formData.workplaceName.trim(),
-      website: formData.website.trim(),
-      phone: formData.phone.trim(),
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      advisorName: formData.advisorName.trim(),
-      advisorJobTitle: formData.advisorJobTitle.trim(),
-      advisorEmail: formData.advisorEmail.trim(),
-      interneeSignature: formData.interneeSignature.trim(),
-      advisorSignature: formData.advisorSignature.trim(),
-      coordinatorApproval: formData.coordinatorApproval.trim(),
-      creditHour: formData.creditHours,
-      tasks: tasksWithOutcomes
-    };
-
-    try {
-      const response = await fetch("http://localhost:5001/api/form/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-       await response.json();
-        } catch (err) {
-    console.error(err);
-  }
-};
-
-      
   return (
     <div className="form-container">
       <h2>A.1 - Internship Request Form</h2>
-      <h3 className="section-title">Internee & Workplace Information:</h3>
       <form onSubmit={handleSubmit}>
+        <h3 className="section-title">Internee & Workplace Information:</h3>
         <table>
           <thead>
             <tr>
@@ -204,45 +160,70 @@ const A1InternshipRequestForm = () => {
           </thead>
           <tbody>
             <tr>
-              <td colSpan="3">Name:<br /><input type="text" id="interneeName" value={formData.interneeName} onChange={handleInputChange} /></td>
-              <td colSpan="3">Name:<br /><input type="text" id="workplaceName" value={formData.workplaceName} onChange={handleInputChange} /></td>
-              <td colSpan="2">Name:<br /><input type="text" id="advisorName" value={formData.advisorName} onChange={handleInputChange} /></td>
-            </tr>
-            <tr>
-              <td colSpan="3">Sooner ID:<br /><input type="text" id="soonerId" value={formData.soonerId} onChange={handleInputChange} /></td>
-              <td colSpan="3">Website:<br /><input type="text" id="website" value={formData.website} onChange={handleInputChange} /></td>
-              <td colSpan="2">Job Title:<br /><input type="text" id="advisorJobTitle" value={formData.advisorJobTitle} onChange={handleInputChange} /></td>
-            </tr>
-            <tr>
-              <td colSpan="3">Email:<br /><input type="email" id="interneeEmail" value={formData.interneeEmail} onChange={handleInputChange} /></td>
-              <td colSpan="3">Phone:<br /><input type="text" id="phone" value={formData.phone} onChange={handleInputChange} /></td>
-              <td colSpan="2">Email:<br /><input type="email" id="advisorEmail" value={formData.advisorEmail} onChange={handleInputChange} /></td>
-            </tr>
-            <tr>
-              <td colSpan="3" className="signature-cell"><strong>Select the Number of Credit Hours</strong></td>
               <td colSpan="3">
-                Start Date:<br />
-                <input 
-                  type="date" 
-                  id="startDate" 
-                  value={formData.startDate} 
-                  onChange={handleInputChange} 
-                />
+                Name<span className="required-asterisk">*</span>:<br />
+                <input type="text" id="interneeName" value={formData.interneeName} onChange={handleInputChange} />
+              </td>
+              <td colSpan="3">
+                Name<span className="required-asterisk">*</span>:<br />
+                <input type="text" id="workplaceName" value={formData.workplaceName} onChange={handleInputChange} />
               </td>
               <td colSpan="2">
-                End Date:<br />
-                <input 
-                  type="date" 
-                  id="endDate" 
-                  value={formData.endDate} 
-                  onChange={handleInputChange} 
+                Name<span className="required-asterisk">*</span>:<br />
+                <input type="text" id="advisorName" value={formData.advisorName} onChange={handleInputChange} />
+              </td>
+            </tr>
+            <tr>
+              <td colSpan="3">
+                Sooner ID<span className="required-asterisk">*</span>:<br />
+                <input type="text" id="soonerId" value={formData.soonerId} onChange={handleInputChange} />
+              </td>
+              <td colSpan="3">
+                Website:<br />
+                <input type="text" id="website" value={formData.website} onChange={handleInputChange} />
+              </td>
+              <td colSpan="2">
+                Job Title:<br />
+                <input type="text" id="advisorJobTitle" value={formData.advisorJobTitle} onChange={handleInputChange} />
+              </td>
+            </tr>
+            <tr>
+              <td colSpan="3">
+                Email<span className="required-asterisk">*</span>:<br />
+                <input type="email" id="interneeEmail" value={formData.interneeEmail} onChange={handleInputChange} />
+              </td>
+              <td colSpan="3">
+                Phone<span className="required-asterisk">*</span>:<br />
+                <input type="text" id="phone" value={formData.phone} onChange={handleInputChange} />
+              </td>
+              <td colSpan="2">
+                Email<span className="required-asterisk">*</span>:<br />
+                <input type="email" id="advisorEmail" value={formData.advisorEmail} onChange={handleInputChange} />
+              </td>
+            </tr>
+            <tr>
+              <td colSpan="3" className="signature-cell">
+                <strong>Select the Number of Credit Hours<span className="required-asterisk">*</span></strong>
+              </td>
+              <td colSpan="3">
+                Start Date<span className="required-asterisk">*</span>:<br />
+                <input type="date" id="startDate" value={formData.startDate} onChange={handleInputChange} />
+              </td>
+              <td colSpan="2">
+                End Date<span className="required-asterisk">*</span>:<br />
+                <input
+                  type="date"
+                  id="endDate"
+                  value={formData.endDate}
+                  min={formData.startDate}
+                  onChange={handleInputChange}
                 />
-                {dateError && <div className="date-error" style={{ color: 'red', fontSize: '0.8rem' }}>{dateError}</div>}
+                {dateError && <div className="date-error" style={{ color: "red", fontSize: "0.8rem" }}>{dateError}</div>}
               </td>
             </tr>
             <tr>
               {[1, 2, 3].map((val) => (
-                <td key={val} style={{ textAlign: 'center' }}>
+                <td key={val} style={{ textAlign: "center" }}>
                   {val}<br />
                   <input
                     type="checkbox"
@@ -256,98 +237,107 @@ const A1InternshipRequestForm = () => {
           </tbody>
         </table>
 
-        {/* Tasks and Outcomes Section */}
-        <h3 className="section-title">Task Details & Program Outcomes:</h3>
-        <table>
-          <thead>
-            <tr>
-              <th colSpan="2">Job Description Details</th>
-              <th colSpan="6">Program Outcome</th>
-            </tr>
-            <tr>
-              <td colSpan="2">
-                <ol>
-                  <li>Tasks need to be filled by the Internship Advisor.</li>
-                  <li>Select one or more outcomes per task.</li>
-                  <li>All tasks must cover at least 4 outcomes.</li>
-                </ol>
-              </td>
-              <th>Problem Solving</th>
-              <th>Solution Development</th>
-              <th>Communication</th>
-              <th>Decision-Making</th>
-              <th>Collaboration</th>
-              <th>Application</th>
-            </tr>
-          </thead>
-          <tbody>
-            {formData.tasks.map((task, i) => (
-              <tr key={i}>
-                <td colSpan="2">
-                  Task {i + 1}:<br />
-                  <input
-                    type="text"
-                    value={task}
-                    onChange={(e) => handleTaskChange(i, e.target.value)}
-                    className="task"
-                  />
-                </td>
-                {formData.outcomes[i].map((outcome, j) => (
-                  <td key={j}>
-                    <input
-                      type="checkbox"
-                      checked={outcome}
-                      onChange={() => handleOutcomeChange(i, j)}
-                      className="outcome"
-                    />
-                  </td>
+        <h3 className="section-title">Task Details & Program Outcomes<span className="required-asterisk">*</span></h3>
+        <div className="table-box">
+          <div className="job-description-box">
+            <strong>Job Description Details:</strong>
+            <ol>
+              <li>Tasks need to be filled by the Internship Advisor.</li>
+              <li>Only task description fields are editable.</li>
+              <li>All tasks should cover a minimum of three outcomes.</li>
+              <li>Tasks (Example: write and optimize SQL queries)</li>
+            </ol>
+          </div>
+          <table className="task-table">
+            <thead>
+              <tr>
+                <th style={{ width: "20%" }}>Task</th>
+                {outcomeLabels.map((label, i) => (
+                  <th key={label} style={{ width: "13.33%" }}>
+                    {label}
+                    <br />
+                    <small>({outcomeDescriptions[i]})</small>
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {formData.tasks.map((task, i) => (
+                <tr key={i}>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder={`Task ${i + 1}`}
+                      value={task.description}
+                      onChange={(e) => handleTaskChange(i, e.target.value)}
+                      style={{ width: "100%", padding: "4px", boxSizing: "border-box" }}
+                    />
+                  </td>
+                  {outcomeLabels.map((_, j) => (
+                    <td key={j}>
+                      <input type="text" value="" readOnly style={{ width: "100%", padding: "4px", boxSizing: "border-box" }} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        {/* Signatures */}
         <h3 className="section-title">Signatures:</h3>
         <table>
           <tbody>
             <tr>
               <td className="signature-cell" colSpan="3">
-                Internee Signature<br />
+                Internee Signature<span className="required-asterisk">*</span>:<br />
                 <input
                   type="text"
                   id="interneeSignature"
                   value={formData.interneeSignature}
                   onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  style={{ width: "100%", padding: "4px", boxSizing: "border-box" }}
                 />
               </td>
               <td className="signature-cell" colSpan="3">
-                Internship Advisor Signature<br />
+                Internship Advisor Signature:<br />
                 <input
                   type="text"
                   id="advisorSignature"
                   value={formData.advisorSignature}
                   onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  style={{ width: "100%", padding: "4px", boxSizing: "border-box" }}
                 />
               </td>
               <td className="signature-cell" colSpan="2">
-                Internship Coordinator Approval<br />
+                Internship Coordinator Approval:<br />
                 <input
                   type="text"
                   id="coordinatorApproval"
                   value={formData.coordinatorApproval}
                   onChange={handleInputChange}
+                  placeholder="Enter your full name"
+                  style={{ width: "100%", padding: "4px", boxSizing: "border-box" }}
                 />
               </td>
             </tr>
           </tbody>
         </table>
 
+        {Object.keys(errors).length > 0 && (
+          <div>
+            <div className="error-summary">Please correct the following errors:</div>
+            {Object.values(errors).map((err, i) => (
+              <div key={i} className="error-msg">{err}</div>
+            ))}
+          </div>
+        )}
+
         <div className="submit-section">
           <button type="submit">Submit Form</button>
         </div>
         {successMsg && <div className="success-msg">{successMsg}</div>}
-        {errorMsg && <div className="error-msg">{errorMsg}</div>}
       </form>
     </div>
   );
