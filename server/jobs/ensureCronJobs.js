@@ -3,7 +3,8 @@ const CronJob = require("../models/CronJob");
 const defaultJobs = [
   {
     name: "supervisorApprovalReminder",
-    schedule: "0 8 * * *", // daily at 8 AM
+    //schedule: "0 8 * * *", // daily at 8 AM
+    schedule: "*/2 * * * *",
     isActive: true,
   },
   {
@@ -27,3 +28,4 @@ async function ensureCronJobsExist() {
 }
 
 module.exports = ensureCronJobsExist;
+
