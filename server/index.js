@@ -39,11 +39,10 @@ mongoose
     console.log("Connected to Local MongoDB");
     // Initialize cron jobs after database connection is established
     try {
-      await ensureCronJobsExist(); // Create default cronjobs
       await registerAllJobs(); // Register cronjobs
-      console.log("✅ Cron jobs initialized successfully");
+      console.log("Cron jobs initialized successfully");
     } catch (error) {
-      console.error("❌ Failed to initialize cron jobs:", error);
+      console.error("Failed to initialize cron jobs:", error);
     }
   })
   .catch((err) => {
