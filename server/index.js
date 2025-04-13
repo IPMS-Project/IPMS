@@ -18,7 +18,6 @@ const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
 
-const ensureCronJobsExist = require("./jobs/ensureCronJobs");
 
 const app = express();
 app.use(express.json());
