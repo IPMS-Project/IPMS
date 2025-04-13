@@ -3,104 +3,164 @@
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.dashboard-container h2 {
+  }
+  
+  .dashboard-container h2 {
     font-size: 20px;
     margin-bottom: 20px;
     color: #333;
-}
-
-.dashboard-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-.pending-approvals {
-    list-style-type: none;
-    padding: 0;
-}
-
-.pending-approvals li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    margin: 40px 0;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-    font-size: 16px;
-}
-
-.pending-approvals li button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.approve{
-    background-color: #28a745; /* Green background for approve button */
-    color: white;
-}
-
-.reject{
-    background-color: #dc3545; /* Red background for reject button */
-    color: white;
-}
-
-.approve:hover {
-    background-color: #218838;
-}
-
-.reject:hover{
-    background-color: #c82333;
-}
-
-.pending-approvals li button:focus {
-    outline: none;
-}
-
-.empty-message-container{
-    display: flex; /* Use flexbox */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
-    height: 20vh;
-}
-.empty-message {
-    font-size: 28px; /* Adjust font size */
-    color: #000000; /* Change text color for better visibility */
-    text-align: center; /*Center the message*/
-    margin: 20px 0; /* Add some margin for spacing */
-    font-weight: bold; /* Make the message bold */
-}
-
-form {
-    margin-bottom: 5px;
-}
-
-form input,
-form textarea {
+  }
+  
+  .dashboard-table {
     width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-form button {
-    padding: 10px 15px;
-    background-color: #007bff;
+    border-collapse: collapse;
+  }
+  
+  .dashboard-table th,
+  .dashboard-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .dashboard-table th {
+    background-color: #861f1f;
     color: white;
+    font-weight: bold;
+  }
+  
+  .link-button {
+    background: none;
+    border: none;
+    color: #333;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 0;
+    text-align: left;
+  }
+  
+  .link-button:hover {
+    background: none !important; /* Prevents red background */
+    color: #007bff; /* Optional: subtle hover color, or use 'inherit' */
+    text-decoration: underline;
+  }
+  
+  
+  /* Action buttons */
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .approve {
+    background-color: #28a745;
+    color: white;
+    padding: 6px 12px;
     border: none;
     border-radius: 5px;
+    font-weight: 600;
     cursor: pointer;
-}
-
-form button:hover {
-    background-color: #0056b3;
-}
+  }
+  
+  .reject {
+    background-color: #dc3545;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  .approve:hover {
+    background-color: #218838;
+  }
+  
+  .reject:hover {
+    background-color: #c82333;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: capitalize;
+    display: inline-block;
+  }
+  
+  .status-badge.pending {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .status-badge.approved {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .status-badge.rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  /* Empty state */
+  .empty-message-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 20vh;
+  }
+  
+  .empty-message {
+    font-size: 28px;
+    color: #000000;
+    text-align: center;
+    margin: 20px 0;
+    font-weight: bold;
+  }
+  
+  /* Modal override styles (if needed) */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .modal-box {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 600px;
+    max-width: 95%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-box h3 {
+    margin-top: 0;
+    color: hsl(0, 0%, 20%);
+  }
+  .modal-box {
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  
+  
+  .form-details {
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    margin-bottom: 15px;
+  }
+  
