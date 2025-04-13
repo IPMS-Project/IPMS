@@ -11,7 +11,7 @@ import Swal from "sweetalert2";
 function SignUp() {
   const navigate = useNavigate();
   const [role, setRole] = useState("-");
-  const [responseMessage, setResponseMessage] = useState("");
+  const [responseMessage] = useState("");
   const [step, setStep] = useState(1);
 
   const [fullName, setFullName] = useState("");
@@ -75,7 +75,7 @@ function SignUp() {
         }
       );
 
-      // console.log("Signup response:", response.data);
+      console.log("Signup response:", response.data);
 
       Swal.fire({
         icon: "success",
