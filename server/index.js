@@ -1,3 +1,4 @@
+require("dotenv").config();
 const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 
 
@@ -7,8 +8,6 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User");
 const formRoutes = require("./routes/formRoutes");
-
-require("dotenv").config();
 
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");

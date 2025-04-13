@@ -52,13 +52,15 @@ const SupervisorDashboard = () => {
 
   if (loading) {
     content = <p>Loading...</p>;
-  } else if (sortedRequests.length === 0) {
+  }
+  else if (sortedRequests.length === 0) {
     content = (
       <div className="empty-message-container">
         <div className="empty-message">No pending approvals.</div>
       </div>
     );
-  } else {
+  }
+  else {
     content = (
       <table className="dashboard-table">
         <thead>
