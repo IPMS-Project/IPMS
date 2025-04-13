@@ -11,9 +11,8 @@ import Swal from "sweetalert2";
 function SignUp() {
   const navigate = useNavigate();
   const [role, setRole] = useState("-");
-  const [responseMessage] = useState("");
+  
   const [step, setStep] = useState(1);
-
   const [fullName, setFullName] = useState("");
   const [ouEmail, setOuEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -119,10 +118,7 @@ function SignUp() {
 
   return (
     <div className="signup-container">
-      {responseMessage && (
-        <div className="response-message">{responseMessage}</div>
-      )}
-
+      
       <form onSubmit={createUser} className="signup-form">
         {step === 1 && (
           <div className="role-selection">
