@@ -150,6 +150,7 @@ const A1InternshipRequestForm = () => {
       }
       const data = await response.json();
       console.log("Form submitted successfully:", data);
+      return data;
     } catch (error) {
       console.error("Error submitting form:", error);
       throw error;
@@ -159,8 +160,9 @@ const A1InternshipRequestForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      submitFormData().then(() => {
-        setSuccessMsg("Form submitted successfully!");
+      submitFormData().then(data => {
+        const recipient = data.manual ? "coordinator for manual review!" : "advisor!";
+        setSuccessMsg("Form submitted successfully and sent to " + recipient);
         setTimeout(() => setSuccessMsg(""), 3000);
       }).catch(err => setErrors(`Form submission failed!\n${err}`))
         .finally(() => setFormData(initialState));

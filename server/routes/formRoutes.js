@@ -62,7 +62,7 @@ router.post('/submit', async (req, res) => {
 
   try {
     await insertFormData(formData);
-    res.status(200).json({ message: 'Form received and handled!' ,status});
+    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted'});
   } catch (error) {
     console.error('Error handling form data:', error);
     res.status(500).json({ message: 'Something went wrong' });
