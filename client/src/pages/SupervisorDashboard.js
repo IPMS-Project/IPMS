@@ -12,7 +12,8 @@ const SupervisorDashboard = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await axios.get("http://localhost:5001/api/submissions/pending");
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/submissions/pending`);
+
         setRequests(res.data);
         setLoading(false);
       } catch (err) {
@@ -29,9 +30,8 @@ const SupervisorDashboard = () => {
     if (!confirmed) return;
 
     try {
-      const res = await axios.post(`http://localhost:5001/api/submissions/${id}/${action}`, {
-        comment
-      });
+      const res =  await axios.post(`${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`, { comment });
+
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
       setSelectedForm(null);
