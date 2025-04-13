@@ -196,12 +196,24 @@ router.delete("/deactivate", async (req, res) => {
   try {
     const { token, ouEmail } = req.body;
     if (!token && !ouEmail) {
-      return res.status(400).json({ error: "Token or Email is required for deactivation." });
+      return res
+        .status(400)
+        .json({ error: "Token or Email is required for deactivation." });
     }
-    const hashedToken = hashToken(token);
 
-    const user = await TokenRequest.findOne( token ? {token : hashedToken } : { ouEmail });
+    let filter = {};
 
+    // Only hash the token if it exists
+    if (token) {
+      if (typeof token !== "string") {
+        return res.status(400).json({ error: "Token must be a string." });
+      }
+      const hashedToken = hashToken(token);
+      filter = { token: hashedToken };
+    } else {
+      filter = { ouEmail };
+    }
+    const user = await TokenRequest.findOne(filter);
     if (!user) {
       return res.status(404).json({ error: "Token not found." });
     }
