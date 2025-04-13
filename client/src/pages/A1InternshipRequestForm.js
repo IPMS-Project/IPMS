@@ -163,8 +163,8 @@ const A1InternshipRequestForm = () => {
       submitFormData().then(data => {
         const recipient = data.manual ? "coordinator for manual review!" : "advisor!";
         setSuccessMsg("Form submitted successfully and sent to " + recipient);
-        setTimeout(() => setSuccessMsg(""), 3000);
-      }).catch(err => setErrors(`Form submission failed!\n${err}`))
+        setTimeout(() => setSuccessMsg(""), 15000);
+      }).catch(err => setErrors("Form submission failed! " + err))
         .finally(() => setFormData(initialState));
     }
   };
