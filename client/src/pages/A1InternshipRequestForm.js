@@ -129,19 +129,41 @@ const A1InternshipRequestForm = () => {
 
     if (!formData.creditHours) newErrors.creditHours = "Please select credit hours";
 
-    const tasksFilled = formData.tasks.every((task) => task.description.trim() !== "");
-    if (!tasksFilled) newErrors.tasks = "All task descriptions are required";
+    const tasksFilled = formData.tasks.filter((task) => task.description.trim() !== "").length >= 3;
+    if (!tasksFilled) newErrors.tasks = "At least 3 tasks are required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const submitFormData = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/api/form/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to submit form", {cause: response});
+      }
+      const data = await response.json();
+      console.log("Form submitted successfully:", data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      throw error;
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setSuccessMsg("Form submitted successfully!");
-      setTimeout(() => setSuccessMsg(""), 3000);
-      setFormData(initialState);
+      submitFormData().then(() => {
+        setSuccessMsg("Form submitted successfully!");
+        setTimeout(() => setSuccessMsg(""), 3000);
+      }).catch(err => setErrors(`Form submission failed!\n${err}`))
+        .finally(() => setFormData(initialState));
     }
   };
 
@@ -245,7 +267,6 @@ const A1InternshipRequestForm = () => {
               <li>Tasks need to be filled by the Internship Advisor.</li>
               <li>Only task description fields are editable.</li>
               <li>All tasks should cover a minimum of three outcomes.</li>
-              <li>Tasks (Example: write and optimize SQL queries)</li>
             </ol>
           </div>
           <table className="task-table">

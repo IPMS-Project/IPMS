@@ -20,7 +20,7 @@ async function insertFormData(formData) {
         jobTitle: formData.advisorJobTitle,
         email: formData.advisorEmail,
       },
-      creditHours: parseInt(formData.creditHour),
+      creditHours: parseInt(formData.creditHours),
       startDate: new Date(formData.startDate),
       endDate: new Date(formData.endDate),
       tasks: formData.tasks
@@ -32,7 +32,7 @@ async function insertFormData(formData) {
       status: formData.status, // Default status — adjust as needed
       approvals: ["advisor", "coordinator"], // TODO: Might be dynamic later
       reminders: [], // Placeholder for future reminder logic
-      completedHours: parseInt(formData.creditHour) * 60, // Assuming 1 credit = 60 hours
+      completedHours: parseInt(formData.creditHours) * 60, // Assuming 1 credit = 60 hours
     };
 
     const savedForm = await InternshipRequest.create(formattedData);
