@@ -194,10 +194,13 @@ router.post("/user-login", async (req, res) => {
 
 router.delete("/deactivate", async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token, ouEmail } = req.body;
+    if (!token && !ouEmail) {
+      return res.status(400).json({ error: "Token or Email is required for deactivation." });
+    }
     const hashedToken = hashToken(token);
 
-    const user = await TokenRequest.findOne({ token: hashedToken });
+    const user = await TokenRequest.findOne( token ? {token : hashedToken } : { ouEmail });
 
     if (!user) {
       return res.status(404).json({ error: "Token not found." });
