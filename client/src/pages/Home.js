@@ -1,15 +1,26 @@
-import React from 'react';
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import "../styles/login.css";
+import StudentIcon from "../Icons/StudentIcon";
+import CoordinatorIcon from "../Icons/CoordinatorIcon";
+import SupervisorIcon from "../Icons/SupervisorIcon";
 
 function Home() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "Student",
+    role: "student",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState("student");
+
+  // Sync role into formData.role
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, role }));
+  }, [role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -22,6 +33,17 @@ function Home() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(`${formData.role} sign in attempted`, formData);
+
+    // Redirect user based on role
+    if (formData.role === "coordinator") {
+      navigate("/coordinator/dashboard");
+    } else if (formData.role === "student") {
+      navigate("/student/dashboard");
+    } else if (formData.role === "supervisor") {
+      navigate("/supervisor/dashboard");
+    } else {
+      alert("Please select a valid role.");
+    }
   };
 
   return (
@@ -32,48 +54,81 @@ function Home() {
         </div>
 
         <div className="login-options">
-          <h2>Sign in to continue</h2>
+          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>Welcome back</h2>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
-              <label htmlFor="role">Select Role</label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleInputChange}
-                className="form-control"
-              >
-                <option value="Student">Student</option>
-                <option value="Supervisor">Supervisor</option>
-                <option value="Coordinator">Coordinator</option>
-              </select>
+              <label style={{ fontWeight: "500", marginBottom: "0.5rem" }}>
+                Select Your Role
+              </label>
+              <div className="role-cards" style={{ marginTop: "0.5rem" }}>
+                {[
+                  { role: "student", Icon: StudentIcon },
+                  { role: "supervisor", Icon: SupervisorIcon },
+                  { role: "coordinator", Icon: CoordinatorIcon },
+                ].map(({ role: r, Icon }) => (
+                  <div
+                    key={r}
+                    className={`role-card ${role === r ? "selected" : ""}`}
+                    onClick={() => setRole(r)}
+                  >
+                    <Icon />
+                    <p className="role-label">
+                      {r.charAt(0).toUpperCase() + r.slice(1)}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
+            <div className="form-group clean-input">
+              <label htmlFor="email">
+                <FaEnvelope style={{ marginRight: "6px", verticalAlign: "middle" }} />
+                Email
+              </label>
               <input
-                type="text"
+                type="email"
                 id="email"
                 name="email"
+                placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="form-control"
                 required
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="form-control"
-                required
-              />
+            <div className="form-group clean-input">
+              <label htmlFor="password">
+                <FaLock style={{ marginRight: "6px", verticalAlign: "middle" }} />
+                Password
+              </label>
+              <div className="password-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                />
+                <span
+                  className="eye-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+            </div>
+
+            <div className="form-subtext">
+              <label>
+                <input type="checkbox" style={{ marginRight: "6px" }} />
+                Remember me
+              </label>
+              <Link to="/" style={{ color: "#7f1d1d", fontWeight: "500", textDecoration: "underline" }}>
+                Forgot password?
+              </Link>
             </div>
 
             <button type="submit" className="login-button">
@@ -81,16 +136,21 @@ function Home() {
             </button>
           </form>
 
-          <div className="new-student">
+          <div className="new-student" style={{ marginTop: "1.2rem" }}>
             Don't have an account?
             <Link
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/signup");
               }}
+              style={{
+                color: "#7f1d1d",
+                fontWeight: "600",
+                marginLeft: "4px",
+                textDecoration: "underline",
+              }}
             >
-              {" "}
-              Sign Up
+              Sign up for free
             </Link>
           </div>
         </div>
