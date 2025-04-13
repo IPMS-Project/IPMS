@@ -37,7 +37,11 @@ router.get("/requests", async (req, res) => {
 });
 
 // APPROVE request
+// APPROVE request with required comment
 router.post("/requests/:id/approve", async (req, res) => {
+  const { comment } = req.body;
+  if (!comment) return res.status(400).json({ message: "Approval comment is required" });
+
   try {
     const request = await Request.findByIdAndUpdate(
       req.params.id,
@@ -47,16 +51,13 @@ router.post("/requests/:id/approve", async (req, res) => {
 
     if (!request) return res.status(404).json({ message: "Request not found" });
 
-    // Send email to student, advisor, coordinator
     await emailService.sendEmail({
       to: [request.ouEmail, request.academicAdvisor, "coordinator@ipms.edu"],
       subject: "Internship Request Approved",
-      html: `<p>Hello ${request.fullName},<br>Your internship request has been <strong>approved</strong> by the coordinator.</p>`
+      html: `<p>Hello ${request.fullName},<br>Your internship request has been <strong>approved</strong> by the coordinator.</p><p><strong>Comment:</strong> ${comment}</p>`
     });
 
-    // Log approval
-    logAction(`[APPROVE] Request ID ${request._id} approved for ${request.ouEmail}`);
-
+    logAction(`[APPROVE] Request ID ${request._id} approved for ${request.ouEmail} (Comment: ${comment})`);
     res.json({ message: "Request approved and email sent." });
   } catch (err) {
     console.error("Approval error:", err);
@@ -64,11 +65,10 @@ router.post("/requests/:id/approve", async (req, res) => {
   }
 });
 
-// REJECT request
+// REJECT request with required reason
 router.post("/requests/:id/reject", async (req, res) => {
-  const { reason } = req.body;
-
-  if (!reason) return res.status(400).json({ message: "Rejection reason required" });
+  const { comment } = req.body;
+  if (!comment) return res.status(400).json({ message: "Rejection comment is required" });
 
   try {
     const request = await Request.findByIdAndUpdate(
@@ -79,21 +79,19 @@ router.post("/requests/:id/reject", async (req, res) => {
 
     if (!request) return res.status(404).json({ message: "Request not found" });
 
-    // Send email to student, advisor, coordinator
     await emailService.sendEmail({
       to: [request.ouEmail, request.academicAdvisor, "coordinator@ipms.edu"],
       subject: "Internship Request Rejected",
-      html: `<p>Hello ${request.fullName},<br>Your internship request has been <strong>rejected</strong>.<br><strong>Reason:</strong> ${reason}</p>`
+      html: `<p>Hello ${request.fullName},<br>Your internship request has been <strong>rejected</strong> by the coordinator.</p><p><strong>Comment:</strong> ${comment}</p>`
     });
 
-    // Log rejection
-    logAction(`[REJECT] Request ID ${request._id} rejected for ${request.ouEmail} (Reason: ${reason})`);
-
+    logAction(`[REJECT] Request ID ${request._id} rejected for ${request.ouEmail} (Comment: ${comment})`);
     res.json({ message: "Request rejected and email sent." });
   } catch (err) {
     console.error("Rejection error:", err);
     res.status(500).json({ message: "Rejection failed" });
   }
 });
+
 
 module.exports = router;
