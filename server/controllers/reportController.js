@@ -29,12 +29,38 @@ const reportController = {
       // }
 
       // Basic field validation
-      if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
-        return res.status(400).json({
-          success: false,
-          message: "All required fields must be valid.",
-        });
+      if(!week || typeof week!="string" || !week.trim()){
+        return res.status(400).json({success:false, message:"Week is required."});
       }
+      if(!hours || isNaN(hours) || hours<=0){
+        return res.status(400).json({success:false, message: "valid hours required"});
+      }
+      function isValidTextField(field) {
+        return (
+          typeof field === "string" &&
+          field.trim().length > 0 &&
+          !/^\d+$/.test(field.trim())  // this checks if it's only digits
+        );
+      }
+      
+      const errors = [];
+
+if (!isValidTextField(tasks)) {
+  errors.push("Tasks must be a non-numeric string and cannot be empty");
+}
+
+if (!isValidTextField(lessons)) {
+  errors.push("Lessons must be a non-numeric string and cannot be empty.");
+}
+
+if (errors.length > 0) {
+  return res.status(400).json({
+    success: false,
+    message: errors.join(" , "),
+  });
+}
+
+      
       
 
       // Save the report

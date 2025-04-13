@@ -57,7 +57,7 @@ const WeeklyProgressReportForm = () => {
       });
     } catch (err) {
       console.error(err);
-      setMessage("Submission failed. Try again.");
+      setMessage(err?.response?.data?.message || "Submission failed. Try again.");
     }
   };
   
