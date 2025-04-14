@@ -2,26 +2,32 @@ const Submission = require("../models/Submission");
 const InternshipRequest = require("../models/InternshipRequest");
 const EmailService = require("../services/emailService");
 
-// ✅ Get pending submissions for supervisor
+// ✅ Get all pending submissions for the supervisor
 exports.getPendingSubmissions = async (req, res) => {
   try {
     const submissions = await Submission.find({ supervisor_status: "pending" });
     res.json(submissions);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch pending submissions", error: err });
+
+    res.status(500).json({
+      message: "Failed to fetch pending submissions",
+      error: err.message,
+    });
   }
 };
 
-// ✅ Supervisor Approves
+// ✅ Supervisor Approves a submission
 exports.approveSubmission = async (req, res) => {
   const { id } = req.params;
+  const { comment } = req.body;
 
   try {
     const submission = await Submission.findByIdAndUpdate(
       id,
-      { supervisor_status: "Approved" },
+      {
+        supervisor_status: "Approved",
+        supervisor_comment: comment || "",
+      },
       { new: true }
     );
 
@@ -38,14 +44,18 @@ exports.approveSubmission = async (req, res) => {
   }
 };
 
-// ❌ Supervisor Rejects
+// ✅ Supervisor Rejects a submission
 exports.rejectSubmission = async (req, res) => {
   const { id } = req.params;
+  const { comment } = req.body;
 
   try {
     const submission = await Submission.findByIdAndUpdate(
       id,
-      { supervisor_status: "Rejected" },
+      {
+        supervisor_status: "Rejected",
+        supervisor_comment: comment || "",
+      },
       { new: true }
     );
 
