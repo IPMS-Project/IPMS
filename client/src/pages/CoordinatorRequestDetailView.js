@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 import "../styles/CoordinatorRequestDetailView.css";
 
 const CoordinatorRequestDetailView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -13,6 +14,36 @@ const CoordinatorRequestDetailView = () => {
       .then((res) => setData(res.data))
       .catch((err) => console.log(err));
   }, [id]);
+
+  const handleApprove = async () => {
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}/approve`
+      );
+      alert(res.data.message);
+      navigate("/coordinator-dashboard");
+    } catch (err) {
+      console.error("Approval failed:", err);
+      alert("Error approving request.");
+    }
+  };
+
+  const handleReject = async () => {
+    const reason = prompt("Please enter a reason for rejection:");
+    if (!reason) return alert("Rejection reason required!");
+
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}/reject`,
+        { reason }
+      );
+      alert(res.data.message);
+      navigate("/coordinator-dashboard");
+    } catch (err) {
+      console.error("Rejection failed:", err);
+      alert("Error rejecting request.");
+    }
+  };
 
   if (!data) return <h2>Loading...</h2>;
 
@@ -53,6 +84,21 @@ const CoordinatorRequestDetailView = () => {
             ))}
           </tbody>
         </table>
+
+        <div className="action-buttons" style={{ marginTop: "20px" }}>
+          <button className="approve-btn" onClick={handleApprove}>
+            Approve
+          </button>
+          <button className="reject-btn" onClick={handleReject}>
+            Reject
+          </button>
+          <button
+            className="back-btn"
+            onClick={() => navigate("/coordinator-dashboard")}
+          >
+            Back
+          </button>
+        </div>
       </div>
     </div>
   );
