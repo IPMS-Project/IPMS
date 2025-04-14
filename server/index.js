@@ -1,12 +1,8 @@
 require("dotenv").config();
-const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
-
-
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
 
 const User = require("./models/User");
 const Evaluation = require("./models/Evaluation");
@@ -14,15 +10,10 @@ const Evaluation = require("./models/Evaluation");
 const formRoutes = require("./routes/formRoutes");
 const reportRoutes = require("./routes/weeklyReportRoutes");
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
-const User = require("./models/User");
-const formRoutes = require("./routes/formRoutes");
-
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
-
 const { registerAllJobs, cronJobManager } = require("./utils/cronUtils");
-
 
 const app = express();
 app.use(express.json());
@@ -58,14 +49,8 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-// Graceful Shutdown
-app.use("/api/email", emailRoutes);
-app.use("/api/token", tokenRoutes);
-app.use("/api", approvalRoutes);
-app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
   try {
-    
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
 
@@ -74,11 +59,10 @@ app.post("/api/createUser", async (req, res) => {
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to create user", error: error.message });
+    res.status(500).json({ message: "Failed to create user", error: error.message });
   }
 });
+
 app.post("/api/evaluation", async (req, res) => {
   try {
     const { formData, ratings, comments } = req.body;
@@ -105,8 +89,7 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-
-// Graceful shutdown (async Mongoose support)
+// Graceful shutdown
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();

@@ -12,6 +12,7 @@ const fourWeekReportController = {
         lessons,
         challenges,
         supervisorComments,
+        
       });
 
       await newReport.save();
