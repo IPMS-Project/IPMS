@@ -1,6 +1,6 @@
 const WeeklyReport = require("../models/WeeklyReport");
 const User = require("../models/User");
-const transporter = require("../config/nodemailer"); // your nodemailer config
+const transporter = require("../config/nodemailer");
 
 const sendReminderMailsToSupervisors = async () => {
   try {
@@ -15,15 +15,24 @@ const sendReminderMailsToSupervisors = async () => {
     }
 
     for (const report of pendingReports) {
-      const supervisor = await User.findById(report.supervisorId);  // depends on your model structure
-      if (supervisor?.email) {
+      const supervisor = await User.findById(report.supervisorId);
+
+      if (!supervisor) {
+        console.warn(`Supervisor not found for report ID: ${report._id}`);
+        continue;
+      }
+
+      try {
         await transporter.sendMail({
-          from: "IPMS Team <ipms@example.com>",
+          from: `IPMS Team <${process.env.EMAIL}>`,
           to: supervisor.email,
           subject: "Reminder: Pending Weekly Report Comment",
           text: `Hello ${supervisor.userName}, Please review and comment on the student's weekly report for ${report.week}.`,
         });
+
         console.log(`Reminder sent to ${supervisor.email}`);
+      } catch (mailError) {
+        console.error(`Failed to send email to ${supervisor.email}`, mailError);
       }
     }
   } catch (error) {
