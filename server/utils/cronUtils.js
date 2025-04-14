@@ -18,30 +18,24 @@ class CronJobManager {
       this.stopJob(name);
     }
 
-    const task = cron.schedule(
-      cronExpression,
-      async () => {
-        try {
-          this.logger.info(`[CRON] Running job: ${name}`);
-          await jobFunction();
-          this.logger.info(`[CRON] Finished job: ${name}`);
-        } catch (err) {
-          this.logger.error(`[CRON] Error in job ${name}: ${err.message}`);
-        }
-      },
-      {
-        scheduled: true,
-        timezone: options.timezone,
+    const task = cron.schedule(cronExpression, async () => {
+      try {
+        this.logger.info(`[CRON] Running job: ${name}`);
+        await jobFunction();
+        this.logger.info(`[CRON] Finished job: ${name}`);
+      } catch (err) {
+        this.logger.error(`[CRON] Error in job ${name}: ${err.message}`);
       }
-    );
+    }, {
+      scheduled: true,
+      timezone: options.timezone,
+    });
 
     this.jobs.set(name, { task, cronExpression, jobFunction, options });
 
     if (options.runOnInit) {
       this.logger.info(`Running job ${name} immediately on init`);
-      jobFunction().catch((err) =>
-        this.logger.error(`Immediate run failed for ${name}: ${err.message}`)
-      );
+      jobFunction().catch((err) => this.logger.error(`Immediate run failed for ${name}: ${err.message}`));
     }
 
     return true;
@@ -55,6 +49,12 @@ class CronJobManager {
     }
   }
 
+  stopAllJobs() {
+    this.jobs.forEach((job, name) => this.stopJob(name));
+    this.logger.info("✅ All cron jobs stopped");
+    this.jobs.clear();
+  }
+
   listJobs() {
     return Array.from(this.jobs.entries()).map(([name, job]) => ({
       name,
@@ -62,14 +62,10 @@ class CronJobManager {
       timezone: job.options.timezone || "default",
     }));
   }
-
-  stopAllJobs() {
-    for (const [name] of this.jobs.entries()) {
-      this.stopJob(name);
-    }
-    this.logger.info("✅ All cron jobs stopped");
-  }
 }
 
 const cronJobManager = new CronJobManager();
-module.exports = { cronJobManager };
+
+module.exports = {
+  cronJobManager,
+};
