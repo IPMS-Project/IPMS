@@ -17,7 +17,10 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  justify-content: flex-end;
+}
+
+.action-buttons {
+    justify-content: flex-end;
 }
 
 .approve-btn {
@@ -41,5 +44,4 @@
 
 .dashboard-title {
   text-align: left;
-  font-weight: bold;
 }
