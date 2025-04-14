@@ -7,16 +7,17 @@ import "../styles/login.css";
 import StudentIcon from "../Icons/StudentIcon";
 import CoordinatorIcon from "../Icons/CoordinatorIcon";
 import SupervisorIcon from "../Icons/SupervisorIcon";
+import Swal from 'sweetalert2';
 
 function Home() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "Student",
+    role: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("-");
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,10 +27,54 @@ function Home() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`${formData.role} sign in attempted`, formData);
+  
+    const { email: ouEmail, password, role } = formData;
+  
+    if (!ouEmail || !password || !role) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Oops!",
+        text: "Please fill in all fields to sign in 💫",
+      });
+    }
+  
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/user-login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ouEmail, password, role }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Login Successful 🌟",
+          text: `Welcome back, ${role}!`,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: data.message || "Something went wrong ",
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: "We couldn't reach the server 😢 Try again later!",
+      });
+    }
   };
+  
+  
 
   return (
     <div className="content-container">
@@ -56,8 +101,11 @@ function Home() {
                 ].map(({ role: r, Icon }) => (
                   <div
                     key={r}
-                    className={`role-card ${role === r ? "selected" : ""}`}
-                    onClick={() => setRole(r)}
+                    className={`role-card ${formData.role === r ? "selected" : ""}`}
+                    onClick={() => setFormData({
+                      ...formData,
+                      role: r,
+                    })}
                   >
                     <Icon />
                     <p className="role-label">
@@ -131,7 +179,7 @@ function Home() {
                 marginBottom: "1rem",
               }}
             >
-              <label>
+              <label className='d-flex align-items-center' > 
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>

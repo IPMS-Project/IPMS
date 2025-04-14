@@ -1,10 +1,13 @@
+require("dotenv").config();
+const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
+
+
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User");
 const formRoutes = require("./routes/formRoutes");
-
-require("dotenv").config();
 
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
@@ -16,6 +19,7 @@ const outcomeRoutes = require("./routes/outcomeRoutes");
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
+
 
 const app = express();
 app.use(express.json());
@@ -40,10 +44,10 @@ mongoose
     console.log("Connected to Local MongoDB");
     // Initialize cron jobs after database connection is established
     try {
-      await registerAllJobs();
-      console.log("✅ Cron jobs initialized successfully");
+      await registerAllJobs(); // Register cronjobs
+      console.log("Cron jobs initialized successfully");
     } catch (error) {
-      console.error("❌ Failed to initialize cron jobs:", error);
+      console.error("Failed to initialize cron jobs:", error);
     }
   })
   .catch((err) => {
@@ -76,11 +80,13 @@ app.get("/api/message", (req, res) => {
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
-
+app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
   try {
+    
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
+
     await user.save();
     console.log("New user created:", JSON.stringify(user));
     res.status(201).json({ message: "User created successfully", user });
@@ -116,6 +122,8 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
+
+
 // Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
   try {

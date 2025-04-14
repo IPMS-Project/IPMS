@@ -51,6 +51,11 @@ const userTokenRequestSchema = new mongoose.Schema(
       lowercase: true,
       match: [/^[\w-.]+@ou\.edu$/, 'Email must be a valid OU address'],
     },
+    role: {
+      type: String,
+      required: true,
+      enum: ['student', 'supervisor', 'coordinator'],
+    },
     semester: {
       type: String,
       required: [true, 'Semester is required'],
@@ -70,6 +75,7 @@ const userTokenRequestSchema = new mongoose.Schema(
       required: [true, 'Token is required'],
       unique: true,
     },
+  
     isActivated: {
       type: Boolean,
       default: false,
@@ -101,12 +107,12 @@ const userTokenRequestSchema = new mongoose.Schema(
   }
 );
 
-// Automatically set expiresAt to 6 months after requestedAt
+// Automatically set expiresAt to 5 days after requestedAt
 userTokenRequestSchema.pre('save', function (next) {
   if (!this.expiresAt) {
-    const sixMonthsLater = new Date(this.requestedAt);
-    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
-    this.expiresAt = sixMonthsLater;
+    const fiveDaysLater = new Date(this.requestedAt);
+    fiveDaysLater.setDate(fiveDaysLater.getDate() + 5);
+    this.expiresAt = fiveDaysLater;
   }
   next();
 });
