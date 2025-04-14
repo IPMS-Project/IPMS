@@ -1,4 +1,4 @@
-# Module 4: Email Approval and Reject Functionality
+# Module 4: Coordinator Email Approval and Reject Functionality
 
 ![Screenshot 2025-04-14 180719](https://github.com/user-attachments/assets/f066951a-a6f2-49e3-af6c-2d071ab144ee)
 
