@@ -1,19 +1,21 @@
 require("dotenv").config();
+const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
+
+
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
 const User = require("./models/User");
 
 const formRoutes = require("./routes/formRoutes");
-const reportRoutes = require("./routes/weeklyReportRoutes");
-const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
+
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 
 const coordinatorRoutes = require("./routes/coordinator");
+const outcomeRoutes = require("./routes/outcomeRoutes");
 
 
 // Import cron job manager and register jobs
@@ -24,31 +26,54 @@ const Evaluation = require("./models/Evaluation");
 const cronJobRoutes = require("./routes/cronJobRoutes");
 
 
-
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use("/api/form", formRoutes); // register route as /api/form/submit
+app.use("/api/email", emailRoutes);
+app.use("/api/token", tokenRoutes);
+app.use("/api", outcomeRoutes); 
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {})
-  .then(() => {
+
+const mongoConfig = {
+  serverSelectionTimeoutMS: 5000,
+  autoIndex: true,
+  maxPoolSize: 10,
+  socketTimeoutMS: 45000,
+  family: 4,
+};
+
+mongoose
+  .connect(process.env.MONGO_URI, mongoConfig)
+  .then(async () => {
     console.log("Connected to Local MongoDB");
+    // Initialize cron jobs after database connection is established
+    try {
+      await registerAllJobs(); // Register cronjobs
+      console.log("Cron jobs initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize cron jobs:", error);
+    }
   })
-  .catch(err => {
+  .catch((err) => {
     console.error("MongoDB Connection Error:", err);
     process.exit(1);
   });
 
-// Routes
-app.use("/api/form", formRoutes);
-app.use("/api/reports", reportRoutes);
-app.use("/api/fourWeekReports", fourWeekReportRoutes);
-app.use("/api/email", emailRoutes);
-app.use("/api/token", tokenRoutes);
-app.use("/api", approvalRoutes);
-app.use("/api/cronjobs", cronJobRoutes);  // CronJob Routes
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB error after initial connection:", err);
+});
 
-// Health Check Routes
+mongoose.connection.on("disconnected", () => {
+  console.log("Lost MongoDB connection...");
+  if (!mongoose.connection.readyState) {
+    mongoose
+      .connect(process.env.MONGO_URI, mongoConfig)
+      .then(() => console.log("Reconnected to MongoDB"))
+      .catch((err) => console.error("Error reconnecting to MongoDB:", err));
+  }
+});
+
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
 });
@@ -57,16 +82,15 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
 app.use("/api/coordinator", coordinatorRoutes);
 
-
 app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
   try {
+    
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
 
@@ -75,11 +99,11 @@ app.post("/api/createUser", async (req, res) => {
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "Failed to create user", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to create user", error: error.message });
   }
 });
-
-// Evaluation API
 app.post("/api/evaluation", async (req, res) => {
   try {
     const { formData, ratings, comments } = req.body;
@@ -106,12 +130,13 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-// Graceful Shutdown
+
+// Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
     await mongoose.connection.close();
-    console.log("✅ MongoDB connection closed");
+    console.log("✅ MongoDB connection closed through app termination");
     process.exit(0);
   } catch (err) {
     console.error("❌ Error during shutdown:", err);

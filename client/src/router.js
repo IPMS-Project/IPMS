@@ -2,8 +2,6 @@ import React from "react";
 
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
-import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
-
 
 // Layout
 import Layout from "./components/Layout";
@@ -37,10 +35,6 @@ const router = createBrowserRouter([
       {
         path: "weekly-report",
         element: <WeeklyProgressReportForm />,
-      },
-      {
-        path: "four-week-report",
-        element: <WeeklyFourWeekReportForm />,
       },
       {
         path: "a1-form",

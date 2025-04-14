@@ -22,12 +22,20 @@ const WeeklyProgressReportForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-   // const user = JSON.parse(localStorage.getItem("user"));
+  
+    // Get the user ID from localStorage (ensure it exists)
+    // const user = JSON.parse(localStorage.getItem("user"));
     // const studentId = user?.user?._id;
-    const studentId = "123456";
-    if (!studentId) {
-      setMessage("Student ID not found. Please log in again.");
+  
+    // // Check if studentId exists in localStorage
+    // if (!studentId) {
+    //   setMessage("Student ID not found. Please log in again.");
+    //   return;
+    // }
+  
+    // Check that all required fields are filled
+    if (!formData.week || !formData.hours || !formData.tasks || !formData.lessons) {
+      setMessage("Please fill in all the fields.");
       return;
     }
   
@@ -35,12 +43,10 @@ const WeeklyProgressReportForm = () => {
     const payload = {  ...formData };
   
     try {
-      const payload = { studentId, ...formData };
-      console.log("Payload sending from frontend:", payload);
-      const res = await axios.post("http://localhost:5001/api/reports", payload);
-
-      // const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, payload);
-
+      // Sending the form data to the backend
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, payload);
+  
+      // Display success message
       setMessage(res.data.message || "Report submitted!");
       setFormData({
         week: "Week 1",
