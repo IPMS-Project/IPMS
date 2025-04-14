@@ -138,7 +138,7 @@ const A1InternshipRequestForm = () => {
 
   const submitFormData = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/form/submit", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/form/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,18 +157,86 @@ const A1InternshipRequestForm = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (validateForm()) {
+  //     // sending descriptions to backend to check if they align with CS outcomes
+  //     const taskDescriptions = formData.tasks
+  //     .map(task => task.description.trim())
+  //     .filter(Boolean);
+  //     sendTaskDescriptions(taskDescriptions);
+  //     //ending here
+  //     submitFormData().then(data => {
+  //       const recipient = data.manual ? "coordinator for manual review!" : "advisor!";
+  //       setSuccessMsg("Form submitted successfully and sent to " + recipient);
+  //       setTimeout(() => setSuccessMsg(""), 15000);
+  //     }).catch(err => setErrors("Form submission failed! " + err))
+  //       .finally(() => setFormData(initialState));
+  //   }
+  // };
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      submitFormData().then(data => {
-        const recipient = data.manual ? "coordinator for manual review!" : "advisor!";
+  
+    if (!validateForm()) return;
+  
+    const taskDescriptions = formData.tasks
+      .map(task => task.description.trim())
+      .filter(Boolean);
+  
+    try {
+      const aligned = await sendTaskDescriptions(taskDescriptions);
+  
+      if (aligned && aligned.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          tasks: aligned
+        }));
+  
+        const submissionResponse = await submitFormData();
+  
+        const recipient = submissionResponse.manual ? "coordinator for manual review!" : "supervisor!";
         setSuccessMsg("Form submitted successfully and sent to " + recipient);
         setTimeout(() => setSuccessMsg(""), 15000);
-      }).catch(err => setErrors("Form submission failed! " + err))
-        .finally(() => setFormData(initialState));
+        setFormData(initialState);
+      } else {
+        setErrors({ tasks: "Outcome alignment failed or returned no tasks." });
+      }
+    } catch (err) {
+      console.error("Error during submission:", err);
+      setErrors({ submit: "Form submission failed! " + err.message });
     }
   };
+  
+  //function to send description to backend
+  const sendTaskDescriptions = async (descriptions) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/align-outcomes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ tasks: descriptions }) 
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to send task descriptions");
+      }
+  
+      const data = await response.json();
+      console.log("Alignment result:", data);
+      formData.tasks = data.results.map(({ task, matched_outcomes }) => ({
+        description: task,
+        outcomes: matched_outcomes
+      }));
 
+      return formData.tasks;
+
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
   return (
     <div className="form-container">
       <h2>A.1 - Internship Request Form</h2>

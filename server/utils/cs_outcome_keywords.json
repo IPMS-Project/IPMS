@@ -1,5 +1,5 @@
 {
-    "Problem Solving": [
+    "problemSolving": [
         "analyze",
         "analysis",
         "identify",
@@ -36,7 +36,7 @@
         "solve",
         "resolve"
     ],
-    "Solution Development": [
+    "solutionDevelopment": [
         "implement",
         "implementation",
         "design",
@@ -89,7 +89,7 @@
         "environment configuration",
         "scripiting"
     ],
-    "Communication": [
+    "communication": [
         "document",
         "documentation",
         "report",
@@ -123,7 +123,7 @@
         "proofreading",
         "correspondence"
     ],
-    "Decision Making": [
+    "decisionMaking": [
         "ethics",
         "ethical",
         "compliance",
@@ -162,7 +162,7 @@
         "code of conduct",
         "industry standards"
     ],
-    "Collaboration": [
+    "collaboration": [
         "collaborate",
         "collaboration",
         "team",
@@ -199,7 +199,7 @@
         "agile",
         "coordination meeting"
     ],
-    "Application": [
+    "application": [
         "theory",
         "theoretical",
         "fundamental",
