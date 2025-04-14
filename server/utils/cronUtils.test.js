@@ -94,7 +94,7 @@ describe("cronUtils", () => {
       expect(logger.error).toHaveBeenCalledWith(
         "Invalid cron expression: invalid-cron-expression"
       );
-      expect(logger.info).toHaveBeenCalledTimes(0);
+      expect(logger.info).not.toHaveBeenCalled();
     });
 
     it("registerJob warns & replaces duplicate jobs", () => {
