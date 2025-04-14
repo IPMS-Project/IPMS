@@ -1,14 +1,10 @@
-
 const cron = require("node-cron");
-const logger = require("./logger"); // Replace console
-
+const logger = require("./logger");
 
 class CronJobManager {
   constructor() {
     this.jobs = new Map();
-    this.logger = console;
     this.logger = logger;
-
   }
 
   registerJob(name, cronExpression, jobFunction, options = {}) {
@@ -73,11 +69,7 @@ class CronJobManager {
     }
     this.logger.info("✅ All cron jobs stopped");
   }
-  
 }
 
-
 const cronJobManager = new CronJobManager();
-module.exports = cronJobManager;
-
 module.exports = { cronJobManager };
