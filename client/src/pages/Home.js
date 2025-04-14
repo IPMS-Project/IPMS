@@ -17,7 +17,7 @@ function Home() {
     role: "student",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("student");
+  const [role] = useState("student");
 
   // Sync role into formData.role
   useEffect(() => {
