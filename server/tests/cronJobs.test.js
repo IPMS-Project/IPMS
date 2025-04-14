@@ -1,4 +1,4 @@
-const { cronJobManager } = require("../utils/cronUtils");
+const cronJobManager = require("../utils/cronUtils");
 const cron = require("node-cron");
 
 // Mock the cron.schedule function

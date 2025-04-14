@@ -1,7 +1,7 @@
 // cronUtils.test.js
 const cron = require("node-cron");
 const logger = require("./logger");
-const { cronJobManager } = require("./cronUtils");
+const cronJobManager = require("./cronUtils");
 
 jest.mock("node-cron", () => ({
   validate: jest.fn(),
