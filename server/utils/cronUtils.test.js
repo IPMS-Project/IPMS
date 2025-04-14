@@ -24,11 +24,12 @@ describe("cronUtils", () => {
     logger.info.mockClear();
     logger.warn.mockClear();
     logger.error.mockClear();
-     cronJobManager.stopAllJobs();  // <-- CORRECT WAY
+
+    cronJobManager.jobs.clear();
   });
 
   afterEach(() => {
-     cronJobManager.stopAllJobs();  // <-- CORRECT WAY
+
     jest.clearAllMocks();
   });
 
