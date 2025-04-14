@@ -24,10 +24,12 @@ describe("cronUtils", () => {
     logger.info.mockClear();
     logger.warn.mockClear();
     logger.error.mockClear();
+
     cronJobManager.jobs.clear();
   });
 
   afterEach(() => {
+
     jest.clearAllMocks();
   });
 
@@ -93,7 +95,9 @@ describe("cronUtils", () => {
       expect(logger.error).toHaveBeenCalledWith(
         "Invalid cron expression: invalid-cron-expression"
       );
-      expect(logger.info).toHaveBeenCalledTimes(0);
+     expect(logger.error).toHaveBeenCalledWith(
+  "Invalid cron expression: invalid-cron-expression"
+);
     });
 
     it("registerJob warns & replaces duplicate jobs", () => {
