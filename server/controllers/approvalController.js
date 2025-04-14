@@ -66,60 +66,23 @@ exports.getCoordinatorRequestDetails = async (req, res) => {
   try {
     const requestData = await InternshipRequest.findById(
       req.params.id
-    ).populate("student", "name email");
+    ).populate("student", "userName email");
 
-    if (!requestData)
+    if (!requestData) {
       return res.status(404).json({ message: "Request not found" });
+    }
 
-    res.status(200).json(requestData);
+    const submissionData = await Submission.findOne({
+      student_name: requestData.student.userName,
+    });
+
+    res.status(200).json({
+      requestData,
+      supervisorStatus: submissionData
+        ? submissionData.supervisor_status
+        : "Not Submitted",
+    });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch details", error: err });
-  }
-};
-
-// Coordinator: Approve Request
-exports.coordinatorApproveRequest = async (req, res) => {
-  try {
-    const request = await InternshipRequest.findByIdAndUpdate(
-      req.params.id,
-      { status: "approved" },
-      { new: true }
-    );
-
-    if (!request) return res.status(404).json({ message: "Request not found" });
-
-    await emailService.sendEmail({
-      to: request.student.email,
-      subject: "Internship Request Approved",
-      html: `<p>Your internship request has been approved by the Coordinator.</p>`,
-    });
-
-    res.json({ message: "Request Approved Successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Approval failed", error: err });
-  }
-};
-
-// Coordinator: Reject Request
-exports.coordinatorRejectRequest = async (req, res) => {
-  const { comment } = req.body;
-  try {
-    const request = await InternshipRequest.findByIdAndUpdate(
-      req.params.id,
-      { status: "rejected", comment },
-      { new: true }
-    );
-
-    if (!request) return res.status(404).json({ message: "Request not found" });
-
-    await emailService.sendEmail({
-      to: request.student.email,
-      subject: "Internship Request Rejected",
-      html: `<p>Your internship request was rejected by the Coordinator. Reason: ${comment}</p>`,
-    });
-
-    res.json({ message: "Request Rejected Successfully" });
-  } catch (err) {
-    res.status(500).json({ message: "Rejection failed", error: err });
   }
 };

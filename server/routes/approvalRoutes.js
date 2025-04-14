@@ -20,15 +20,5 @@ router.get(
   isCoordinator,
   getCoordinatorRequestDetails
 );
-router.post(
-  "/coordinator/request/:id/approve",
-  isCoordinator,
-  coordinatorApproveRequest
-);
-router.post(
-  "/coordinator/request/:id/reject",
-  isCoordinator,
-  coordinatorRejectRequest
-);
 
 module.exports = router;
