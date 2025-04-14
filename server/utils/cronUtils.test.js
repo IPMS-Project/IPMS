@@ -24,14 +24,13 @@ describe("cronUtils", () => {
     logger.info.mockClear();
     logger.warn.mockClear();
     logger.error.mockClear();
-    cronJobManager.stopAllJobs();  // <-- CORRECT WAY
+    cronJobManager.jobs.clear();
   });
-  
+
   afterEach(() => {
-    cronJobManager.stopAllJobs();  // <-- Safely clears all jobs
     jest.clearAllMocks();
   });
-  
+
   it("create instance of CronJobManager", () => {
     expect(cronJobManager).toBeDefined();
     expect(cronJobManager.jobs).toEqual(new Map());

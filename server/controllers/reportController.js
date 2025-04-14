@@ -1,45 +1,50 @@
-
 const User = require("../models/User");
 const WeeklyReport = require("../models/WeeklyReport");
 
+/**
+ * Report Controller – handles weekly report submissions and retrieval
+ */
+
 const reportController = {
+  // POST /api/reports
   createReport: async (req, res) => {
     try {
       const {
+        studentId,
         week,
         hours,
         tasks,
         lessons,
-        supervisorComments,
+        supervisorComments
       } = req.body;
        
 
-      const studentId = "123456";  // Static for testing
+      // Role-check: Only students can submit (based on their ID)
+      // const user = await User.findById(studentId);
+      // if (!user || user.role.toLowerCase() !== "student") {
+      //   return res.status(403).json({
+      //     success: false,
+      //     message: "Only students can submit reports.",
+      //   });
+      // }
 
-      if (!week || hours === undefined || !tasks || !lessons) {
+      // Basic field validation
+      if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
         return res.status(400).json({
           success: false,
-          message: "All fields are required.",
+          message: "All required fields must be valid.",
         });
       }
       
 
+      // Save the report
       const newReport = new WeeklyReport({
-        studentId,
+        //studentId,
         week,
         hours,
         tasks,
         lessons,
-        supervisorComments,
-      });
-
-      console.log("Payload received in backend:", {
-        studentId,
-        week,
-        hours,
-        tasks,
-        lessons,
-        supervisorComments,
+        supervisorComments: supervisorComments || "",
       });
       
 
@@ -49,7 +54,6 @@ const reportController = {
         success: true,
         message: "Report submitted successfully.",
       });
-
     } catch (error) {
       console.error("Error in createReport:", error);
       res.status(500).json({
@@ -59,6 +63,7 @@ const reportController = {
     }
   },
 
+  // GET /api/reports/:userId
   getReportsByStudent: async (req, res) => {
     try {
       const { userId } = req.params;
@@ -71,13 +76,11 @@ const reportController = {
         success: true,
         reports,
       });
-
     } catch (error) {
       console.error("Error in getReportsByStudent:", error);
-      res.status(500).json({
-        success: false,
-        message: "Failed to retrieve reports.",
-      });
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to retrieve reports." });
     }
   },
 };

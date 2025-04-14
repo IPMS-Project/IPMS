@@ -1,44 +1,60 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { insertFormData } = require("../services/insertData");
+const { insertFormData } = require('../services/insertData');
 
-// Utility: Validate required fields
+let status = '';
+
+// Validate required fields
 function validateFormData(formData) {
   const requiredFields = [
-    "workplaceName",
-    "website",
-    "phone",
-    "advisorName",
-    "advisorJobTitle",
-    "advisorEmail",
-    "creditHour",
-    "startDate",
-    "endDate",
-    "tasks"
+    'workplaceName',
+    'website',
+    'phone',
+    'advisorName',
+    'advisorJobTitle',
+    'advisorEmail',
+    'creditHours',
+    'startDate',
+    'endDate',
+    'tasks'
   ];
 
   for (const field of requiredFields) {
-    if (!formData[field] || formData[field] === "") {
+    if (!formData[field] || formData[field] === '') {
       return `Missing or empty required field: ${field}`;
     }
   }
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
-    return "Tasks must be a non-empty array";
+    return 'Tasks must be a non-empty array';
   }
+  // for (const [index, task] of formData.tasks.entries()) {
+  //   if (!task.description || !task.outcomes) {
+  //     return `Task at index ${index} is missing description or outcomes`;
+  //   }
+  // }
 
-  for (const [index, task] of formData.tasks.entries()) {
-    if (!task.description || !task.outcomes) {
-      return `Task at index ${index} is missing description or outcomes`;
-    }
-  }
+  // uncomment below if student has to fill in task outcomes
+  // const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
+  // if (filledTasks.length < 3)
+  //   return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`;
 
-  return null; // No errors
+  const tasks = formData.tasks;
+  console.log(tasks);
+  if (tasks.filter((task) => task.description).length < 3)
+    return 'At least 3 tasks must be provided';
+  const uniqueOutcomes = new Set();
+  tasks.forEach((task) => {
+    if (Array.isArray(task.outcomes)) {
+      task.outcomes.forEach(outcome => uniqueOutcomes.add(outcome));
+    } 
+  });
+  formData.status = uniqueOutcomes.size < 3 ? 'pending manual review' : 'submitted';
+  return null;
 }
 
-router.post("/submit", async (req, res) => {
+router.post('/submit', async (req, res) => {
   const formData = req.body;
-
   const validationError = validateFormData(formData);
   if (validationError) {
     return res.status(400).json({ message: validationError });
@@ -46,10 +62,10 @@ router.post("/submit", async (req, res) => {
 
   try {
     await insertFormData(formData);
-    res.status(200).json({ message: "Form received and handled!" });
+    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted'});
   } catch (error) {
-    console.error("Error handling form data:", error);
-    res.status(500).json({ message: "Something went wrong" });
+    console.error('Error handling form data:', error);
+    res.status(500).json({ message: 'Something went wrong' });
   }
 });
 
