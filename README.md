@@ -1,3 +1,33 @@
+# Module 4: Email Approval and Reject Functionality
+
+![Screenshot 2025-04-14 180719](https://github.com/user-attachments/assets/f066951a-a6f2-49e3-af6c-2d071ab144ee)
+
+![Screenshot 2025-04-14 180848](https://github.com/user-attachments/assets/30f9ac75-b431-445a-9279-a4c823d7513c)
+
+![Screenshot 2025-04-14 180918](https://github.com/user-attachments/assets/4e22d876-8b8b-49cd-8a05-8c165aa0ae48)
+
+![Screenshot 2025-04-14 180941](https://github.com/user-attachments/assets/d102eca5-1d33-4b1c-8e4e-96d2cc7abd19)
+
+![Screenshot 2025-04-14 181014](https://github.com/user-attachments/assets/742500dc-c8b3-4e77-8d6c-f2bc01f8d155)
+
+---
+
+## verifying email sent
+
+---
+![Screenshot 2025-04-14 182557](https://github.com/user-attachments/assets/58d15afa-405e-4718-bf1e-95a45991f4b2)
+
+![Screenshot 2025-04-14 182623](https://github.com/user-attachments/assets/058826ce-5855-42b8-a524-11be03c1369e)
+
+
+
+
+
+
+
+
+
+
 # IPMS Project - Environment Setup
 
 ![image](https://github.com/user-attachments/assets/2ac4e0b2-0bbe-4656-b0b9-fe5e0dc0ab09)
