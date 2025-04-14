@@ -43,9 +43,9 @@ const router = createBrowserRouter([
       {
         path: "coordinator/dashboard",
         element: <CoordinatorDashboard />,
-      },      
+      },
       {
-        path: "evaluation", 
+        path: "evaluation",
         element: <A3JobEvaluationForm />,
       },
       {

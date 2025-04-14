@@ -55,7 +55,7 @@ function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ouEmail, password, role }),
-        }
+        },
       );
 
       const data = await response.json();

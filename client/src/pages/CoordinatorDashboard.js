@@ -69,21 +69,43 @@ function CoordinatorDashboard() {
         {requests.map((req) => (
           <div key={req._id} className="request-card">
             <h4>{req.fullName}</h4>
-            <p><strong>Email:</strong> {req.ouEmail}</p>
-            <p><strong>Advisor:</strong> {req.academicAdvisor}</p>
-            <p><strong>Status:</strong> {req.status}</p>
-            <p><strong>Requested At:</strong> {new Date(req.requestedAt).toLocaleDateString()}</p>
-            <p><strong>Expires In:</strong> 
-              <span style={{ color: daysRemaining(req.expiresAt) <= 5 ? "red" : "green", fontWeight: "bold", marginLeft: "6px" }}>
+            <p>
+              <strong>Email:</strong> {req.ouEmail}
+            </p>
+            <p>
+              <strong>Advisor:</strong> {req.academicAdvisor}
+            </p>
+            <p>
+              <strong>Status:</strong> {req.status}
+            </p>
+            <p>
+              <strong>Requested At:</strong>{" "}
+              {new Date(req.requestedAt).toLocaleDateString()}
+            </p>
+            <p>
+              <strong>Expires In:</strong>
+              <span
+                style={{
+                  color: daysRemaining(req.expiresAt) <= 5 ? "red" : "green",
+                  fontWeight: "bold",
+                  marginLeft: "6px",
+                }}
+              >
                 {daysRemaining(req.expiresAt)} days
               </span>
             </p>
 
             <div className="action-buttons">
-              <button className="approve-btn" onClick={() => handleApprove(req._id)}>
+              <button
+                className="approve-btn"
+                onClick={() => handleApprove(req._id)}
+              >
                 Approve
               </button>
-              <button className="reject-btn" onClick={() => handleReject(req._id)}>
+              <button
+                className="reject-btn"
+                onClick={() => handleReject(req._id)}
+              >
                 Reject
               </button>
             </div>
