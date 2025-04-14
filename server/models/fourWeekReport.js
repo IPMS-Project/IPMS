@@ -1,37 +1,32 @@
-
 const mongoose = require("mongoose");
 
-const weeklyReportSchema = new mongoose.Schema({
-
+const fourWeekReportSchema = new mongoose.Schema({
   studentId: {
-    type: String,  // Since you are using "123456" for now
+    type: String,
     required: true,
   },
-
   week: {
     type: String,
     required: true,
   },
-
-  hours: {
-    type: Number,
-    required: true,
-  },
-
   tasks: {
     type: String,
     required: true,
   },
-
   lessons: {
     type: String,
     required: true,
   },
-
+  challenges: {
+    type: String,
+    required: true,
+  },
   supervisorComments: {
+    type: String,
+  },
+  coordinatorComments: {
     type: String,
   },
 }, { timestamps: true });
 
-
-module.exports = mongoose.model("WeeklyReport", weeklyReportSchema);
+module.exports = mongoose.model("FourWeekReport", fourWeekReportSchema);
