@@ -1,6 +1,5 @@
 const cron = require("node-cron");
 const logger = require("./logger");
-const sendReminderMailsToSupervisors = require("../jobs/reminderSupervisor");
 
 class CronJobManager {
   constructor() {
@@ -74,13 +73,4 @@ class CronJobManager {
 
 const cronJobManager = new CronJobManager();
 
-const registerAllJobs = () => {
-  cronJobManager.registerJob(
-    "SupervisorReminderJob",    // Job Name
-    "0 10 * * *",              // Cron Expression: 10AM everyday
-    sendReminderMailsToSupervisors,
-    { runOnInit: false }       // Optional: run once on startup
-  );
-};
-
-module.exports = { cronJobManager, registerAllJobs };
+module.exports = { cronJobManager };

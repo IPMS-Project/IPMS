@@ -13,20 +13,18 @@ const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
-const { registerAllJobs, cronJobManager } = require("./utils/cronUtils");
+const cronJobRoutes = require("./routes/cronJobRoutes");
+
+const { cronJobManager } = require("./utils/cronUtils");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-const mongoConfig = { /* your mongo config */ };
-
-// Connect to Mongo
-mongoose.connect(process.env.MONGO_URI, mongoConfig)
-  .then(async () => {
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {})
+  .then(() => {
     console.log("Connected to Local MongoDB");
-    await registerAllJobs();
-    console.log("✅ Cron jobs initialized successfully");
   })
   .catch(err => {
     console.error("MongoDB Connection Error:", err);
@@ -40,7 +38,9 @@ app.use("/api/fourWeekReports", fourWeekReportRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
+app.use("/api/cronjobs", cronJobRoutes);  // CronJob Routes
 
+// Health Check Routes
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
 });
@@ -49,6 +49,7 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
+// User Creation API
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -63,6 +64,7 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
+// Evaluation API
 app.post("/api/evaluation", async (req, res) => {
   try {
     const { formData, ratings, comments } = req.body;
@@ -89,7 +91,7 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-// Graceful shutdown
+// Graceful Shutdown
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
