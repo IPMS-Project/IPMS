@@ -1,71 +1,64 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { insertFormData } = require('../services/insertData');
+const InternshipRequest = require("../models/InternshipRequest");
+const { insertFormData } = require("../services/insertData");
 
-let status = '';
+// GET route to fetch all internship requests
+router.get("/internshiprequests", async (req, res) => {
+  try {
+    const requests = await InternshipRequest.find().sort({ createdAt: -1 });
+    res.status(200).json(requests);
+  } catch (err) {
+    console.error("Error fetching internship requests:", err);
+    res.status(500).json({ message: "Server error while fetching internship requests" });
+  }
+});
 
-// Validate required fields
+// Validate and submit form
 function validateFormData(formData) {
   const requiredFields = [
-    'workplaceName',
-    'website',
-    'phone',
-    'advisorName',
-    'advisorJobTitle',
-    'advisorEmail',
-    'creditHours',
-    'startDate',
-    'endDate',
-    'tasks'
+    "workplaceName",
+    "website",
+    "phone",
+    "advisorName",
+    "advisorJobTitle",
+    "advisorEmail",
+    "creditHours",
+    "startDate",
+    "endDate",
+    "tasks"
   ];
 
   for (const field of requiredFields) {
-    if (!formData[field] || formData[field] === '') {
+    if (!formData[field] || formData[field] === "") {
       return `Missing or empty required field: ${field}`;
     }
   }
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
-    return 'Tasks must be a non-empty array';
+    return "Tasks must be a non-empty array";
   }
-  // for (const [index, task] of formData.tasks.entries()) {
-  //   if (!task.description || !task.outcomes) {
-  //     return `Task at index ${index} is missing description or outcomes`;
-  //   }
-  // }
 
-  // uncomment below if student has to fill in task outcomes
-  // const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
-  // if (filledTasks.length < 3)
-  //   return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`;
-
-  const tasks = formData.tasks;
-  console.log(tasks);
-  if (tasks.filter((task) => task.description).length < 3)
-    return 'At least 3 tasks must be provided';
-  const uniqueOutcomes = new Set();
-  tasks.forEach((task) => {
-    if (Array.isArray(task.outcomes)) {
-      task.outcomes.forEach(outcome => uniqueOutcomes.add(outcome));
-    } 
+  const outcomes = new Set();
+  formData.tasks.forEach((task) => {
+    task.outcomes?.forEach(o => outcomes.add(o));
   });
-  formData.status = uniqueOutcomes.size < 3 ? 'pending manual review' : 'submitted';
+
+  formData.status = outcomes.size < 3 ? "pending manual review" : "submitted";
   return null;
 }
 
-router.post('/submit', async (req, res) => {
+router.post("/submit", async (req, res) => {
   const formData = req.body;
-  const validationError = validateFormData(formData);
-  if (validationError) {
-    return res.status(400).json({ message: validationError });
-  }
+  const error = validateFormData(formData);
+  if (error) return res.status(400).json({ message: error });
 
   try {
     await insertFormData(formData);
-    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted'});
+    res.status(200).json({ message: "Form received and stored." });
   } catch (error) {
-    console.error('Error handling form data:', error);
-    res.status(500).json({ message: 'Something went wrong' });
+    console.error("Insert error:", error);
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
 
