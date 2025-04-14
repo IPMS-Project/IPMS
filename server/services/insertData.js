@@ -39,14 +39,14 @@ async function insertFormData(formData) {
     console.log("Form saved successfully with ID:", savedForm._id);
 
     if (formData.status === "submitted") {
-      const submission = {
-        name:`Internship at ${formData.workplaceName}`,
-        student_name: formData.interneeName,
-        details: formData.website,  
-        supervisor_status: "pending",
-        coordinator_status: "pending",
-      };
-      await Submission.create(submission);
+      // const submission = {
+      //   name:`Internship at ${formData.workplaceName}`,
+      //   student_name: formData.interneeName,
+      //   details: formData.website,  
+      //   supervisor_status: "pending",
+      //   coordinator_status: "pending",
+      // };
+      // await Submission.create(submission);
       console.log("Submission sent to Supervisor Dashboard.");
     } else if (formData.status === "pending manual review") {
       // const instance={
@@ -62,8 +62,6 @@ async function insertFormData(formData) {
     throw error;
   }
 }
-
-//Inserting data in supervisor db
 
 module.exports = {
   insertFormData,
