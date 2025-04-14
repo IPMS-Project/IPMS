@@ -5,10 +5,6 @@ const reportController = require("../controllers/reportController");
 // Routing weekly report actions
 
 // POST - Submit a new weekly report
-// router.post("/", reportController.createReport);
-// router.post('/api/reports', createReport);
-
-// router.post("/api/reports", reportController.createReport);
 router.post("/", reportController.createReport);
 
 // GET - Fetch all reports by a specific student
