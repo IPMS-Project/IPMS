@@ -1,7 +1,7 @@
-import React from "react";
-
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
+import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
+
 
 
 // Layout
@@ -39,6 +39,10 @@ const router = createBrowserRouter([
         element: <WeeklyProgressReportForm />,
       },
       {
+        path: "four-week-report",
+        element: <WeeklyFourWeekReportForm />,
+      },
+      {
         path: "a1-form",
         element: <A1InternshipRequestForm />,
       },
@@ -69,5 +73,6 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+
 
 export default router;

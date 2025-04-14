@@ -1,5 +1,7 @@
+
 const cron = require("node-cron");
 const logger = require("./logger"); // Replace console
+
 
 class CronJobManager {
   constructor() {
@@ -64,6 +66,7 @@ class CronJobManager {
       timezone: job.options.timezone || "default",
     }));
   }
+
   stopAllJobs() {
     for (const [name] of this.jobs.entries()) {
       this.stopJob(name);
@@ -76,3 +79,5 @@ class CronJobManager {
 
 const cronJobManager = new CronJobManager();
 module.exports = cronJobManager;
+
+module.exports = { cronJobManager };

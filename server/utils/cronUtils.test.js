@@ -1,3 +1,4 @@
+
 // cronUtils.test.js
 const cron = require("node-cron");
 const logger = require("./logger");
@@ -24,14 +25,17 @@ describe("cronUtils", () => {
     logger.info.mockClear();
     logger.warn.mockClear();
     logger.error.mockClear();
-     cronJobManager.stopAllJobs();  // <-- CORRECT WAY
+    cronJobManager.jobs.clear();
+    cronJobManager.stopAllJobs();  // <-- CORRECT WAY
   });
 
+  
   afterEach(() => {
-     cronJobManager.stopAllJobs();  // <-- CORRECT WAY
+    cronJobManager.stopAllJobs();  // <-- Safely clears all jobs
     jest.clearAllMocks();
   });
 
+  
   it("create instance of CronJobManager", () => {
     expect(cronJobManager).toBeDefined();
     expect(cronJobManager.jobs).toEqual(new Map());
@@ -94,9 +98,7 @@ describe("cronUtils", () => {
       expect(logger.error).toHaveBeenCalledWith(
         "Invalid cron expression: invalid-cron-expression"
       );
-     expect(logger.error).toHaveBeenCalledWith(
-  "Invalid cron expression: invalid-cron-expression"
-);
+      expect(logger.info).toHaveBeenCalledTimes(0);
     });
 
     it("registerJob warns & replaces duplicate jobs", () => {
