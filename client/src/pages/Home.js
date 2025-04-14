@@ -6,7 +6,7 @@ import "../styles/login.css";
 import StudentIcon from "../Icons/StudentIcon";
 import CoordinatorIcon from "../Icons/CoordinatorIcon";
 import SupervisorIcon from "../Icons/SupervisorIcon";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 function Home() {
   const navigate = useNavigate();
@@ -24,7 +24,6 @@ function Home() {
     setFormData((prev) => ({ ...prev, role }));
   }, [role]);
 
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -37,19 +36,8 @@ function Home() {
     e.preventDefault();
     console.log(`${formData.role} sign in attempted`, formData);
 
-    // Redirect user based on role
-    if (formData.role === "coordinator") {
-      navigate("/coordinator/dashboard");
-    } else if (formData.role === "student") {
-      navigate("/student/dashboard");
-    } else if (formData.role === "supervisor") {
-      navigate("/supervisor/dashboard");
-    } else {
-      alert("Please select a valid role.");
-
-  
     const { email: ouEmail, password, role } = formData;
-  
+
     if (!ouEmail || !password || !role) {
       return Swal.fire({
         icon: "warning",
@@ -57,24 +45,36 @@ function Home() {
         text: "Please fill in all fields to sign in 💫",
       });
     }
-  
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/user-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ouEmail, password, role }),
-      });
-  
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/token/user-login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ouEmail, password, role }),
+        }
+      );
+
       const data = await response.json();
-  
+
       if (response.ok) {
         Swal.fire({
           icon: "success",
           title: "Login Successful 🌟",
           text: `Welcome back, ${role}!`,
         });
+
+        // Redirect user based on role
+        if (role === "coordinator") {
+          navigate("/coordinator/dashboard");
+        } else if (role === "student") {
+          navigate("/student/dashboard");
+        } else if (role === "supervisor") {
+          navigate("/supervisor/dashboard");
+        }
       } else {
         Swal.fire({
           icon: "error",
@@ -91,8 +91,6 @@ function Home() {
       });
     }
   };
-  
-  
 
   return (
     <div className="content-container">
@@ -102,7 +100,9 @@ function Home() {
         </div>
 
         <div className="login-options">
-          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>Welcome back</h2>
+          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>
+            Welcome back
+          </h2>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -117,11 +117,15 @@ function Home() {
                 ].map(({ role: r, Icon }) => (
                   <div
                     key={r}
-                    className={`role-card ${formData.role === r ? "selected" : ""}`}
-                    onClick={() => setFormData({
-                      ...formData,
-                      role: r,
-                    })}
+                    className={`role-card ${
+                      formData.role === r ? "selected" : ""
+                    }`}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        role: r,
+                      })
+                    }
                   >
                     <Icon />
                     <p className="role-label">
@@ -134,7 +138,9 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="email">
-                <FaEnvelope style={{ marginRight: "6px", verticalAlign: "middle" }} />
+                <FaEnvelope
+                  style={{ marginRight: "6px", verticalAlign: "middle" }}
+                />
                 Email
               </label>
               <input
@@ -150,7 +156,9 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="password">
-                <FaLock style={{ marginRight: "6px", verticalAlign: "middle" }} />
+                <FaLock
+                  style={{ marginRight: "6px", verticalAlign: "middle" }}
+                />
                 Password
               </label>
               <div className="password-wrapper">
@@ -172,7 +180,6 @@ function Home() {
               </div>
             </div>
 
-
             <div
               className="form-subtext"
               style={{
@@ -182,11 +189,18 @@ function Home() {
                 marginBottom: "1rem",
               }}
             >
-              <label className='d-flex align-items-center' > 
+              <label className="d-flex align-items-center">
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
-              <Link to="/" style={{ color: "#7f1d1d", fontWeight: "500", textDecoration: "underline" }}>
+              <Link
+                to="/"
+                style={{
+                  color: "#7f1d1d",
+                  fontWeight: "500",
+                  textDecoration: "underline",
+                }}
+              >
                 Forgot password?
               </Link>
             </div>
