@@ -123,6 +123,11 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
+//Form A.4
+
+const presentationRoutes = require("./routes/presentationRoutes");
+app.use("/api/presentation", presentationRoutes);
+
 
 // Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
