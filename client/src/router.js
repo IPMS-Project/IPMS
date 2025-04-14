@@ -3,7 +3,6 @@ import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
 
-
 // Layout
 import Layout from "./components/Layout";
 
@@ -15,6 +14,7 @@ import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
+import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -55,9 +55,12 @@ const router = createBrowserRouter([
         path: "coordinator-dashboard",
         element: <CoordinatorDashboard />,
       },
+      {
+        path: "coordinator/request/:id",
+        element: <CoordinatorRequestDetailView />,
+      },
     ],
   },
 ]);
-
 
 export default router;
