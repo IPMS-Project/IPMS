@@ -114,16 +114,71 @@ function A4PresentationEvaluationForm() {
     return <span style={{ color: "gray" }}>Invalid signature</span>;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    alert("Form submitted!");
-    console.log(formData);
-    setFormData(initialFormState);
-    setTypedSignature("");
-    sigCanvasRef.current?.clear();
+  
+    // Step 1: Prepare `evaluations` array from formData
+    const evaluations = [
+      {
+        category: "Presentation Content",
+        rating: formData["Presentation Content_rating"],
+        comment: formData["Presentation Content_comments"] || ""
+      },
+      {
+        category: "Delivery and Communication",
+        rating: formData["Delivery and Communication_rating"],
+        comment: formData["Delivery and Communication_comments"] || ""
+      },
+      {
+        category: "Answering Questions",
+        rating: formData["Answering Questions_rating"],
+        comment: formData["Answering Questions_comments"] || ""
+      }
+    ];
+  
+    // Step 2: Create payload in the format the backend expects
+    const payload = {
+      interneeName: formData.interneeName,
+      interneeID: formData.interneeID,
+      interneeEmail: formData.interneeEmail,
+      companyName: formData.companyName,
+      companyWebsite: formData.companyWebsite,
+      companyPhone: formData.companyPhone,
+      advisorName: formData.advisorName,
+      advisorTitle: formData.advisorTitle,
+      advisorEmail: formData.advisorEmail,
+      presentationDate: formData.presentationDate,
+      evaluations,
+      coordinatorSignature: formData.coordinatorSignature
+    };
+  
+    // Step 3: Make POST request
+    try {
+      const response = await fetch("http://localhost:5001/api/presentation/a4/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+        alert("✅ Form A.4 submitted successfully!");
+        setFormData(initialFormState);
+        setTypedSignature("");
+        sigCanvasRef.current?.clear();
+      } else {
+        alert("❌ Submission failed: " + result.error);
+        console.error(result);
+      }
+    } catch (err) {
+      console.error("❌ Network error:", err);
+      alert("❌ Failed to submit. Check console for details.");
+    }
   };
-
+  
   return (
     <div className="page-content" >
       <h2 className="heading-maroon">A.4 – Internship Coordinator Presentation Evaluation Form</h2>
