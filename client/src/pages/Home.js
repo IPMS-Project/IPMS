@@ -55,7 +55,7 @@ function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ouEmail, password, role }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -69,11 +69,11 @@ function Home() {
 
         // Redirect user based on role
         if (role === "coordinator") {
-          navigate("/coordinator/dashboard");
+          navigate("/coordinator-dashboard");
         } else if (role === "student") {
-          navigate("/student/dashboard");
+          navigate("/student-dashboard");
         } else if (role === "supervisor") {
-          navigate("/supervisor/dashboard");
+          navigate("/supervisor-dashboard");
         }
       } else {
         Swal.fire({

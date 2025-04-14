@@ -4,18 +4,20 @@ import "../styles/dashboard.css";
 function CoordinatorDashboard() {
   const [requests, setRequests] = useState([]);
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const res = await fetch("/api/coordinator/requests");
-        const data = await res.json();
-        setRequests(data);
-      } catch (err) {
-        console.error("Failed to fetch requests:", err);
-      }
-    };
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch("/api/coordinator/requests");
+      const data = await res.json();
+      setRequests(data);
+    } catch (err) {
+      console.error("Failed to fetch requests:", err);
+    }
+  };
 
+  useEffect(() => {
     fetchRequests();
+    const interval = setInterval(fetchRequests, 5000); // Refetch every 5s
+    return () => clearInterval(interval);
   }, []);
 
   const handleApprove = async (_id) => {
@@ -27,6 +29,7 @@ function CoordinatorDashboard() {
 
       const result = await res.json();
       alert(result.message);
+      fetchRequests();
     } catch (err) {
       console.error("Approval failed:", err);
       alert("Error approving request.");
@@ -46,6 +49,7 @@ function CoordinatorDashboard() {
 
       const result = await res.json();
       alert(result.message);
+      fetchRequests();
     } catch (err) {
       console.error("Rejection failed:", err);
       alert("Error rejecting request.");
@@ -62,28 +66,52 @@ function CoordinatorDashboard() {
 
   return (
     <div className="dashboard-container">
-      <h2>Coordinator Dashboard</h2>
+      <h2 className="dashboard-title">Coordinator Dashboard</h2>
       <p>Review and manage internship requests.</p>
 
       <div className="request-list">
         {requests.map((req) => (
           <div key={req._id} className="request-card">
             <h4>{req.fullName}</h4>
-            <p><strong>Email:</strong> {req.ouEmail}</p>
-            <p><strong>Advisor:</strong> {req.academicAdvisor}</p>
-            <p><strong>Status:</strong> {req.status}</p>
-            <p><strong>Requested At:</strong> {new Date(req.requestedAt).toLocaleDateString()}</p>
-            <p><strong>Expires In:</strong> 
-              <span style={{ color: daysRemaining(req.expiresAt) <= 5 ? "red" : "green", fontWeight: "bold", marginLeft: "6px" }}>
-                {daysRemaining(req.expiresAt)} days
-              </span>
-            </p>
+            <div className="columns">
+              <p>
+                <strong>Email:</strong> {req.ouEmail}
+              </p>
+              <p>
+                <strong>Advisor:</strong> {req.academicAdvisor}
+              </p>
+              <p>
+                <strong>Requested At:</strong>{" "}
+                {new Date(req.requestedAt).toLocaleDateString()}
+              </p>
+              <p>
+                <strong>Status:</strong> {req.status}
+              </p>
+              <p>
+                <strong>Expires In:</strong>
+                <span
+                  style={{
+                    color: daysRemaining(req.expiresAt) <= 5 ? "red" : "green",
+                    fontWeight: "bold",
+                    marginLeft: "6px",
+                  }}
+                >
+                  {daysRemaining(req.expiresAt)} days
+                </span>
+              </p>
+            </div>
 
             <div className="action-buttons">
-              <button className="approve-btn" onClick={() => handleApprove(req._id)}>
+              <button
+                className="approve-btn"
+                onClick={() => handleApprove(req._id)}
+              >
                 Approve
               </button>
-              <button className="reject-btn" onClick={() => handleReject(req._id)}>
+              <button
+                className="reject-btn"
+                onClick={() => handleReject(req._id)}
+              >
                 Reject
               </button>
             </div>

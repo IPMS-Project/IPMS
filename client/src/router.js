@@ -41,11 +41,7 @@ const router = createBrowserRouter([
         element: <A1InternshipRequestForm />,
       },
       {
-        path: "coordinator/dashboard",
-        element: <CoordinatorDashboard />,
-      },      
-      {
-        path: "evaluation", 
+        path: "evaluation",
         element: <A3JobEvaluationForm />,
       },
       {
