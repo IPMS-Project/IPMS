@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "../styles/dashboard.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function CoordinatorDashboard() {
   const [requests, setRequests] = useState([]);
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch("/api/coordinator/requests");
+      const res = await fetch(`${API_URL}/api/coordinator/requests`);
       const data = await res.json();
       setRequests(data);
     } catch (err) {
@@ -22,7 +24,7 @@ function CoordinatorDashboard() {
 
   const handleApprove = async (_id) => {
     try {
-      const res = await fetch(`/api/coordinator/requests/${_id}/approve`, {
+      const res = await fetch(`${API_URL}/api/coordinator/requests/${_id}/approve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
@@ -41,7 +43,7 @@ function CoordinatorDashboard() {
     if (!reason) return;
 
     try {
-      const res = await fetch(`/api/coordinator/requests/${_id}/reject`, {
+      const res = await fetch(`${API_URL}/api/coordinator/requests/${_id}/reject`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
@@ -56,7 +58,6 @@ function CoordinatorDashboard() {
     }
   };
 
-  // 🔢 Calculate remaining days until expiration
   const daysRemaining = (expiresAt) => {
     const now = new Date();
     const due = new Date(expiresAt);
@@ -74,19 +75,10 @@ function CoordinatorDashboard() {
           <div key={req._id} className="request-card">
             <h4>{req.fullName}</h4>
             <div className="columns">
-              <p>
-                <strong>Email:</strong> {req.ouEmail}
-              </p>
-              <p>
-                <strong>Advisor:</strong> {req.academicAdvisor}
-              </p>
-              <p>
-                <strong>Requested At:</strong>{" "}
-                {new Date(req.requestedAt).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Status:</strong> {req.status}
-              </p>
+              <p><strong>Email:</strong> {req.ouEmail}</p>
+              <p><strong>Advisor:</strong> {req.academicAdvisor}</p>
+              <p><strong>Requested At:</strong> {new Date(req.requestedAt).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> {req.status}</p>
               <p>
                 <strong>Expires In:</strong>
                 <span
@@ -102,16 +94,10 @@ function CoordinatorDashboard() {
             </div>
 
             <div className="action-buttons">
-              <button
-                className="approve-btn"
-                onClick={() => handleApprove(req._id)}
-              >
+              <button className="approve-btn" onClick={() => handleApprove(req._id)}>
                 Approve
               </button>
-              <button
-                className="reject-btn"
-                onClick={() => handleReject(req._id)}
-              >
+              <button className="reject-btn" onClick={() => handleReject(req._id)}>
                 Reject
               </button>
             </div>
