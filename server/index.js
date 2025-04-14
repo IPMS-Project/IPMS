@@ -12,7 +12,9 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
+
 const coordinatorRoutes = require("./routes/coordinator");
+const outcomeRoutes = require("./routes/outcomeRoutes");
 
 
 // Import cron job manager and register jobs
@@ -24,6 +26,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use("/api/form", formRoutes); // register route as /api/form/submit
+app.use("/api/email", emailRoutes);
+app.use("/api/token", tokenRoutes);
+app.use("/api", outcomeRoutes); 
+
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
