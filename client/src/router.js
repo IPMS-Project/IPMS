@@ -13,7 +13,7 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
-import ActivateAccount from "./pages/ActivateAccount";
+import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 
@@ -45,8 +45,8 @@ const router = createBrowserRouter([
         element: <A3JobEvaluationForm />,
       },
       {
-        path: "activate/:token",
-        element: <ActivateAccount />,
+        path: "presentation",
+        element: <A4PresentationEvaluationForm />,
       },
       {
         path: "supervisor-dashboard",
