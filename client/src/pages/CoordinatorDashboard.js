@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/dashboard.css";
 
 function CoordinatorDashboard() {
   const [requests, setRequests] = useState([]);
+  const navigate = useNavigate();
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch("/api/coordinator/requests");
-      const data = await res.json();
-      setRequests(data);
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/coordinator/requests`
+      );
+      setRequests(res.data);
     } catch (err) {
       console.error("Failed to fetch requests:", err);
     }
@@ -16,19 +20,14 @@ function CoordinatorDashboard() {
 
   useEffect(() => {
     fetchRequests();
-    const interval = setInterval(fetchRequests, 5000); // Refetch every 5s
-    return () => clearInterval(interval);
   }, []);
 
   const handleApprove = async (_id) => {
     try {
-      const res = await fetch(`/api/coordinator/requests/${_id}/approve`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const result = await res.json();
-      alert(result.message);
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${_id}/approve`
+      );
+      alert(res.data.message);
       fetchRequests();
     } catch (err) {
       console.error("Approval failed:", err);
@@ -37,18 +36,15 @@ function CoordinatorDashboard() {
   };
 
   const handleReject = async (_id) => {
-    const reason = prompt("Enter rejection reason:");
-    if (!reason) return;
+    const reason = prompt("Please enter a reason for rejection:");
+    if (!reason) return alert("Rejection reason required!");
 
     try {
-      const res = await fetch(`/api/coordinator/requests/${_id}/reject`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason }),
-      });
-
-      const result = await res.json();
-      alert(result.message);
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${_id}/reject`,
+        { reason }
+      );
+      alert(res.data.message);
       fetchRequests();
     } catch (err) {
       console.error("Rejection failed:", err);
@@ -56,68 +52,46 @@ function CoordinatorDashboard() {
     }
   };
 
-  // 🔢 Calculate remaining days until expiration
-  const daysRemaining = (expiresAt) => {
-    const now = new Date();
-    const due = new Date(expiresAt);
-    const diff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
-    return diff;
-  };
-
   return (
     <div className="dashboard-container">
       <h2 className="dashboard-title">Coordinator Dashboard</h2>
-      <p>Review and manage internship requests.</p>
 
-      <div className="request-list">
-        {requests.map((req) => (
-          <div key={req._id} className="request-card">
-            <h4>{req.fullName}</h4>
-            <div className="columns">
-              <p>
-                <strong>Email:</strong> {req.ouEmail}
-              </p>
-              <p>
-                <strong>Advisor:</strong> {req.academicAdvisor}
-              </p>
-              <p>
-                <strong>Requested At:</strong>{" "}
-                {new Date(req.requestedAt).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Status:</strong> {req.status}
-              </p>
-              <p>
-                <strong>Expires In:</strong>
-                <span
-                  style={{
-                    color: daysRemaining(req.expiresAt) <= 5 ? "red" : "green",
-                    fontWeight: "bold",
-                    marginLeft: "6px",
-                  }}
-                >
-                  {daysRemaining(req.expiresAt)} days
-                </span>
-              </p>
-            </div>
-
+      {requests.length === 0 ? (
+        <p>No Pending Requests</p>
+      ) : (
+        requests.map((req) => (
+          <div
+            key={req._id}
+            className="request-card"
+            onClick={() => navigate(`/coordinator/request/${req._id}`)}
+          >
+            <h4>{req.student.userName}</h4>
+            <p>Email: {req.student.email}</p>
+            <p>Company: {req.workplace.name}</p>
             <div className="action-buttons">
               <button
                 className="approve-btn"
-                onClick={() => handleApprove(req._id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleApprove(req._id);
+                }}
               >
                 Approve
               </button>
+
               <button
                 className="reject-btn"
-                onClick={() => handleReject(req._id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleReject(req._id);
+                }}
               >
                 Reject
               </button>
             </div>
           </div>
-        ))}
-      </div>
+        ))
+      )}
     </div>
   );
 }
