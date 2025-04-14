@@ -77,8 +77,10 @@ app.use("/api", approvalRoutes);
 app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
   try {
+    
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
+
     await user.save();
     console.log("New user created:", JSON.stringify(user));
     res.status(201).json({ message: "User created successfully", user });
@@ -114,6 +116,8 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
+
+
 // Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
   try {
