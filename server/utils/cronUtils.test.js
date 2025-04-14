@@ -1,7 +1,7 @@
 // cronUtils.test.js
 const cron = require("node-cron");
 const logger = require("./logger");
-const cronJobManager = require("./cronUtils");
+const { cronJobManager } = require("./cronUtils");
 
 jest.mock("node-cron", () => ({
   validate: jest.fn(),
@@ -39,6 +39,15 @@ describe("cronUtils", () => {
   });
 
   describe("registerJob", () => {
+
+    beforeEach(() => {
+      cron.validate.mockClear();
+      cron.schedule.mockClear();
+      logger.info.mockClear();
+      logger.warn.mockClear();
+      logger.error.mockClear();
+    })
+
     it("registerJob succeeds with runOnInit", () => {
       cron.validate.mockReturnValue(true);
       cron.schedule.mockReturnValue({ stop: jest.fn() });

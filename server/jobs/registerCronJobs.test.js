@@ -1,4 +1,4 @@
-const cronJobManager = require("../utils/cronUtils");
+const { cronJobManager } = require("../utils/cronUtils");
 const { getCronJobs } = require("./cronJobsConfig");
 const { registerAllJobs } = require("./registerCronJobs");
 
