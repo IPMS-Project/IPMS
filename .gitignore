@@ -135,4 +135,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-package-lock.json
+# Ignore package-lock.json in all folders
+**/package-lock.json
+/package-lock.json
+/client/package-lock.json
+/server/package-lock.json
+

@@ -30,7 +30,10 @@ const WeeklyProgressReportForm = () => {
       setMessage("Student ID not found. Please log in again.");
       return;
     }
-
+  
+    //const payload = { studentId, ...formData };
+    const payload = {  ...formData };
+  
     try {
       const payload = { studentId, ...formData };
       console.log("Payload sending from frontend:", payload);
@@ -51,6 +54,7 @@ const WeeklyProgressReportForm = () => {
       setMessage("Submission failed. Try again.");
     }
   };
+  
 
   return (
     <div className="a2-form-container">
