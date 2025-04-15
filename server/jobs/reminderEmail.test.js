@@ -135,9 +135,9 @@ describe("supervisorReminder escalation", () => {
 	// Confirm student escalation notification was logged
 	expect(notifLogSpy).toHaveBeenCalledWith(
 	    expect.objectContaining({
-		submissionId: submissionId,
+		submission_id: submissionId,
 		type: "studentEscalation",
-		recipientEmail: studentMail,
+		recipient_email: studentMail,
 	    })
 	);
 

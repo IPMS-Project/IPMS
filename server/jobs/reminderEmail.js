@@ -32,7 +32,7 @@ const supervisorReminder = async () => {
 	    const reminderCount = submission.supervisor_reminder_count || 0;
 	    const lastReminded = submission.last_supervisor_reminder_at || submission.createdAt;
 
-	    const nextReminderDue = dayjs(lastReminded).add(7, "day");
+	    const nextReminderDue = dayjs(lastReminded).add(5, "day");
 	    const shouldRemindAgain = now.isAfter(nextReminderDue);
 
 	    if (reminderCount >= 2 && shouldRemindAgain) {
