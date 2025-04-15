@@ -21,7 +21,6 @@ const emailController = {
         });
       }
 
-    
       const result = await emailService.sendEmail({
         to,
         subject,
@@ -58,4 +57,3 @@ const emailController = {
 };
 
 module.exports = emailController;
-

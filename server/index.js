@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
+
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -12,16 +15,32 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
-const outcomeRoutes = require("./routes/outcomeRoutes");
+// <<<<<<< groupD/vikash-sprint2
+//const outcomeRoutes = require("./routes/outcomeRoutes");
 const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
 
-const { cronJobManager } = require("./utils/cronUtils");
+//const { cronJobManager } = require("./utils/cronUtils");
+//const { registerAllJobs } = require("./jobs/registerCronJobs");
+// =======
+
+const outcomeRoutes = require("./routes/outcomeRoutes");
+
+// Import cron job manager and register jobs
+const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
+const Evaluation = require("./models/Evaluation");
+// >>>>>>> main
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+/
+app.use("/api/form", formRoutes); // register route as /api/form/submit
+app.use("/api/email", emailRoutes);
+app.use("/api/token", tokenRoutes);
+app.use("/api", outcomeRoutes);
+/
 
 // MongoDB Config
 const mongoConfig = {
@@ -49,7 +68,11 @@ app.use("/api/form", formRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
+// <<<<<<< groupD/vikash-sprint2
 app.use("/api", outcomeRoutes);
+// =======
+
+// >>>>>>> main
 app.use("/api/reports", weeklyReportRoutes);
 app.use("/api/fourWeekReports", fourWeekReportRoutes);
 
@@ -98,7 +121,17 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
 
-// Graceful Shutdown
+// <<<<<<< groupD/vikash-sprint2
+// // Graceful Shutdown
+// =======
+// //Form A.4
+
+const presentationRoutes = require("./routes/presentationRoutes");
+app.use("/api/presentation", presentationRoutes);
+
+
+// // Graceful shutdown (async Mongoose support)
+// >>>>>>> main
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
