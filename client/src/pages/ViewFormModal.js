@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "../styles/SupervisorDashboard.css";
 
 const ViewFormModal = ({ formData, onClose, onAction }) => {
-  const form = typeof formData.details === "string" ? JSON.parse(formData.details) : formData.details;
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
 
@@ -11,32 +10,33 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
       setError("Comment is required before taking action.");
       return;
     }
-    setError("");  // clear error
+    setError("");
     onAction(formData._id, action, comment);
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-box">
-        <h2>Form: {formData.form_type}</h2>
-        <p><strong>Student:</strong> {formData.name}</p>
+        <h2>Form: A1</h2>
+        <p><strong>Student ID:</strong> {formData.student}</p>
+        <p><strong>Workplace:</strong> {formData.workplace?.name}</p>
+        <p><strong>Advisor:</strong> {formData.internshipAdvisor?.name}</p>
+        <p><strong>Credit Hours:</strong> {formData.creditHours}</p>
+        <p><strong>Start Date:</strong> {new Date(formData.startDate).toLocaleDateString()}</p>
+        <p><strong>End Date:</strong> {new Date(formData.endDate).toLocaleDateString()}</p>
 
-        {form.tasks && (
-          <div>
-            <strong>Tasks:</strong>
-            <ul>{form.tasks.map((task, i) => <li key={i}>{task}</li>)}</ul>
-          </div>
-        )}
-
-        {form.outcomes && (
-          <div>
-            <strong>Outcomes:</strong>
-            <ul>{form.outcomes.map((o, i) => <li key={i}>{o}</li>)}</ul>
-          </div>
-        )}
-
-        {form.week && <p><strong>Week:</strong> {form.week}</p>}
-        {form.lessonsLearned && <p><strong>Lessons Learned:</strong> {form.lessonsLearned}</p>}
+        <div>
+          <strong>Tasks:</strong>
+          <ul>
+            {formData.tasks?.map((task, index) => (
+              <li key={index}>
+                <strong>Description:</strong> {task.description}
+                <br />
+                <strong>Outcomes:</strong> {task.outcomes.join(", ")}
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <div>
           <label><strong>Comment:</strong></label>
@@ -47,10 +47,10 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
             rows={4}
             style={{ width: "100%", marginTop: "5px", borderRadius: "4px", padding: "8px" }}
           />
-          {error && <p style={{ color: "red", marginTop: "5px" }}>{error}</p>}
+          {error && <p style={{ color: "red" }}>{error}</p>}
         </div>
 
-        <div style={{ marginTop: "15px", display: "flex", gap: "10px", justifyContent: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "10px" }}>
           <button className="approve" onClick={() => handleDecision("approve")}>Approve</button>
           <button className="reject" onClick={() => handleDecision("reject")}>Reject</button>
         </div>

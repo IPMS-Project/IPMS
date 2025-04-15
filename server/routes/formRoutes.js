@@ -1,8 +1,35 @@
 const express = require("express");
 const router = express.Router();
+const InternshipRequest = require("../models/InternshipRequest");
 const { insertFormData } = require("../services/insertData");
+const {
+  getPendingSubmissions,
+  approveSubmission,
+  rejectSubmission
+} = require("../controllers/approvalController");
 
-// Utility: Validate required fields
+router.post("/internshiprequests/:id/approve", approveSubmission);
+router.post("/internshiprequests/:id/reject", rejectSubmission);
+
+// GET route to fetch internship requests without supervisor_comment and supervisor_status
+router.get("/internshiprequests", async (req, res) => {
+  try {
+    const requests = await InternshipRequest.find({
+      status: "submitted",
+      approvals: { $all: ["advisor", "coordinator"] },
+      supervisor_comment: { $exists: false },
+      supervisor_status: { $exists: false }
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(requests);
+  } catch (err) {
+    console.error("Error fetching internship requests:", err);
+    res.status(500).json({ message: "Server error while fetching internship requests" });
+  }
+});
+
+
+// Validate and submit form
 function validateFormData(formData) {
   const requiredFields = [
     "workplaceName",
@@ -11,7 +38,7 @@ function validateFormData(formData) {
     "advisorName",
     "advisorJobTitle",
     "advisorEmail",
-    "creditHour",
+    "creditHours",
     "startDate",
     "endDate",
     "tasks"
@@ -27,30 +54,28 @@ function validateFormData(formData) {
     return "Tasks must be a non-empty array";
   }
 
-  for (const [index, task] of formData.tasks.entries()) {
-    if (!task.description || !task.outcomes) {
-      return `Task at index ${index} is missing description or outcomes`;
-    }
-  }
+  const outcomes = new Set();
+  formData.tasks.forEach((task) => {
+    task.outcomes?.forEach(o => outcomes.add(o));
+  });
 
-  return null; // No errors
+  formData.status = outcomes.size < 3 ? "pending manual review" : "submitted";
+  return null;
 }
 
 router.post("/submit", async (req, res) => {
   const formData = req.body;
-
-  const validationError = validateFormData(formData);
-  if (validationError) {
-    return res.status(400).json({ message: validationError });
-  }
+  const error = validateFormData(formData);
+  if (error) return res.status(400).json({ message: error });
 
   try {
     await insertFormData(formData);
-    res.status(200).json({ message: "Form received and handled!" });
+    res.status(200).json({ message: "Form received and stored." });
   } catch (error) {
-    console.error("Error handling form data:", error);
+    console.error("Insert error:", error);
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+
 
 module.exports = router;

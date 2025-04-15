@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -7,16 +6,23 @@ import "../styles/login.css";
 import StudentIcon from "../Icons/StudentIcon";
 import CoordinatorIcon from "../Icons/CoordinatorIcon";
 import SupervisorIcon from "../Icons/SupervisorIcon";
+import Swal from "sweetalert2";
 
 function Home() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "Student",
+
+    role: "student",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState("-");
+  const [role] = useState("student");
+
+  // Sync role into formData.role
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, role }));
+  }, [role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,9 +32,64 @@ function Home() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(`${formData.role} sign in attempted`, formData);
+
+    const { email: ouEmail, password, role } = formData;
+
+    if (!ouEmail || !password || !role) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Oops!",
+        text: "Please fill in all fields to sign in 💫",
+      });
+    }
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/token/user-login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ouEmail, password, role }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Login Successful 🌟",
+          text: `Welcome back, ${role}!`,
+        });
+
+        // Redirect user based on role
+        if (role === "coordinator") {
+          navigate("/coordinator-dashboard");
+        } else if (role === "student") {
+          navigate("/student-dashboard");
+        } else if (role === "supervisor") {
+          navigate("/supervisor-dashboard");
+        }
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: data.message || "Something went wrong ",
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: "We couldn't reach the server 😢 Try again later!",
+      });
+    }
   };
 
   return (
@@ -56,23 +117,20 @@ function Home() {
                 ].map(({ role: r, Icon }) => (
                   <div
                     key={r}
-                    className={`role-card ${role === r ? "selected" : ""}`}
-                    onClick={() => setRole(r)}
+                    className={`role-card ${
+                      formData.role === r ? "selected" : ""
+                    }`}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        role: r,
+                      })
+                    }
                   >
                     <Icon />
                     <p className="role-label">
                       {r.charAt(0).toUpperCase() + r.slice(1)}
                     </p>
-                    <span
-                      className="info-icon"
-                      title={
-                        r === "student"
-                          ? "Students request internships and submit weekly reports."
-                          : r === "supervisor"
-                          ? "Supervisors review and approve student progress."
-                          : "Coordinators manage the internship workflow and approvals."
-                      }
-                    ></span>
                   </div>
                 ))}
               </div>
@@ -131,17 +189,20 @@ function Home() {
                 marginBottom: "1rem",
               }}
             >
-              <label>
+              <label className="d-flex align-items-center">
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
               <Link
                 to="/"
-                style={{ color: "#7f1d1d", fontWeight: "500", textDecoration: "underline" }}
+                style={{
+                  color: "#7f1d1d",
+                  fontWeight: "500",
+                  textDecoration: "underline",
+                }}
               >
                 Forgot password?
               </Link>
-
             </div>
 
             <button type="submit" className="login-button">
