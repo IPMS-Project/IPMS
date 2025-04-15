@@ -39,7 +39,8 @@ const SupervisorDashboard = () => {
     if (!confirmed) return;
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`, { comment });
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/form/internshiprequests/${id}/${action}`, { comment });
+
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
       setSelectedForm(null);

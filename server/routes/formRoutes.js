@@ -2,17 +2,32 @@ const express = require("express");
 const router = express.Router();
 const InternshipRequest = require("../models/InternshipRequest");
 const { insertFormData } = require("../services/insertData");
+const {
+  getPendingSubmissions,
+  approveSubmission,
+  rejectSubmission
+} = require("../controllers/approvalController");
 
-// GET route to fetch all internship requests
+router.post("/internshiprequests/:id/approve", approveSubmission);
+router.post("/internshiprequests/:id/reject", rejectSubmission);
+
+// GET route to fetch internship requests without supervisor_comment and supervisor_status
 router.get("/internshiprequests", async (req, res) => {
   try {
-    const requests = await InternshipRequest.find().sort({ createdAt: -1 });
+    const requests = await InternshipRequest.find({
+      status: "submitted",
+      approvals: { $all: ["advisor", "coordinator"] },
+      supervisor_comment: { $exists: false },
+      supervisor_status: { $exists: false }
+    }).sort({ createdAt: -1 });
+
     res.status(200).json(requests);
   } catch (err) {
     console.error("Error fetching internship requests:", err);
     res.status(500).json({ message: "Server error while fetching internship requests" });
   }
 });
+
 
 // Validate and submit form
 function validateFormData(formData) {
@@ -61,5 +76,6 @@ router.post("/submit", async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 });
+
 
 module.exports = router;

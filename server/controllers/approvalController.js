@@ -19,7 +19,8 @@ exports.approveSubmission = async (req, res) => {
   const { comment } = req.body;
 
   try {
-    const submission = await Submission.findByIdAndUpdate(
+    const InternshipRequest = require("../models/InternshipRequest");
+    const submission = await InternshipRequest.findByIdAndUpdate(
       id,
       {
         supervisor_status: "Approved",
@@ -34,9 +35,8 @@ exports.approveSubmission = async (req, res) => {
 
     res.json({
       message: "Submission approved and forwarded to Coordinator",
-      updatedSubmission: submission
+      updatedSubmission: submission,
     });
-
   } catch (err) {
     res.status(500).json({ message: "Approval failed", error: err });
   }
@@ -63,9 +63,8 @@ exports.rejectSubmission = async (req, res) => {
 
     res.json({
       message: "Submission rejected",
-      updatedSubmission: submission
+      updatedSubmission: submission,
     });
-
   } catch (err) {
     res.status(500).json({ message: "Rejection failed", error: err });
   }
