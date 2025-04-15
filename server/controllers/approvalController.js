@@ -1,6 +1,8 @@
 const Submission = require("../models/Submission");
+const InternshipRequest = require("../models/InternshipRequest");
+const EmailService = require("../services/emailService");
 
-// ✅ Get all pending submissions for the supervisor
+// Get Supervisor Pending Submissions
 exports.getPendingSubmissions = async (req, res) => {
   try {
     const submissions = await Submission.find({ supervisor_status: "pending" });
@@ -13,19 +15,15 @@ exports.getPendingSubmissions = async (req, res) => {
   }
 };
 
-// ✅ Supervisor Approves a submission
+// Supervisor Approve Submission
 exports.approveSubmission = async (req, res) => {
   const { id } = req.params;
   const { comment } = req.body;
 
   try {
-    const InternshipRequest = require("../models/InternshipRequest");
     const submission = await InternshipRequest.findByIdAndUpdate(
       id,
-      {
-        supervisor_status: "Approved",
-        supervisor_comment: comment || "",
-      },
+      { supervisor_status: "Approved", supervisor_comment: comment || "" },
       { new: true }
     );
 
@@ -38,22 +36,19 @@ exports.approveSubmission = async (req, res) => {
       updatedSubmission: submission,
     });
   } catch (err) {
-    res.status(500).json({ message: "Approval failed", error: err });
+    res.status(500).json({ message: "Approval Failed", error: err });
   }
 };
 
+// Supervisor Reject Submission
 exports.rejectSubmission = async (req, res) => {
   const { id } = req.params;
   const { comment } = req.body;
 
   try {
-    const InternshipRequest = require("../models/InternshipRequest");
     const submission = await InternshipRequest.findByIdAndUpdate(
       id,
-      {
-        supervisor_status: "Rejected",
-        supervisor_comment: comment || "",
-      },
+      { supervisor_status: "Rejected", supervisor_comment: comment || "" },
       { new: true }
     );
 
@@ -66,6 +61,86 @@ exports.rejectSubmission = async (req, res) => {
       updatedSubmission: submission,
     });
   } catch (err) {
-    res.status(500).json({ message: "Rejection failed", error: err });
+    res.status(500).json({ message: "Rejection Failed", error: err });
+  }
+};
+
+// Coordinator Dashboard: Get All Internship Requests
+exports.getCoordinatorRequests = async (req, res) => {
+  try {
+    const requests = await InternshipRequest.find({
+      status: "submitted",
+    }).populate("student", "userName email");
+    res.status(200).json(requests);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch requests" });
+  }
+};
+
+// Coordinator View Single Request
+exports.getCoordinatorRequestDetails = async (req, res) => {
+  try {
+    const requestData = await InternshipRequest.findById(req.params.id).lean();
+
+    if (!requestData) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    res.status(200).json({ requestData, supervisorStatus: "Not Submitted" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch details" });
+  }
+};
+
+// Coordinator Approve Request
+exports.coordinatorApproveRequest = async (req, res) => {
+  try {
+    const request = await InternshipRequest.findByIdAndUpdate(
+      req.params.id,
+      { status: "approved" },
+      { new: true }
+    );
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    await EmailService.sendEmail({
+      to: request.student.email,
+      subject: "Internship Request Approved",
+      html: `<p>Your internship request has been approved by the Coordinator.</p>`,
+    });
+
+    res.json({ message: "Request Approved Successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Approval failed", error: err.message });
+  }
+};
+
+// Coordinator Reject Request
+exports.coordinatorRejectRequest = async (req, res) => {
+  const { reason } = req.body;
+  if (!reason) return res.status(400).json({ message: "Reason required" });
+
+  try {
+    const request = await InternshipRequest.findByIdAndUpdate(
+      req.params.id,
+      { status: "rejected" },
+      { new: true }
+    );
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    await EmailService.sendEmail({
+      to: request.student.email,
+      subject: "Internship Request Rejected",
+      html: `<p>Your internship request has been rejected.<br>Reason: ${reason}</p>`,
+    });
+
+    res.json({ message: "Request Rejected Successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Rejection failed", error: err.message });
   }
 };
