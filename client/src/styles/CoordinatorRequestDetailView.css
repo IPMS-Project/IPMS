@@ -1,0 +1,17 @@
+@import "./App.css";
+
+.request-form {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  color: #9d2235;
+  margin-top: 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}

@@ -3,15 +3,17 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+
 const User = require("./models/User");
-const formRoutes = require("./routes/formRoutes");
 const Evaluation = require("./models/Evaluation");
+const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 const outcomeRoutes = require("./routes/outcomeRoutes");
 const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
+const presentationRoutes = require("./routes/presentationRoutes");
 
 const { cronJobManager } = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
@@ -19,36 +21,6 @@ const { registerAllJobs } = require("./jobs/registerCronJobs");
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-// MongoDB Connection Config
-const mongoConfig = {
-  serverSelectionTimeoutMS: 5000,
-  autoIndex: true,
-  maxPoolSize: 10,
-  socketTimeoutMS: 45000,
-  family: 4,
-};
-
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI, mongoConfig)
-  .then(async () => {
-    console.log("Connected to Local MongoDB");
-    await registerAllJobs();
-    console.log("✅ Cron jobs initialized successfully");
-  })
-  .catch((err) => {
-    console.error("MongoDB Connection Error:", err);
-    process.exit(1);
-  });
-
-mongoose.connection.on("error", (err) => {
-  console.error("MongoDB error after initial connection:", err);
-});
-
-mongoose.connection.on("disconnected", () => {
-  console.log("Lost MongoDB connection...");
-});
 
 // Routes
 app.use("/api/form", formRoutes);
@@ -58,6 +30,7 @@ app.use("/api", approvalRoutes);
 app.use("/api", outcomeRoutes);
 app.use("/api/reports", weeklyReportRoutes);
 app.use("/api/fourWeekReports", fourWeekReportRoutes);
+app.use("/api/presentation", presentationRoutes);
 
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
@@ -106,14 +79,37 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
+// MongoDB Config
+const mongoConfig = {
+  serverSelectionTimeoutMS: 5000,
+  autoIndex: true,
+  maxPoolSize: 10,
+  socketTimeoutMS: 45000,
+  family: 4,
+};
 
-//Form A.4
+// MongoDB Connection
+mongoose
+  .connect(process.env.MONGO_URI, mongoConfig)
+  .then(async () => {
+    console.log("Connected to Local MongoDB");
+    await registerAllJobs();
+    console.log("✅ Cron jobs initialized successfully");
+  })
+  .catch((err) => {
+    console.error("MongoDB Connection Error:", err);
+    process.exit(1);
+  });
 
-const presentationRoutes = require("./routes/presentationRoutes");
-app.use("/api/presentation", presentationRoutes);
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB error after initial connection:", err);
+});
 
+mongoose.connection.on("disconnected", () => {
+  console.log("Lost MongoDB connection...");
+});
 
-// Graceful shutdown (async Mongoose support)
+// Graceful shutdown
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();

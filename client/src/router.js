@@ -18,6 +18,7 @@ import ActivateAccount from "./pages/ActivateAccount";
 import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
+import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: "coordinator-dashboard",
         element: <CoordinatorDashboard />,
+      },
+      {
+        path: "coordinator/request/:id",
+        element: <CoordinatorRequestDetailView />,
       },
     ],
   },
