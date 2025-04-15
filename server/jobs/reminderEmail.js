@@ -3,6 +3,7 @@ const Submission = require("../models/Submission");
 const dayjs = require("dayjs");
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
+const logger = require("../utils/logger"); // Replace console
 
 const coordinatorReminder = async () => {
   await emailService.sendEmail({
@@ -24,16 +25,16 @@ const supervisorReminder = async () => {
 	});
 
 	for (const submission of pendingSubs) {
-	    // Fetch student and supervisor data
+
 	    const student = await User.findById(submission.student_id);
 	    const supervisor = await User.findById(submission.supervisor_id);
 
 	    const reminderCount = submission.supervisor_reminder_count || 0;
 	    const lastReminded = submission.last_supervisor_reminder_at || submission.createdAt;
 
-	    const nextReminderDue = dayjs(lastReminded).add(5, "day");
+	    const nextReminderDue = dayjs(lastReminded).add(7, "day");
 	    const shouldRemindAgain = now.isAfter(nextReminderDue);
-	    
+
 	    if (reminderCount >= 2 && shouldRemindAgain) {
 		// Escalate to student
 		await emailService.sendEmail({
@@ -46,13 +47,13 @@ const supervisorReminder = async () => {
 
 		// Log notification in database
 		await NotificationLog.create({
-		    submissionId: submission._id,
+		    submission_id: submission._id,
 		    type: "studentEscalation",
-		    recipientEmail: student.email,
+		    recipient_email: student.email,
 		    message: `Student notified about supervisor status on: "${submission.name}"`,
 		});
 		
-		console.log(`Returned to student for resubmit/delete: "${submission.name}"`);
+		logger.info(`Returned to student for resubmit/delete: "${submission.name}"`);
 	    } else if (shouldRemindAgain) {
 		// Gentle reminder to supervisor
 		await emailService.sendEmail({
@@ -67,11 +68,11 @@ const supervisorReminder = async () => {
 		submission.last_supervisor_reminder_at = new Date();
 		await submission.save();
 		
-		console.log(`Reminder sent to supervisor for "${submission.name}"`);
+		logger.info(`Reminder sent to supervisor for "${submission.name}"`);
 	    }
 	}
     } catch (err) {
-	console.error("Error in supervisorReminder:", err);
+	logger.error("Error in supervisorReminder:", err);
     }
 };
 
