@@ -1,9 +1,6 @@
-
-
 import React, { useState } from "react";
 import axios from "axios";
-import "./WeeklyProgressReportForm.css"; // optional: for clean styling
-
+import "../styles/WeeklyProgressReportForm.css";
 const WeeklyProgressReportForm = () => {
   const [formData, setFormData] = useState({
     week: "Week 1",
@@ -22,30 +19,38 @@ const WeeklyProgressReportForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Get the user ID from localStorage (ensure it exists)
     // const user = JSON.parse(localStorage.getItem("user"));
     // const studentId = user?.user?._id;
-  
+
     // // Check if studentId exists in localStorage
     // if (!studentId) {
     //   setMessage("Student ID not found. Please log in again.");
     //   return;
     // }
-  
+
     // Check that all required fields are filled
-    if (!formData.week || !formData.hours || !formData.tasks || !formData.lessons) {
+    if (
+      !formData.week ||
+      !formData.hours ||
+      !formData.tasks ||
+      !formData.lessons
+    ) {
       setMessage("Please fill in all the fields.");
       return;
     }
-  
+
     //const payload = { studentId, ...formData };
-    const payload = {  ...formData };
-  
+    const payload = { ...formData };
+
     try {
       // Sending the form data to the backend
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, payload);
-  
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/reports`,
+        payload
+      );
+
       // Display success message
       setMessage(res.data.message || "Report submitted!");
       setFormData({
@@ -60,7 +65,6 @@ const WeeklyProgressReportForm = () => {
       setMessage("Submission failed. Try again.");
     }
   };
-  
 
   return (
     <div className="a2-form-container">
