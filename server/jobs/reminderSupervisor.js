@@ -1,7 +1,6 @@
-
 const WeeklyReport = require("../models/WeeklyReport");
 const User = require("../models/User");
-const transporter = require("../config/nodemailer");
+const emailService = require("../services/emailService"); // ✅ Import centralized email sender
 
 const sendReminderMailsToSupervisors = async () => {
   try {
@@ -23,11 +22,12 @@ const sendReminderMailsToSupervisors = async () => {
         continue;
       }
 
-      await transporter.sendMail({
-        from: `IPMS Team <${process.env.EMAIL}>`,
+      await emailService.sendEmail({
         to: supervisor.email,
         subject: "Reminder: Pending Weekly Report Comment",
         text: `Hello ${supervisor.userName}, Please review and comment on the student's weekly report for ${report.week}.`,
+        html: `<p>Hello <strong>${supervisor.userName}</strong>,</p>
+               <p>Please review and comment on the student's weekly report for <strong>${report.week}</strong>.</p>`,
       });
 
       console.log(`Reminder sent to ${supervisor.email}`);
