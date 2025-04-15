@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2";
+//import Swal from "sweetalert2";
 import "../styles/SupervisorDashboard.css";
 import ViewFormModal from "./ViewFormModal";
 
