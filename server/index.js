@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 const User = require("./models/User");
 const Evaluation = require("./models/Evaluation");
@@ -22,7 +23,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB Connection Config
+// MongoDB Config
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
   autoIndex: true,
@@ -31,9 +32,8 @@ const mongoConfig = {
   family: 4,
 };
 
-// MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URI, mongoConfig)
+// MongoDB Connect
+mongoose.connect(process.env.MONGO_URI, mongoConfig)
   .then(async () => {
     console.log("Connected to Local MongoDB");
     await registerAllJobs();
@@ -44,14 +44,6 @@ mongoose
     process.exit(1);
   });
 
-mongoose.connection.on("error", (err) => {
-  console.error("MongoDB error after initial connection:", err);
-});
-
-mongoose.connection.on("disconnected", () => {
-  console.log("Lost MongoDB connection...");
-});
-
 // Routes
 app.use("/api/form", formRoutes);
 app.use("/api/email", emailRoutes);
@@ -61,31 +53,22 @@ app.use("/api", outcomeRoutes);
 app.use("/api/reports", weeklyReportRoutes);
 app.use("/api/fourWeekReports", fourWeekReportRoutes);
 
-app.get("/", (req, res) => {
-  res.send("IPMS Backend Running");
-});
-
-app.get("/api/message", (req, res) => {
-  res.json({ message: "Hello from the backend!" });
-});
-
+// API for creating user
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
     await user.save();
-    console.log("New user created:", JSON.stringify(user));
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
-    console.error("Error creating user:", error);
     res.status(500).json({ message: "Failed to create user", error: error.message });
   }
 });
 
+// API for Evaluation form
 app.post("/api/evaluation", async (req, res) => {
   try {
     const { formData, ratings, comments } = req.body;
-
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
       rating: ratings[category],
@@ -103,9 +86,16 @@ app.post("/api/evaluation", async (req, res) => {
     await newEvaluation.save();
     res.status(201).json({ message: "Evaluation saved successfully!" });
   } catch (error) {
-    console.error("Error saving evaluation:", error);
     res.status(500).json({ error: "Failed to save evaluation" });
   }
+});
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+// All other routes to React app
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build/index.html"));
 });
 
 // Graceful Shutdown

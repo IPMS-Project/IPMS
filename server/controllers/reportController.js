@@ -1,88 +1,152 @@
-const User = require("../models/User");
 const WeeklyReport = require("../models/WeeklyReport");
+const SupervisorReview = require("../models/SupervisorReview");
 
-/**
- * Report Controller – handles weekly report submissions and retrieval
- */
+const STATIC_USER_ID = "vikash123";
 
 const reportController = {
-  // POST /api/reports
+  
+  // POST - Submit Weekly Report
   createReport: async (req, res) => {
     try {
-      const {
-        studentId,
-        week,
-        hours,
-        tasks,
-        lessons,
-        supervisorComments
-      } = req.body;
-       
+      const { week, hours, tasks, lessons } = req.body;
 
-      // Role-check: Only students can submit (based on their ID)
-      // const user = await User.findById(studentId);
-      // if (!user || user.role.toLowerCase() !== "student") {
-      //   return res.status(403).json({
-      //     success: false,
-      //     message: "Only students can submit reports.",
-      //   });
-      // }
-
-      // Basic field validation
       if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
-        return res.status(400).json({
-          success: false,
-          message: "All required fields must be valid.",
-        });
+        return res.status(400).json({ success: false, message: "All required fields must be valid." });
       }
-      
 
-      // Save the report
       const newReport = new WeeklyReport({
-        //studentId,
+        studentId: STATIC_USER_ID,
         week,
         hours,
         tasks,
         lessons,
-        supervisorComments: supervisorComments || "",
+        supervisorComments: "",
       });
-      
 
       await newReport.save();
 
-      res.status(201).json({
-        success: true,
-        message: "Report submitted successfully.",
-      });
+      return res.status(201).json({ success: true, message: "Weekly report submitted successfully." });
+
     } catch (error) {
       console.error("Error in createReport:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal server error.",
-      });
+      return res.status(500).json({ success: false, message: "Internal server error." });
     }
   },
 
-  // GET /api/reports/:userId
+
+  // GET - Fetch Reports for a Student
   getReportsByStudent: async (req, res) => {
     try {
       const { userId } = req.params;
+      const reports = await WeeklyReport.find({ studentId: userId }).sort({ week: 1 });
 
-      const reports = await WeeklyReport.find({ studentId: userId }).sort({
-        createdAt: -1,
-      });
+      return res.status(200).json({ success: true, reports });
 
-      res.status(200).json({
-        success: true,
-        reports,
-      });
     } catch (error) {
       console.error("Error in getReportsByStudent:", error);
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to retrieve reports." });
+      return res.status(500).json({ success: false, message: "Failed to fetch reports." });
     }
   },
+
+
+  // GET - Fetch all Cumulative Reports (excluding already reviewed)
+  getCumulativeReports: async (req, res) => {
+    try {
+      const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ createdAt: 1 });
+
+      if (!reports.length) {
+        return res.status(200).json({ success: true, cumulativeReports: [] });
+      }
+
+      const groupedReports = [];
+
+      for (let i = 0; i < reports.length; i += 4) {
+        const groupIndex = i / 4;
+
+        const isReviewed = await SupervisorReview.findOne({
+          studentId: STATIC_USER_ID,
+          groupIndex,
+        });
+
+        if (isReviewed) continue; // Skip already reviewed groups
+
+        groupedReports.push({
+          groupIndex,
+          weeks: reports.slice(i, i + 4).map(r => r.week),
+          reports: reports.slice(i, i + 4),
+        });
+      }
+
+      return res.status(200).json({ success: true, cumulativeReports: groupedReports });
+
+    } catch (error) {
+      console.error("Error in getCumulativeReports:", error);
+      return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+  },
+
+
+  // GET - Fetch a Specific Group by groupIndex
+  getCumulativeGroup: async (req, res) => {
+    try {
+      const { groupIndex } = req.params;
+      const index = parseInt(groupIndex);
+
+      const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ createdAt: 1 });
+
+      if (!reports.length) {
+        return res.status(404).json({ success: false, message: "No reports found." });
+      }
+
+      const groupedReports = [];
+      for (let i = 0; i < reports.length; i += 4) {
+        groupedReports.push({
+          groupIndex: i / 4,
+          weeks: reports.slice(i, i + 4).map(r => r.week),
+          reports: reports.slice(i, i + 4),
+        });
+      }
+
+      const targetGroup = groupedReports[index];
+      if (!targetGroup) {
+        return res.status(404).json({ success: false, message: "Group not found." });
+      }
+
+      return res.status(200).json({ success: true, group: targetGroup });
+
+    } catch (error) {
+      console.error("Error in getCumulativeGroup:", error);
+      return res.status(500).json({ success: false, message: "Internal server error." });
+    }
+  },
+
+
+  // POST - Submit Supervisor Comment for a Group
+  submitSupervisorComments: async (req, res) => {
+    try {
+      const { groupIndex, comments, weeks } = req.body;
+
+      if (!comments || !weeks || weeks.length === 0) {
+        return res.status(400).json({ success: false, message: "Invalid comment data." });
+      }
+
+      const newReview = new SupervisorReview({
+        studentId: STATIC_USER_ID,
+        groupIndex,
+        weeks,
+        comments,
+      });
+
+      await newReview.save();
+
+      return res.status(200).json({ success: true, message: "Supervisor comment submitted successfully." });
+
+    } catch (error) {
+      console.error("Error in submitSupervisorComments:", error);
+      return res.status(500).json({ success: false, message: "Failed to submit comment." });
+    }
+  },
+
 };
 
 module.exports = reportController;
