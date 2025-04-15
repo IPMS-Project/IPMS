@@ -42,13 +42,13 @@ exports.approveSubmission = async (req, res) => {
   }
 };
 
-// ✅ Supervisor Rejects a submission
 exports.rejectSubmission = async (req, res) => {
   const { id } = req.params;
   const { comment } = req.body;
 
   try {
-    const submission = await Submission.findByIdAndUpdate(
+    const InternshipRequest = require("../models/InternshipRequest");
+    const submission = await InternshipRequest.findByIdAndUpdate(
       id,
       {
         supervisor_status: "Rejected",
@@ -62,7 +62,7 @@ exports.rejectSubmission = async (req, res) => {
     }
 
     res.json({
-      message: "Submission rejected",
+      message: "Submission rejected and sent back to student",
       updatedSubmission: submission,
     });
   } catch (err) {
