@@ -1,32 +1,23 @@
+import React from "react";
 import { createBrowserRouter } from "react-router-dom";
-// <<<<<<< groupD/vikash-sprint2
-// =======
-import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
 
 // Layout
 import Layout from "./components/Layout";
-// >>>>>>> main
 
 // Pages
-//import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
-import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
-import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
-import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
-import ActivateAccount from "./pages/ActivateAccount";
-import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
-import SupervisorDashboard from "./pages/SupervisorDashboard";
-import CoordinatorDashboard from "./pages/CoordinatorDashboard";
-// <<<<<<< groupD/vikash-sprint2
-import CumulativeReviewForm from "./pages/CumulativeReviewForm"; // 🚀 NEW PAGE
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-
-// Layout
-import Layout from "./components/Layout";
-// =======
+import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
+import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
+import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
+import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
+import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
+import ActivateAccount from "./pages/ActivateAccount";
+import SupervisorDashboard from "./pages/SupervisorDashboard";
+import CoordinatorDashboard from "./pages/CoordinatorDashboard";
+import CumulativeReviewForm from "./pages/CumulativeReviewForm";
 import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
-// >>>>>>> main
 
 const router = createBrowserRouter([
   {
@@ -59,12 +50,12 @@ const router = createBrowserRouter([
         element: <A3JobEvaluationForm />,
       },
       {
-        path: "activate/:token",
-        element: <ActivateAccount />,
-      },
-      {
         path: "presentation",
         element: <A4PresentationEvaluationForm />,
+      },
+      {
+        path: "activate/:token",
+        element: <ActivateAccount />,
       },
       {
         path: "supervisor-dashboard",
@@ -75,13 +66,12 @@ const router = createBrowserRouter([
         element: <CoordinatorDashboard />,
       },
       {
-// <<<<<<< groupD/vikash-sprint2
-        path: "review-cumulative/:groupIndex",   // 🚀 NEW ROUTE
+        path: "review-cumulative/:groupIndex",
         element: <CumulativeReviewForm />,
-// =======
+      },
+      {
         path: "coordinator/request/:id",
         element: <CoordinatorRequestDetailView />,
-// >>>>>>> main
       },
     ],
   },
