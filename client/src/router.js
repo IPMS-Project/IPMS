@@ -1,16 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
-import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
-import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
-
-
-
-// Layout
-import Layout from "./components/Layout";
 
 // Pages
-import Home from "./pages/Home";
-import SignUp from "./pages/SignUp";
-import NotFound from "./pages/NotFound";
+import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
+import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
 import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
 import ActivateAccount from "./pages/ActivateAccount";
@@ -18,8 +10,14 @@ import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
+import CumulativeReviewForm from "./pages/CumulativeReviewForm"; // 🚀 NEW PAGE
+import Home from "./pages/Home";
+import SignUp from "./pages/SignUp";
+import NotFound from "./pages/NotFound";
 
-// Create and export the router configuration
+// Layout
+import Layout from "./components/Layout";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -69,10 +67,11 @@ const router = createBrowserRouter([
       {
         path: "coordinator/request/:id",
         element: <CoordinatorRequestDetailView />,
+        path: "review-cumulative/:groupIndex",   // 🚀 NEW ROUTE
+        element: <CumulativeReviewForm />,
       },
     ],
   },
 ]);
-
 
 export default router;

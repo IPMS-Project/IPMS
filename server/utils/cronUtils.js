@@ -1,14 +1,10 @@
-
 const cron = require("node-cron");
-const logger = require("./logger"); // Replace console
-
+const logger = require("./logger");
 
 class CronJobManager {
   constructor() {
     this.jobs = new Map();
-    this.logger = console;
     this.logger = logger;
-
   }
 
   registerJob(name, cronExpression, jobFunction, options = {}) {
@@ -33,10 +29,7 @@ class CronJobManager {
           this.logger.error(`[CRON] Error in job ${name}: ${err.message}`);
         }
       },
-      {
-        scheduled: true,
-        timezone: options.timezone,
-      }
+      { scheduled: true, timezone: options.timezone }
     );
 
     this.jobs.set(name, { task, cronExpression, jobFunction, options });
@@ -56,7 +49,15 @@ class CronJobManager {
     if (job) {
       job.task.stop();
       this.logger.info(`Stopped job: ${name}`);
+      this.jobs.delete(name); // Clear from map
     }
+  }
+
+  stopAllJobs() {
+    for (const name of this.jobs.keys()) {
+      this.stopJob(name);
+    }
+    this.logger.info("✅ All cron jobs stopped");
   }
 
   listJobs() {
@@ -66,18 +67,6 @@ class CronJobManager {
       timezone: job.options.timezone || "default",
     }));
   }
-
-  stopAllJobs() {
-    for (const [name] of this.jobs.entries()) {
-      this.stopJob(name);
-    }
-    this.logger.info("✅ All cron jobs stopped");
-  }
-  
 }
 
-
-const cronJobManager = new CronJobManager();
-module.exports = cronJobManager;
-
-module.exports = { cronJobManager };
+module.exports = new CronJobManager();

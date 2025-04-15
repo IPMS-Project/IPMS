@@ -65,6 +65,8 @@ function Home() {
           icon: "success",
           title: "Login Successful 🌟",
           text: `Welcome back, ${role}!`,
+          timer: 1500,
+          showConfirmButton: false,
         });
 
         // Redirect user based on role
@@ -75,6 +77,13 @@ function Home() {
         } else if (role === "supervisor") {
           navigate("/supervisor-dashboard");
         }
+  
+        // Wait for Swal before redirect
+        setTimeout(() => {
+          if (role === "student") navigate("/weekly-report");
+          else if (role === "supervisor") navigate("/supervisor-dashboard");
+          else if (role === "coordinator") navigate("/coordinator-dashboard");
+        }, 1500);
       } else {
         Swal.fire({
           icon: "error",
@@ -91,6 +100,7 @@ function Home() {
       });
     }
   };
+  
 
   return (
     <div className="content-container">

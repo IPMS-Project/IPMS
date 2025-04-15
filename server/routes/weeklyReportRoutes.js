@@ -2,12 +2,14 @@ const express = require("express");
 const router = express.Router();
 const reportController = require("../controllers/reportController");
 
-// Routing weekly report actions
+// ✅ Correct Order: Static Routes First
+router.post("/supervisor-comments", reportController.submitSupervisorComments);
 
-// POST - Submit a new weekly report
-router.post("/", reportController.createReport);
+router.get("/cumulative/reports", reportController.getCumulativeReports);
+router.get("/cumulative/group/:groupIndex", reportController.getCumulativeGroup);
 
-// GET - Fetch all reports by a specific student
 router.get("/:userId", reportController.getReportsByStudent);
+
+router.post("/", reportController.createReport);
 
 module.exports = router;
