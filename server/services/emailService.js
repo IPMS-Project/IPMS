@@ -18,8 +18,8 @@ class EmailService {
     });
 
     this.defaultSender =
-      process.env.EMAIL_DEFAULT_SENDER ||
-      "Internship Program Management System <noreply@ipms.edu>";
+    process.env.EMAIL_DEFAULT_SENDER ||
+    "Internship Program Management System <noreply@ipms.edu>";
   }
 
   /**
@@ -40,8 +40,7 @@ class EmailService {
       if (!options.to || !options.subject || !options.html) {
         return {
           success: false,
-          error:
-            "Missing required fields: to, subject, and html content are required",
+          error: "Missing required fields: to, subject, and html content",
         };
       }
 
@@ -53,27 +52,20 @@ class EmailService {
         text: options.text || options.html.replace(/<[^>]*>/g, ""),
         attachments: options.attachments || [],
       };
-
+      
       // Add optional fields if provided
       if (options.cc) mailOptions.cc = options.cc;
       if (options.bcc) mailOptions.bcc = options.bcc;
 
       const info = await this.transporter.sendMail(mailOptions);
       console.log("Email sent successfully:", info.messageId);
-      return {
-        success: true,
-        messageId: info.messageId,
-      };
+      return { success: true, messageId: info.messageId };
     } catch (error) {
       console.error("Error sending email:", error);
-      return {
-        success: false,
-        error: error.message,
-      };
+      return { success: false, error: error.message };
     }
   }
 }
-
 // Create and export a singleton instance
 const emailService = new EmailService();
 module.exports = emailService;

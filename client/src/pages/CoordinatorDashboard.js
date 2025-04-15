@@ -35,8 +35,8 @@ function CoordinatorDashboard() {
             className="request-card"
             onClick={() => navigate(`/coordinator/request/${req._id}`)}
           >
-            <h4>{req.student.userName}</h4>
-            <p>Email: {req.student.email}</p>
+            {/* <h4>{req.student.userName}</h4>
+            <p>Email: {req.student.email}</p> */}
             <p>Company: {req.workplace.name}</p>
           </div>
         ))

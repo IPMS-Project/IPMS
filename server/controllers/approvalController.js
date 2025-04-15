@@ -65,9 +65,7 @@ exports.getCoordinatorRequests = async (req, res) => {
 
 exports.getCoordinatorRequestDetails = async (req, res) => {
   try {
-    const requestData = await InternshipRequest.findById(
-      req.params.id
-    ).populate("student", "userName email");
+    const requestData = await InternshipRequest.findById(req.params.id).lean();
 
     if (!requestData)
       return res.status(404).json({ message: "Request not found" });
