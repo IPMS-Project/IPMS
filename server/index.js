@@ -1,8 +1,6 @@
 require("dotenv").config();
 const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 
-
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -12,14 +10,13 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
-const outcomeRoutes = require("./routes/outcomeRoutes");
 
+const outcomeRoutes = require("./routes/outcomeRoutes");
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
-
 
 const app = express();
 app.use(express.json());
@@ -27,8 +24,7 @@ app.use(cors());
 app.use("/api/form", formRoutes); // register route as /api/form/submit
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
-app.use("/api", outcomeRoutes); 
-
+app.use("/api", outcomeRoutes);
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
@@ -80,10 +76,10 @@ app.get("/api/message", (req, res) => {
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
+
 app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
   try {
-    
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
 
@@ -122,6 +118,12 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
+
+
+//Form A.4
+
+const presentationRoutes = require("./routes/presentationRoutes");
+app.use("/api/presentation", presentationRoutes);
 
 
 // Graceful shutdown (async Mongoose support)
