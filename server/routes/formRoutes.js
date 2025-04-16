@@ -11,15 +11,14 @@ const {
 router.post("/internshiprequests/:id/approve", approveSubmission);
 router.post("/internshiprequests/:id/reject", rejectSubmission);
 
-// GET route to fetch internship requests without supervisor_comment and supervisor_status
+// ✅ UPDATED: GET route to fetch internship requests pending supervisor action
 router.get("/internshiprequests", async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
       status: "submitted",
-      approvals: { $all: ["advisor", "coordinator"] },
-      supervisor_comment: { $exists: false },
-      supervisor_status: { $exists: false }
-    }).sort({ createdAt: -1 });
+      // approvals: "advisor", // advisor has approved
+      supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
+    }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
 
     res.status(200).json(requests);
   } catch (err) {
@@ -27,7 +26,6 @@ router.get("/internshiprequests", async (req, res) => {
     res.status(500).json({ message: "Server error while fetching internship requests" });
   }
 });
-
 
 // Validate and submit form
 function validateFormData(formData) {
@@ -65,14 +63,15 @@ function validateFormData(formData) {
 
 router.post("/submit", async (req, res) => {
   const formData = req.body;
-  const error = validateFormData(formData);
-  if (error) return res.status(400).json({ message: error });
+
+  if (!formData.studentId) {
+    return res.status(400).json({ message: "Missing studentId in form data" });
+  }
 
   try {
-    await insertFormData(formData);
+    await insertFormData(formData);  // pass studentId through
     res.status(200).json({ message: "Form received and stored." });
   } catch (error) {
-    console.error("Insert error:", error);
     res.status(500).json({ message: "Something went wrong" });
   }
 });

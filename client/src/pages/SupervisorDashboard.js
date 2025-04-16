@@ -13,15 +13,21 @@ const SupervisorDashboard = () => {
     const fetchRequests = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/internshiprequests`);
-        const formatted = res.data.map(item => ({
-          _id: item._id,
-          name: item.workplace?.name || "N/A",
-          student_id: item._id,  // display _id of InternshipRequest
-          form_type: "A1",
-          createdAt: item.createdAt,
-          supervisor_status: "pending",
-          fullForm: item
-        }));
+        console.log("Fetched internship requests:", res.data); // debug log
+
+        const formatted = res.data
+          .map(item => ({
+            _id: item._id,
+            name: item.student?.userName || item.student?.name || "N/A",
+            student_id: item.student?._id || item._id,
+
+            form_type: "A1",
+            createdAt: item.createdAt,
+            supervisor_status: item.supervisor_status || "pending",
+            fullForm: item
+          }))
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // oldest first
+
         setRequests(formatted);
         setLoading(false);
       } catch (err) {
@@ -39,7 +45,10 @@ const SupervisorDashboard = () => {
     if (!confirmed) return;
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/form/internshiprequests/${id}/${action}`, { comment });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/form/internshiprequests/${id}/${action}`,
+        { comment }
+      );
 
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
@@ -52,7 +61,6 @@ const SupervisorDashboard = () => {
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
-
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
   return (

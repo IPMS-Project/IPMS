@@ -7,17 +7,18 @@ const Task = new mongoose.Schema({
     type: String,
     required: true,
   },
-  outcomes: {
-    type: [String],
+  outcomes: [{
+    type: String,
     enum: [
       "problemSolving",
       "solutionDevelopment",
       "communication",
       "decisionMaking",
       "collaboration",
-      "application",
-    ],
-  },
+      "application"
+    ]
+  }]
+  
 });
 const formA1 = new mongoose.Schema(
   {

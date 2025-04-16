@@ -2,6 +2,19 @@ const Submission = require("../models/Submission");
 const InternshipRequest = require("../models/InternshipRequest");
 const EmailService = require("../services/emailService");
 
+// ✅ ADD THIS — Used in SupervisorDashboard.js
+exports.getInternshipRequests = async (req, res) => {
+  try {
+    const requests = await InternshipRequest.find(); // You can filter later if needed
+    res.status(200).json(requests);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch internship requests",
+      error: err.message,
+    });
+  }
+};
+
 // Get Supervisor Pending Submissions
 exports.getPendingSubmissions = async (req, res) => {
   try {
