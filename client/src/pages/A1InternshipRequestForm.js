@@ -81,7 +81,7 @@ const A1InternshipRequestForm = () => {
 
   const validateForm = () => {
     const namePattern = /^[A-Za-z\s]+$/;
-    const numberPattern = /^[0-9]+$/;
+    const soonerIdPattern = /^[0-9]{9}$/;
     const phonePattern = /^[0-9]{10}$/;
     const emailPattern = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
 
@@ -91,7 +91,7 @@ const A1InternshipRequestForm = () => {
     else if (!namePattern.test(formData.interneeName)) newErrors.interneeName = "Name should contain only letters and spaces";
 
     if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
-    else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
+    else if (!soonerIdPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be a 9-digit number";
 
     if (!formData.interneeEmail) newErrors.interneeEmail = "Email is required";
     else if (!emailPattern.test(formData.interneeEmail)) newErrors.interneeEmail = "Invalid email format";

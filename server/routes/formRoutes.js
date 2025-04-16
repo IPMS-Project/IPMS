@@ -7,6 +7,7 @@ let status = '';
 // Validate required fields
 function validateFormData(formData) {
   const requiredFields = [
+    'soonerId',
     'workplaceName',
     'website',
     'phone',
@@ -24,6 +25,9 @@ function validateFormData(formData) {
       return `Missing or empty required field: ${field}`;
     }
   }
+
+  if (!/^[0-9]{9}$/.test(formData.soonerId))
+    return `Sooner ID must be a 9-digit number, not ${formData.soonerId}`;
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
     return 'Tasks must be a non-empty array';

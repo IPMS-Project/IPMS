@@ -9,7 +9,7 @@ async function insertFormData(formData) {
     // Assumes global mongoose connection is already established elsewhere in app
 
     const formattedData = {
-      student: new mongoose.Types.ObjectId(), // TODO: Replace with actual signed-in student ID
+      student: parseInt(formData.soonerId),
       workplace: {
         name: formData.workplaceName,
         website: formData.website,

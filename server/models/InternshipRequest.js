@@ -13,10 +13,11 @@ const Task = new mongoose.Schema({
     }
 });
 const formA1 = new mongoose.Schema({
-    student: { // get student's name, email, id from User
-        type: ObjectId,
+    student: {
+        type: Number,
         required: true,
-        ref: 'User'
+        min: [0, 'Sooner ID can\'t be negative'],
+        max: [999999999, 'Sooner ID should be a 9-digit number']
     },
     workplace: {
         name: {
