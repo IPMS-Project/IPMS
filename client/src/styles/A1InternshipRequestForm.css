@@ -3,93 +3,87 @@
     margin: 30px;
     background-color: #f5f5f5;
     padding: 20px;
-  }
-  
-  h2 {
+}
+
+h2 {
     text-align: center;
     color: #841617;
-  }
-  
-  .section-title {
+}
+
+.section-title {
     font-size: 16px;
     color: #841617;
     margin-top: 30px;
     margin-bottom: 10px;
     font-weight: bold;
-  }
-  
-  table {
+}
+
+table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 20px;
     background-color: #fff;
-  }
-  
-  th {
-    background-color: #841617;
-    color: #fff;
-  }
-  
-  th, td {
-    padding: 8px;
+}
+
+th, td {
+    padding: 8px; /* Adjusted padding */
     border: 1px solid #999;
     vertical-align: top;
-  }
-  
-  input[type="text"],
-  input[type="email"],
-  input[type="date"] {
+}
+
+input[type="text"],
+input[type="email"],
+input[type="date"] {
     width: 95%;
     padding: 6px;
     font-size: 13px;
     border: 1px solid #999;
     border-radius: 3px;
-  }
-  
-  input[type="checkbox"] {
+}
+
+input[type="checkbox"] {
     appearance: none;
     width: 16px;
     height: 16px;
     border: 2px solid #333;
-    border-radius: 50%;
     background-color: white;
     cursor: pointer;
-  }
-  
-  input[type="checkbox"]:checked {
+}
+
+input[type="checkbox"]:checked {
     background-color: #841617;
-  }
-  
-  .signature-cell {
+}
+
+.signature-cell {
     text-align: center;
     background-color: #841617;
     color: #fff;
-  }
-  
-  .signature-cell input {
+}
+
+.signature-cell input {
     margin-top: 6px;
     padding: 6px;
     width: 90%;
-  }
-  
-  span.description {
+}
+
+span.description {
     font-size: 11.5px;
     color: #fff;
     display: block;
     margin-top: 4px;
-  }
-  
-  ol {
+}
+
+ol {
     padding-left: 18px;
     font-size: 13px;
-  }
-  
-  .submit-section {
+}
+
+.submit-section {
     text-align: center;
     margin-top: 20px;
-  }
-  
-  button {
+}
+
+button {
     padding: 10px 25px;
     background-color: #841617;
     color: white;
@@ -97,22 +91,26 @@
     font-size: 14px;
     border-radius: 5px;
     cursor: pointer;
-  }
-  
-  button:hover {
+}
+
+button:hover {
     background-color: #6e1212;
-  }
-  
-  .success-msg {
+}
+
+.success-msg {
     color: green;
     font-weight: bold;
     text-align: center;
     margin-top: 10px;
-  }
-  
-  .error-msg {
+}
+
+.error-msg {
     color: red;
     font-weight: bold;
     text-align: center;
     margin-top: 10px;
-  }
+}
+
+.required-asterisk {
+    color: #ff6666; /* Light red */
+}
