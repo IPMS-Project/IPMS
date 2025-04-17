@@ -17,14 +17,20 @@ const { isSupervisor, isCoordinator } = require("../middleware/authMiddleware");
 // =========================================== //
 
 // Supervisor APIs
-router.get("/supervisor/forms", isSupervisor, getSupervisorForms);
+router.get("/supervisor/forms", isSupervisor, (req, res) => {
+    // const supervisorId = req.user._id,
+    return getSupervisorForms(req, res, {
+        // supervisor_id: supervisorId,
+        supervisor_status: { $in: ["pending"] },
+    })
+});
 // Approve route
-router.post("/form/:type/:id/approve", isSupervisor, (req, res) =>
+router.post("/supervisor/form/:type/:id/approve", isSupervisor, (req, res) =>
     handleSupervisorFormAction(req, res, "approve")
 );
 
 // Reject route
-router.post("/form/:type/:id/reject", isSupervisor, (req, res) =>
+router.post("/supervisor/form/:type/:id/reject", isSupervisor, (req, res) =>
     handleSupervisorFormAction(req, res, "reject")
 );
 

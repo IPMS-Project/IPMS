@@ -7,36 +7,53 @@ const EmailService = require("../services/emailService");
 //           Supervisor Forms managing         //
 // =========================================== //
 
-exports.getSupervisorForms = async (req, res) => {
+exports.getSupervisorForms = async (req, res, filter) => {
     try {
-        supervisorId = req.user._id; // Assuming req.user contains the logged-in supervisor's ID
+        // ----------------------------
+        //      Fetching A1 Form
+        // ----------------------------
+        const requests = await InternshipRequest.find(filter)
+                                                .populate("student_id", "userName email");
+
+        const typedRequests = requests.map(req => ({
+            ...req.toObject(), // convert Mongoose doc to plain JS object
+            form_type: "A1"    // add the custom type
+        }));
+
+        // ----------------------------
+        //      Fetching A2 Form
+        // ----------------------------
+        const reports = await WeeklyReport.find(filter)
+                                          .populate("student_id", "userName email");
+
+        // Adding custom type to A2 Form
+        const typedReports = reports.map(report => ({
+            ...report.toObject(), // convert Mongoose doc to plain JS object
+            form_type: "A2"       // add the custom type
+        }));
+
+        // ----------------------------
+        //      Fetching A3 Form
+        // ----------------------------
+        const evaluations = await Evaluation.find(filter)
+                                            .populate("student_id", "userName email");
+
+        // Adding custom type to A3 Form
+        const typedEvaluations = evaluations.map(evaluation => ({
+            ...evaluation.toObject(), // convert Mongoose doc to plain JS object
+            form_type: "A3"     // add the custom type
+        }));
         
-        // Fetching A1 Form
-        const requests = await InternshipRequest.find({
-            supervisor_id: supervisorId,
-            supervisor_status: { $in: ["pending"] },
-        }).populate("student", "userName email");
-
-        // Fetching A2 Form
-        const reports = await WeeklyReport.find({
-            supervisor_id: supervisorId,
-            supervisor_status: { $in: ["pending"] },
-        }).populate("student", "userName email");
-
-        // Fetching A3 Form
-        const evaluations = await Evaluation.find({
-            supervisor_id: supervisorId,
-            supervisor_status: { $in: ["pending"] },
-        }).populate("student", "userName email");
-
-        // Combine all requests
-        const allRequests = [...requests, ...reports, ...evaluations];
+        // ----------------------------
+        //      Combine forms
+        // ----------------------------
+        const allRequests = [...typedRequests, ...typedReports, ...typedEvaluations];
 
         // Sort by createdAt date
         allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         // Send response
-        res.status(200).json(requests);
+        res.status(200).json(allRequests);
     } catch (err) {
         res.status(500).json({
             message: "Failed to fetch internship requests",
@@ -50,7 +67,6 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
     const form_type = req.params.type;
     const formId = req.params.id;
     const { comment = "" } = req.body;
-    const supervisorId = req.user._id;
 
     const models = {
       A1: require("../models/InternshipRequest"),
@@ -72,7 +88,7 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       supervisor_comment: comment,
     };
 
-    const form = await FormModel.findByIdAndUpdate(formId, update, { new: true }).populate("student_id");
+    const form = await FormModel.findByIdAndUpdate(formId, update, { new: true }).populate("student_id", "userName email");
 
     if (!form) {
       return res.status(404).json({ message: "Form not found" });

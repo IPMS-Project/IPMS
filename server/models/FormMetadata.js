@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const formMetadata = {
-  student_id: { type: mongoose.Schema.Types.ObjectId, ref: "User"},
-  supervisor_id: { type: mongoose.Schema.Types.ObjectId, ref: "User"},
-  coordinator_id: { type: mongoose.Schema.Types.ObjectId, ref: "User"},
+  student_id: { type: mongoose.Schema.Types.ObjectId, ref: "UserTokenRequest"},
+  supervisor_id: { type: mongoose.Schema.Types.ObjectId, ref: "UserTokenRequest"},
+  coordinator_id: { type: mongoose.Schema.Types.ObjectId, ref: "UserTokenRequest"},
 
   supervisor_status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
   supervisor_comment: String,
