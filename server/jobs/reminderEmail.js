@@ -1,5 +1,4 @@
 const emailService = require("../services/emailService");
-const Submission = require("../models/Submission");
 const dayjs = require("dayjs");
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
@@ -14,15 +13,35 @@ const coordinatorReminder = async () => {
   });
 };
 
+const getAllForms = async (filter) => {
+    const models = {
+        A1: require("../models/InternshipRequest"),
+        A2: require("../models/WeeklyReport"),
+        A3: require("../models/Evaluation"),
+    };
+
+    const allForms = [];
+    for (const modelName in models) {
+        const Model = models[modelName];
+        const forms = await Model.find(filter)
+                                 .populate("student_id", "userName email")
+                                 .populate("supervisor_id", "userName email")
+                                 .populate("coordinator_id", "userName email");
+        allForms.push(...forms);
+    }
+
+    return allForms;
+};
+
 const supervisorReminder = async () => {
     const now = dayjs();
     const fiveWorkingDays = now.subtract(7, "day").toDate(); // Approximate 5 working days as 7 calendar days
 
     try {
-	const pendingSubs = await Submission.find({
-	    supervisor_status: "pending",
-	    createdAt: { $lt: fiveWorkingDays },
-	});
+	const pendingSubs = getAllForms({
+            supervisor_status: "pending",
+            last_supervisor_reminder_at: { $lt: fiveWorkingDays },
+        });
 
 	for (const submission of pendingSubs) {
 
