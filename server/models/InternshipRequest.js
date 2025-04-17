@@ -28,6 +28,11 @@ const formA1 = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+
+    interneeName: {
+      type: String,
+      required: true
+    },
     workplace: {
       name: {
         type: String,

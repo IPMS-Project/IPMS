@@ -164,3 +164,35 @@
     margin-bottom: 15px;
   }
   
+  /* Hover and click effects for table rows */
+.dashboard-table tbody tr {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dashboard-table tbody tr:hover {
+  background-color: #f2f2f2;
+}
+
+.dashboard-table tbody tr.selected {
+  background-color: #dfefff; /* light blue */
+}
+
+/* Larger modal for full form */
+.large-form-modal {
+  width: 90vw;
+  max-width: 1000px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+/* Section spacing and layout */
+.form-section {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.form-row {
+  margin: 6px 0;
+}

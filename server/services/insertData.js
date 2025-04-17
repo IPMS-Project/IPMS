@@ -13,6 +13,8 @@ async function insertFormData(formData) {
 
     const formattedData = {
       student: new mongoose.Types.ObjectId(formData.studentId), // ✅ use the actual student
+      interneeName: formData.interneeName,
+
       workplace: {
         name: formData.workplaceName,
         website: formData.website,

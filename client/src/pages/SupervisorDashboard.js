@@ -6,6 +6,7 @@ import ViewFormModal from "./ViewFormModal";
 const SupervisorDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
+  const [highlightedRowId, setHighlightedRowId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -13,20 +14,19 @@ const SupervisorDashboard = () => {
     const fetchRequests = async () => {
       try {
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/internshiprequests`);
-        console.log("Fetched internship requests:", res.data); // debug log
+        console.log("Fetched internship requests:", res.data);
 
         const formatted = res.data
           .map(item => ({
             _id: item._id,
-            name: item.student?.userName || item.student?.name || "N/A",
-            student_id: item.student?._id || item._id,
-
+            name: item.interneeName || "N/A",
+            student_id: item._id,
             form_type: "A1",
             createdAt: item.createdAt,
             supervisor_status: item.supervisor_status || "pending",
             fullForm: item
           }))
-          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // oldest first
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // sort oldest first
 
         setRequests(formatted);
         setLoading(false);
@@ -53,14 +53,23 @@ const SupervisorDashboard = () => {
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
       setSelectedForm(null);
+      setHighlightedRowId(null);
     } catch (err) {
       console.error(`Failed to ${action} request:`, err);
       setMessage(`Failed to ${action} request.`);
     }
   };
 
-  const openFormView = (form) => setSelectedForm(form);
-  const closeFormView = () => setSelectedForm(null);
+  const openFormView = (form) => {
+    setSelectedForm(form);
+    setHighlightedRowId(form._id);
+  };
+
+  const closeFormView = () => {
+    setSelectedForm(null);
+    setHighlightedRowId(null);
+  };
+
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
   return (
@@ -87,13 +96,13 @@ const SupervisorDashboard = () => {
           </thead>
           <tbody>
             {requests.map((req) => (
-              <tr key={req._id}>
+              <tr
+                key={req._id}
+                onClick={() => openFormView(req.fullForm)}
+                className={highlightedRowId === req._id ? "selected" : ""}
+              >
                 <td>{req.name}</td>
-                <td>
-                  <button className="link-button" onClick={() => openFormView(req.fullForm)}>
-                    {req.student_id}
-                  </button>
-                </td>
+                <td>{req.student_id}</td>
                 <td>{req.form_type}</td>
                 <td>{formatDate(req.createdAt)}</td>
                 <td>

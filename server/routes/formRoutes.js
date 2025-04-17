@@ -18,7 +18,7 @@ router.get("/internshiprequests", async (req, res) => {
       status: "submitted",
       // approvals: "advisor", // advisor has approved
       supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
-    }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
+    }).sort({ createdAt: 1 })  .populate("student", "Name")  // oldest first
 
     res.status(200).json(requests);
   } catch (err) {

@@ -1,13 +1,18 @@
 import React, { useState } from "react";
 import "../styles/SupervisorDashboard.css";
+import A1Form from "./A1Form"; // ✅ Make sure the filename is A1Form.js (capital F)
 
 const ViewFormModal = ({ formData, onClose, onAction }) => {
-  const [comment, setComment] = useState("");
+  const [editableForm, setEditableForm] = useState(formData);
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
 
+  const handleFieldChange = (field, value) => {
+    setEditableForm((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleDecision = (action) => {
-    if (!comment.trim()) {
+    if (!editableForm.supervisor_comment?.trim()) {
       setError("Comment is required before taking action.");
       return;
     }
@@ -16,88 +21,47 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
       return;
     }
 
-    const payloadComment = `${comment.trim()} | Supervisor Signature: ${signature.trim()}`;
+    const payloadComment = `${editableForm.supervisor_comment.trim()} | Supervisor Signature: ${signature.trim()}`;
+    onAction(editableForm._id, action, payloadComment);
     setError("");
-    onAction(formData._id, action, payloadComment);
   };
 
   return (
     <div className="modal-overlay">
-      <div className="modal-box">
-        <h2>A.1 Internship Request Form</h2>
+      <div className="modal-box large-form-modal">
+        <h2 style={{ textAlign: "center", marginBottom: "10px" }}>A.1 Internship Request Form</h2>
 
-        <table className="modal-details-table">
-          <tbody>
-            <tr>
-              <td><strong>Student Name:</strong> {formData.interneeName}</td>
-              <td><strong>Sooner ID:</strong> {formData.soonerId}</td>
-            </tr>
-            <tr>
-              <td><strong>Email:</strong> {formData.interneeEmail}</td>
-              <td><strong>Phone:</strong> {formData.phone}</td>
-            </tr>
-            <tr>
-              <td><strong>Workplace Name:</strong> {formData.workplaceName}</td>
-              <td><strong>Website:</strong> {formData.website}</td>
-            </tr>
-            <tr>
-              <td><strong>Advisor Name:</strong> {formData.advisorName}</td>
-              <td><strong>Advisor Email:</strong> {formData.advisorEmail}</td>
-            </tr>
-            <tr>
-              <td><strong>Credit Hours:</strong> {formData.creditHours}</td>
-              <td>
-                <strong>Start Date:</strong> {new Date(formData.startDate).toLocaleDateString()}
-                <br />
-                <strong>End Date:</strong> {new Date(formData.endDate).toLocaleDateString()}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {/* ✅ Render the A1 form layout with only the comment field editable */}
+        <A1Form
+          formData={editableForm}
+          readOnly={true}
+          editableFields={["supervisor_comment"]}
+          onFieldChange={handleFieldChange}
+        />
 
-        <div style={{ marginTop: "15px" }}>
-          <strong>Task Descriptions & Outcomes:</strong>
-          <ul>
-            {formData.tasks?.map((task, index) => (
-              <li key={index} style={{ marginBottom: "10px" }}>
-                <strong>Task {index + 1}:</strong> {task.description}
-                <br />
-                <strong>Outcomes:</strong> {task.outcomes?.join(", ") || "N/A"}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
+        {/* ✅ Signature field (separate from form) */}
+        <div className="form-section" style={{ marginTop: "20px" }}>
           <label><strong>Supervisor Signature:</strong></label>
           <input
             type="text"
             value={signature}
             onChange={(e) => setSignature(e.target.value)}
             placeholder="Enter your full name"
-            style={{ width: "100%", padding: "6px", marginTop: "5px", borderRadius: "4px" }}
+            style={{
+              width: "100%",
+              padding: "6px",
+              marginTop: "5px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+            }}
           />
         </div>
 
-        <div style={{ marginTop: "10px" }}>
-          <label><strong>Comment:</strong></label>
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Add your comment before approval or rejection"
-            rows={4}
-            style={{ width: "100%", marginTop: "5px", borderRadius: "4px", padding: "8px" }}
-          />
-        </div>
+        {error && <p style={{ color: "red", marginTop: "10px" }}>{error}</p>}
 
-        {error && <p style={{ color: "red", marginTop: "5px" }}>{error}</p>}
-
-        <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "15px" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
           <button className="approve" onClick={() => handleDecision("approve")}>Approve</button>
           <button className="reject" onClick={() => handleDecision("reject")}>Reject</button>
-        </div>
-
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
           <button className="reject" onClick={onClose}>Close</button>
         </div>
       </div>
