@@ -49,3 +49,7 @@
     min-height: 80vh;
     padding: 10px;
 }
+
+.is-invalid {
+    border-color: #dc3545 !important;
+  }
