@@ -233,4 +233,38 @@ router.delete("/deactivate", async (req, res) => {
   }
 });
 
+router.post('/renew', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const userToken = await UserTokenRequest.findOne({ token });
+
+    if (!userToken) {
+      return res.status(404).json({ message: 'Token not found or invalid.' });
+    }
+
+    if (userToken.status !== 'activated') {
+      return res.status(400).json({ message: 'Token is not activated, cannot renew.' });
+    }
+
+    // Renew the token logic (extend expiry, etc.)
+    const currentDate = new Date();
+    userToken.expiresAt = new Date(currentDate.setDate(currentDate.getDate() + 30));
+    await userToken.save();
+
+    // Send confirmation email (optional)
+    await emailService.sendEmail({
+      to: userToken.ouEmail,
+      subject: 'Your Token Has Been Renewed',
+      html: `<p>Your token has been successfully renewed and will now expire on ${userToken.expiresAt.toLocaleDateString()}.</p>`,
+    });
+
+    return res.status(200).json({ message: 'Token successfully renewed!' });
+
+  } catch (error) {
+    console.error('Error renewing token:', error);
+    return res.status(500).json({ message: 'An error occurred while renewing the token.' });
+  }
+});
+
 module.exports = router;
