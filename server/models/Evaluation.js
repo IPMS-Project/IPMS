@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const formMetadata = require('./FormMetadata');
 
 const signatureSchema = new mongoose.Schema({
   type: { type: String, enum: ['text', 'draw'], required: true },
@@ -20,6 +21,7 @@ const evaluationItemSchema = new mongoose.Schema({
 }, { _id: false });
 
 const evaluationSchema = new mongoose.Schema({
+  ...formMetadata,
   interneeId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   internshipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Internship', required: false },
 

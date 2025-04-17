@@ -1,5 +1,6 @@
 const mongoose = require("mongoose"); // why are we commonjs
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const formMetadata = require("./FormMetadata");
 
 const Task = new mongoose.Schema({
   _id: false,
@@ -22,6 +23,7 @@ const Task = new mongoose.Schema({
 });
 const formA1 = new mongoose.Schema(
   {
+    ...formMetadata,
     student: {
       // get student's name, email, id from User
       type: ObjectId,
