@@ -25,6 +25,28 @@ const evaluationSchema = new mongoose.Schema({
   interneeId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   internshipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Internship', required: false },
 
+  interneeName: {
+    type: String,
+    required: true,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+
+  interneeID: {
+    type: String,
+    required: true,
+    match: [/^\d{9}$/, 'Sooner ID must be a 9-digit number'] // Sooner ID validation
+  },
+
+  interneeEmail: {
+    type: String,
+    required: true,
+    match: [/\S+@\S+\.\S+/, 'Invalid email format'], // Email format validation
+    lowercase: true,
+    trim: true
+  },
+
   evaluations: {
     type: [evaluationItemSchema],
     validate: [arr => arr.length > 0, 'At least one evaluation item is required']
@@ -37,6 +59,6 @@ const evaluationSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-evaluationSchema.index({ interneeId: 1, internshipId: 1 });
+evaluationSchema.index({ interneeID: 1, internshipId: 1 });
 
 module.exports = mongoose.model('Evaluation', evaluationSchema);
