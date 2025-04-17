@@ -18,7 +18,7 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
 
     const payloadComment = `${comment.trim()} | Supervisor Signature: ${signature.trim()}`;
     setError("");
-    onAction(formData._id, action, payloadComment);
+    onAction(formData._id, formData.form_type, action, payloadComment);
   };
 
   return (
