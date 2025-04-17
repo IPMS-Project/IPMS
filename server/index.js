@@ -95,7 +95,7 @@ app.post("/api/createUser", async (req, res) => {
 });
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const { formData, ratings, comments } = req.body;
+    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
 
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
@@ -104,10 +104,13 @@ app.post("/api/evaluation", async (req, res) => {
     }));
 
     const newEvaluation = new Evaluation({
-      advisorSignature: formData.advisorSignature,
-      advisorAgreement: formData.advisorAgreement,
-      coordinatorSignature: formData.coordinatorSignature,
-      coordinatorAgreement: formData.coordinatorAgreement,
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
       evaluations,
     });
 
