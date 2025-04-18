@@ -30,6 +30,7 @@ const SupervisorDashboard = () => {
             student_id: item.student?._id || item._id,
             form_type: item.form_type,
             createdAt: item.createdAt,
+            supervisor_status: item.supervisor_status || "pending",
             fullForm: item,
             workplace: {
                 name: item.workplace?.name || "N/A",

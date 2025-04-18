@@ -27,22 +27,28 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
         <h2>A.1 Internship Request Form</h2>
 
         <table className="modal-details-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Details</th>
+            </tr>
+          </thead>
           <tbody>
             <tr>
-              <td><strong>Student Name:</strong> {formData.interneeName}</td>
-              <td><strong>Sooner ID:</strong> {formData.soonerId}</td>
+              <td><strong>Student Name:</strong> {formData.student?.userName || formData.student?.name || "N/A"}</td>
+              <td><strong>Student ID:</strong> {formData.student?._id || "N/A"}</td>
             </tr>
             <tr>
-              <td><strong>Email:</strong> {formData.interneeEmail}</td>
-              <td><strong>Phone:</strong> {formData.phone}</td>
+              <td><strong>Email:</strong> {formData.student?.email || "N/A"}</td>
+              <td><strong>Phone:</strong> {formData.workplace?.phone || "N/A"}</td>
             </tr>
             <tr>
-              <td><strong>Workplace Name:</strong> {formData.workplaceName}</td>
-              <td><strong>Website:</strong> {formData.website}</td>
+              <td><strong>Workplace Name:</strong> {formData.workplace?.name || "N/A"}</td>
+              <td><strong>Website:</strong> {formData.workplace?.website || "N/A"}</td>
             </tr>
             <tr>
-              <td><strong>Advisor Name:</strong> {formData.advisorName}</td>
-              <td><strong>Advisor Email:</strong> {formData.advisorEmail}</td>
+              <td><strong>Advisor Name:</strong> {formData.internshipAdvisor?.name || "N/A"}</td>
+              <td><strong>Advisor Email:</strong> {formData.internshipAdvisor?.email || "N/A"}</td>
             </tr>
             <tr>
               <td><strong>Credit Hours:</strong> {formData.creditHours}</td>
