@@ -11,7 +11,7 @@ const SupervisorDashboard = () => {
 
     useEffect(() => {
 
-      // Token used for authentification for future
+      // Token used for authentication for future
       // Now it will only be empty
       const token = localStorage.getItem("token") || ""; 
       
@@ -60,12 +60,12 @@ const SupervisorDashboard = () => {
           { comment },
           {
             headers: {
-                Authorization: `Bearer" ${token}`,
+                Authorization: `Bearer ${token}`,
             },
           }
       );
 
-        setMessage(res.data.message || `${action} successful`);
+      setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
       setSelectedForm(null);
     } catch (err) {
@@ -78,50 +78,56 @@ const SupervisorDashboard = () => {
   const closeFormView = () => setSelectedForm(null);
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
+  let content;
+
+  if (loading) {
+    content = <p>Loading...</p>;
+  } else if (requests.length === 0) {
+    content = (
+      <div className="empty-message-container">
+        <div className="empty-message">No pending approvals.</div>
+      </div>
+    );
+  } else {
+    content = (
+      <table className="dashboard-table">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Student ID</th>
+            <th>Form Type</th>
+            <th>Date Submitted</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {requests.map((req) => (
+            <tr key={req._id}>
+              <td>{req.name}</td>
+              <td>
+                <button className="link-button" onClick={() => openFormView(req.fullForm)}>
+                  {req.student_id}
+                </button>
+              </td>
+              <td>{req.form_type}</td>
+              <td>{formatDate(req.createdAt)}</td>
+              <td>
+                <span className={`status-badge ${req.supervisor_status}`}>
+                  {req.supervisor_status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   return (
     <div className="dashboard-container">
       <h2>Supervisor Dashboard</h2>
       {message && <p className="status-msg">{message}</p>}
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : requests.length === 0 ? (
-        <div className="empty-message-container">
-          <div className="empty-message">No pending approvals.</div>
-        </div>
-      ) : (
-        <table className="dashboard-table">
-          <thead>
-            <tr>
-              <th>Student Name</th>
-              <th>Student ID</th>
-              <th>Form Type</th>
-              <th>Date Submitted</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map((req) => (
-              <tr key={req._id}>
-                <td>{req.name}</td>
-                <td>
-                  <button className="link-button" onClick={() => openFormView(req.fullForm)}>
-                    {req.student_id}
-                  </button>
-                </td>
-                <td>{req.form_type}</td>
-                <td>{formatDate(req.createdAt)}</td>
-                <td>
-                  <span className={`status-badge ${req.supervisor_status}`}>
-                    {req.supervisor_status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
+      {content}
       {selectedForm && (
         <ViewFormModal
           formData={selectedForm}

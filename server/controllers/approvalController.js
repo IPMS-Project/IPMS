@@ -4,7 +4,7 @@ const Evaluation = require("../models/Evaluation");
 const EmailService = require("../services/emailService");
 
 // =========================================== //
-//           Supervisor Forms managing         //
+//           Managing Supervisor Forms         //
 // =========================================== //
 
 exports.getSupervisorForms = async (req, res, filter) => {
@@ -94,11 +94,16 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       return res.status(404).json({ message: "Form not found" });
     }
 
+    const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+    let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
+    if (comment) {
+      emailBody += `<p>Comment: ${comment}</p>`;
+    }
+
     await EmailService.sendEmail({
       to: form.student_id.email,
-      subject: `Form ${action === "approve" ? "Approved" : "Rejected"}`,
-      html: `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>
-             ${comment ? `<p>Comment: ${comment}</p>` : ""}`,
+      subject: emailSubject,
+      html: emailBody,
     });
 
     res.status(200).json({
