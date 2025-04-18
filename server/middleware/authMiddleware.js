@@ -17,13 +17,15 @@ const isCoordinator = (req, res, next) => {
 };
 
 const isStudent = (req, res, next) => {
-  req.user = { role: "student" }; // mock
-  if (req.user.role === "student") {
+  const ipmsUser = JSON.parse(req.headers["ipms-user"] || "{}");
+  if (ipmsUser && ipmsUser.role === "student") {
+    req.user = ipmsUser; // Includes _id
     next();
   } else {
     res.status(403).json({ message: "Student access denied" });
   }
 };
+
 
 module.exports = {
   isSupervisor,

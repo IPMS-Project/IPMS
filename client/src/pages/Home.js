@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -13,16 +14,9 @@ function Home() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-
-    role: "student",
+    role: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [role] = useState("student");
-
-  // Sync role into formData.role
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, role }));
-  }, [role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -34,7 +28,6 @@ function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`${formData.role} sign in attempted`, formData);
 
     const { email: ouEmail, password, role } = formData;
 
@@ -55,29 +48,30 @@ function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ouEmail, password, role }),
-        },
+        }
       );
 
       const data = await response.json();
 
       if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful 🌟",
-          text: `Welcome back, ${role}!`,
-        });
+        const user = data.user;
 
-        // Store the studentId (user._id) for A1 form use (Can be deleted during production)
-        localStorage.setItem("studentId", data.user._id);
+        // Store only required fields
+        const limitedUserInfo = {
+          fullName: user.fullName,
+          id: user._id,
+          email:user.ouEmail
+        };
+        
+        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
 
-        // Redirect user based on role
-        if (role === "coordinator") {
-          navigate("/coordinator-dashboard");
-        } else if (role === "student") {
-          navigate("/student-dashboard");
-        } else if (role === "supervisor") {
-          navigate("/supervisor-dashboard");
-        }
+        // Swal.fire({
+        //   icon: "success",
+        //   title: "Login Successful",
+        //   text: `Welcome back, `,
+        // });
+
+        navigate("/student-dashboard");
       } else {
         Swal.fire({
           icon: "error",
@@ -134,6 +128,16 @@ function Home() {
                     <p className="role-label">
                       {r.charAt(0).toUpperCase() + r.slice(1)}
                     </p>
+                    <span
+                      className="info-icon"
+                      title={
+                        r === "student"
+                          ? "Students request internships and submit weekly reports."
+                          : r === "supervisor"
+                          ? "Supervisors review and approve student progress."
+                          : "Coordinators manage the internship workflow and approvals."
+                      }
+                    ></span>
                   </div>
                 ))}
               </div>
