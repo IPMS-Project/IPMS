@@ -3,7 +3,6 @@ import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
 
-
 // Layout
 import Layout from "./components/Layout";
 
@@ -14,8 +13,10 @@ import NotFound from "./pages/NotFound";
 import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
 import ActivateAccount from "./pages/ActivateAccount";
+import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
+import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
         element: <ActivateAccount />,
       },
       {
+        path: "presentation",
+        element: <A4PresentationEvaluationForm />,
+      },
+      {
         path: "supervisor-dashboard",
         element: <SupervisorDashboard />,
       },
@@ -56,9 +61,12 @@ const router = createBrowserRouter([
         path: "coordinator-dashboard",
         element: <CoordinatorDashboard />,
       },
+      {
+        path: "coordinator/request/:id",
+        element: <CoordinatorRequestDetailView />,
+      },
     ],
   },
 ]);
-
 
 export default router;
