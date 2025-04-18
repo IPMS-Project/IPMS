@@ -17,6 +17,7 @@ import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
+import StudentDashboard from "./pages/StudentDashboard";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -65,6 +66,11 @@ const router = createBrowserRouter([
         path: "coordinator/request/:id",
         element: <CoordinatorRequestDetailView />,
       },
+      {
+        path: "student-dashboard",
+        element: <StudentDashboard />,
+      }
+      
     ],
   },
 ]);

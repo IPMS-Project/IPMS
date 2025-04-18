@@ -67,6 +67,9 @@ function Home() {
           text: `Welcome back, ${role}!`,
         });
 
+        // Store the studentId (user._id) for A1 form use (Can be deleted during production)
+        localStorage.setItem("studentId", data.user._id);
+
         // Redirect user based on role
         if (role === "coordinator") {
           navigate("/coordinator-dashboard");

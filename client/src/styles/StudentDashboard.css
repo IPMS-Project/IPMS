@@ -1,0 +1,67 @@
+.student-dashboard {
+    font-family: 'Roboto', sans-serif;
+    margin: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .student-dashboard h2 {
+    color: #841617;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .submission-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #fff;
+  }
+  
+  .submission-table th,
+  .submission-table td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  .submission-table th {
+    background-color: #841617;
+    color: white;
+  }
+  
+  .btn-warning,
+  .btn-danger {
+    margin: 2px;
+    padding: 6px 12px;
+    font-size: 13px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .btn-warning {
+    background-color: #f0ad4e;
+    color: white;
+  }
+  
+  .btn-warning:hover {
+    background-color: #ec971f;
+  }
+  
+  .btn-danger {
+    background-color: #d9534f;
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c9302c;
+  }
+  
+  .error-message {
+    color: red;
+    margin-top: 10px;
+    text-align: center;
+  }
+  
