@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
@@ -7,7 +7,7 @@ import "../styles/login.css";
 import StudentIcon from "../Icons/StudentIcon";
 import CoordinatorIcon from "../Icons/CoordinatorIcon";
 import SupervisorIcon from "../Icons/SupervisorIcon";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 function Home() {
   const navigate = useNavigate();
@@ -17,7 +17,6 @@ function Home() {
     role: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,9 +28,9 @@ function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const { email: ouEmail, password, role } = formData;
-  
+
     if (!ouEmail || !password || !role) {
       return Swal.fire({
         icon: "warning",
@@ -39,24 +38,40 @@ function Home() {
         text: "Please fill in all fields to sign in 💫",
       });
     }
-  
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/user-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ouEmail, password, role }),
-      });
-  
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/token/user-login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ouEmail, password, role }),
+        }
+      );
+
       const data = await response.json();
-  
+
       if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful 🌟",
-          text: `Welcome back, ${role}!`,
-        });
+        const user = data.user;
+
+        // Store only required fields
+        const limitedUserInfo = {
+          fullName: user.fullName,
+          id: user._id,
+          email:user.ouEmail
+        };
+        
+        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+
+        // Swal.fire({
+        //   icon: "success",
+        //   title: "Login Successful",
+        //   text: `Welcome back, `,
+        // });
+
+        navigate("/student-dashboard");
       } else {
         Swal.fire({
           icon: "error",
@@ -73,8 +88,6 @@ function Home() {
       });
     }
   };
-  
-  
 
   return (
     <div className="content-container">
@@ -101,11 +114,15 @@ function Home() {
                 ].map(({ role: r, Icon }) => (
                   <div
                     key={r}
-                    className={`role-card ${formData.role === r ? "selected" : ""}`}
-                    onClick={() => setFormData({
-                      ...formData,
-                      role: r,
-                    })}
+                    className={`role-card ${
+                      formData.role === r ? "selected" : ""
+                    }`}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        role: r,
+                      })
+                    }
                   >
                     <Icon />
                     <p className="role-label">
@@ -179,17 +196,20 @@ function Home() {
                 marginBottom: "1rem",
               }}
             >
-              <label className='d-flex align-items-center' > 
+              <label className="d-flex align-items-center">
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
               <Link
                 to="/"
-                style={{ color: "#7f1d1d", fontWeight: "500", textDecoration: "underline" }}
+                style={{
+                  color: "#7f1d1d",
+                  fontWeight: "500",
+                  textDecoration: "underline",
+                }}
               >
                 Forgot password?
               </Link>
-
             </div>
 
             <button type="submit" className="login-button">

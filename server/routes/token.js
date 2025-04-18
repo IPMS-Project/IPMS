@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const TokenRequest = require("../models/TokenRequest");
 const emailService = require("../services/emailService");
+const User = require("../models/User")
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -51,7 +52,10 @@ router.post("/request", async (req, res) => {
       activationLinkSentAt: new Date(),
     });
 
+    
+
     await request.save();
+   
 
     const activationLink = `${FRONTEND_URL}/activate/${plainToken}`;
     const emailBody = `
