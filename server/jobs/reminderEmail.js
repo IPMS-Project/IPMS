@@ -12,24 +12,25 @@ const coordinatorReminder = async () => {
     const pendingSubs = await Submission.find({
       coordinator_status: "pending",
       supervisor_status: "approved",
-      updatedAt: { $lt: fiveWorkingDays },
-    }).populate("student_id");
+      createdAt: { $lt: fiveWorkingDays },
+    });
 
     for (const submission of pendingSubs) {
-      const student = submission.student_id;
-      const reminderCount = submission.coordinator_reminder_count || 0;
-      const lastReminded = submission.last_coordinator_reminder_at || submission.updatedAt;
+      const student = await User.findById(submission.student_id);
+      const coordinator = await User.findById(submission.coordinator_id);
 
+      const reminderCount = submission.coordinator_reminder_count || 0;
+      const lastReminded = submission.last_coordinator_reminder_at || submission.createdAt;
       const nextReminderDue = dayjs(lastReminded).add(5, "day");
       const shouldRemindAgain = now.isAfter(nextReminderDue);
 
       if (reminderCount >= 2 && shouldRemindAgain) {
-        // Escalate to student
+        // 🔔 Escalate to student
         await emailService.sendEmail({
           to: student.email,
           subject: `Coordinator Not Responding for "${submission.name}"`,
-          html: `<p>Your submission "${submission.name}" has not been approved by the coordinator after two reminders.</p>
-                 <p>Please consider resending or deleting the request from your dashboard.</p>`,
+          html: `<p>Your submission "${submission.name}" has not been approved by the coordinator even after 2 reminders.</p>
+                 <p>You can now choose to <strong>resend</strong> or <strong>delete</strong> the request.</p>`,
           text: `Your submission "${submission.name}" is still awaiting coordinator approval.`,
         });
 
@@ -40,27 +41,32 @@ const coordinatorReminder = async () => {
           message: `Student notified about stalled coordinator approval for "${submission.name}"`,
         });
 
-        console.log(`Coordinator unresponsive – escalated to student for "${submission.name}"`);
+        // ✅ Mark student as notified so we don't send again
+        submission.studentNotified = true;
+        await submission.save();
+
+        console.log(`🔔 Escalation: student notified for "${submission.name}"`);
       } else if (shouldRemindAgain) {
-        // Send gentle reminder to coordinator
+        // 📩 Reminder to coordinator
         await emailService.sendEmail({
-          to: submission.coordinator_email,
-          subject: `Reminder: Please Review "${submission.name}"`,
-          html: `<p>This is a reminder to review the internship submission by ${submission.student_name}.</p>`,
-          text: `Reminder to review "${submission.name}" submitted by ${submission.student_name}.`,
+          to: coordinator.email,
+          subject: `Reminder: Please Approve Submission "${submission.name}"`,
+          html: `<p>This is a reminder to review and approve the internship submission by ${submission.student_name}.</p>`,
+          text: `Reminder to approve submission "${submission.name}".`,
         });
 
         submission.coordinator_reminder_count = reminderCount + 1;
         submission.last_coordinator_reminder_at = new Date();
         await submission.save();
 
-        console.log(`Reminder #${reminderCount + 1} sent to coordinator for "${submission.name}"`);
+        console.log(`📧 Reminder sent to coordinator for "${submission.name}"`);
       }
     }
   } catch (err) {
-    console.error("Error in coordinatorReminder:", err);
+    console.error("❌ Error in coordinatorReminder:", err);
   }
 };
+
 
 const supervisorReminder = async () => {
   const now = dayjs();
