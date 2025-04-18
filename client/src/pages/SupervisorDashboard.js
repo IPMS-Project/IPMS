@@ -10,29 +10,37 @@ const SupervisorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/internshiprequests`);
-        console.log("Fetched internship requests:", res.data);
+    useEffect(() => {
 
-        const formatted = res.data
-          .map(item => ({
+      // Token used for authentification for future
+      // Now it will only be empty
+      const token = localStorage.getItem("token") || ""; 
+      
+      const fetchRequests = async () => {
+      try {
+          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const formatted = res.data
+                               .map(item => ({
             _id: item._id,
-            name: item.interneeName || "N/A",
-            student_id: item._id,
-            form_type: "A1",
+            name: item.student?.userName || item.student?.name || "N/A",
+            student_id: item.student?._id || item._id,
+            form_type: item.form_type,
             createdAt: item.createdAt,
             supervisor_status: item.supervisor_status || "pending",
             fullForm: item
           }))
-          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // sort oldest first
 
         setRequests(formatted);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching Internship A1 forms:", err);
-        setMessage("Error fetching Internship A1 forms.");
+        setMessage("Error fetching Internship A1 forms.", err);
         setLoading(false);
       }
     };
@@ -40,17 +48,25 @@ const SupervisorDashboard = () => {
     fetchRequests();
   }, []);
 
-  const handleAction = async (id, action, comment) => {
-    const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
-    if (!confirmed) return;
+    const handleAction = async (id, form_type, action, comment) => {
+
+        const token = localStorage.getItem("token");
+        
+        const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
+        if (!confirmed) return;
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/form/internshiprequests/${id}/${action}`,
-        { comment }
+        `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
+          { comment },
+          {
+            headers: {
+                Authorization: `Bearer" ${token}`,
+            },
+          }
       );
 
-      setMessage(res.data.message || `${action} successful`);
+        setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
       setSelectedForm(null);
       setHighlightedRowId(null);

@@ -24,6 +24,7 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
     const payloadComment = `${editableForm.supervisor_comment.trim()} | Supervisor Signature: ${signature.trim()}`;
     onAction(editableForm._id, action, payloadComment);
     setError("");
+    onAction(formData._id, formData.form_type, action, payloadComment);
   };
 
   return (
