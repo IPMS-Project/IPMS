@@ -17,7 +17,7 @@ import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
-
+import RenewalSuccess from "./pages/RenewalSuccess";
 // Create and export the router configuration
 const router = createBrowserRouter([
   {
@@ -65,6 +65,10 @@ const router = createBrowserRouter([
         path: "coordinator/request/:id",
         element: <CoordinatorRequestDetailView />,
       },
+      {
+        path: "renewal-success",
+        element: <RenewalSuccess />,
+      }
     ],
   },
 ]);
