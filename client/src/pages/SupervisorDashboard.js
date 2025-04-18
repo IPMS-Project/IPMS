@@ -24,16 +24,31 @@ const SupervisorDashboard = () => {
             },
           });
 
-          const formatted = res.data
-                               .map(item => ({
+          const formatted = res.data.map(item => ({
             _id: item._id,
             name: item.student?.userName || item.student?.name || "N/A",
             student_id: item.student?._id || item._id,
             form_type: item.form_type,
             createdAt: item.createdAt,
-            supervisor_status: item.supervisor_status || "pending",
-            fullForm: item
-          }))
+            fullForm: item,
+            workplace: {
+                name: item.workplace?.name || "N/A",
+                website: item.workplace?.website || "N/A",
+                phone: item.workplace?.phone || "N/A",
+            },
+            internshipAdvisor: {
+                name: item.internshipAdvisor?.name || "N/A",
+                jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
+                email: item.internshipAdvisor?.email || "N/A",
+            },
+            creditHours: item.creditHours || 0,
+            startDate: item.startDate || "N/A",
+            endDate: item.endDate || "N/A",
+            tasks: item.tasks || [],
+            status: item.status || "pending",
+            supervisor_comment: item.supervisor_comment || "N/A"
+        }));
+        
 
         setRequests(formatted);
         setLoading(false);
