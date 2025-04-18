@@ -11,7 +11,7 @@ const A1Form = ({ formData, readOnly = false, editableFields = [], onFieldChange
     }
   };
 
-  return (
+  return ( 
     <div className="form-container">
       <h2>A.1 - Internship Request Form</h2>
 
