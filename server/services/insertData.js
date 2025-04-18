@@ -39,6 +39,8 @@ async function insertFormData(formData) {
     console.log("Form saved successfully with ID:", savedForm._id);
 
     if (formData.status === "submitted") {
+      // if tasks are aligned , form will be sent to the supervisor. 
+      formData.supervisor_status="pending" 
       // const submission = {
       //   name:`Internship at ${formData.workplaceName}`,
       //   student_name: formData.interneeName,
@@ -49,6 +51,8 @@ async function insertFormData(formData) {
       // await Submission.create(submission);
       console.log("Submission sent to Supervisor Dashboard.");
     } else if (formData.status === "pending manual review") {
+      //if tasks are not aligned, form will be sent to coordinator. coordinator approves -> coordinator should forward to supervisor for further approval
+      formData.coordinator_status="pending"
       // const instance={
       //   // group a schema attributes
       // };
