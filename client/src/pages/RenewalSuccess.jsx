@@ -1,13 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-
 
 const RenewalSuccess = () => {
-  const navigate = useNavigate();
-
-  const handleGoHome = () => {
-    navigate("/");
-  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
