@@ -237,7 +237,10 @@ router.post('/renew', async (req, res) => {
   const { token } = req.body;
 
   try {
-    const userToken = await UserTokenRequest.findOne({ token });
+    
+    if (!token) return res.status(400).json({ error: "Token is missing." });
+    console.log("Received token:", token);
+    const userToken = await TokenRequest.findOne({ token: token });
 
     if (!userToken) {
       return res.status(404).json({ message: 'Token not found or invalid.' });
@@ -249,7 +252,7 @@ router.post('/renew', async (req, res) => {
 
     // Renew the token logic (extend expiry, etc.)
     const currentDate = new Date();
-    userToken.expiresAt = new Date(currentDate.setDate(currentDate.getDate() + 30));
+    userToken.expiresAt = new Date(currentDate.setMonth(currentDate.getMonth() + 6));
     await userToken.save();
 
     // Send confirmation email (optional)
@@ -258,7 +261,8 @@ router.post('/renew', async (req, res) => {
       subject: 'Your Token Has Been Renewed',
       html: `<p>Your token has been successfully renewed and will now expire on ${userToken.expiresAt.toLocaleDateString()}.</p>`,
     });
-
+    
+    console.log('Token successfully renewed!')
     return res.status(200).json({ message: 'Token successfully renewed!' });
 
   } catch (error) {

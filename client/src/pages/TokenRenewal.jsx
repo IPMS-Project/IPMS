@@ -1,64 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const TokenRenewal = () => {
-  const [token, setToken] = useState('');
+  const { token } = useParams();
   const [responseMessage, setResponseMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleInputChange = (event) => {
-    setToken(event.target.value);
-  };
+  useEffect(() => {
+    const renewToken = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/renew`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        });
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setResponseMessage('');
+        const data = await response.json();
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/token/renew`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setResponseMessage({ text: 'Success: Your token has been renewed!', success: true });
-      } else {
-        setResponseMessage({ text: `Error: ${data.message}`, success: false });
+        if (response.ok) {
+          setResponseMessage({ text: '✅ Success: Your token has been renewed!', success: true });
+        } else {
+          setResponseMessage({ text: `❌ Error: ${data.message}`, success: false });
+        }
+      } catch (error) {
+        setResponseMessage({ text: '❌ Error: Unable to process your request.', success: false });
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setResponseMessage({ text: 'Error: Unable to process your request.', success: false });
-    } finally {
+    };
+
+    if (token) {
+      renewToken();
+    } else {
+      setResponseMessage({ text: '❌ Error: No token found in the URL.', success: false });
       setLoading(false);
     }
-  };
+  }, [token]);
 
   return (
     <div className="token-renewal-container">
       <h1>Token Renewal</h1>
-      <form onSubmit={handleFormSubmit}>
-        <div>
-          <label htmlFor="token">Enter Your Token:</label>
-          <input
-            type="text"
-            id="token"
-            name="token"
-            value={token}
-            onChange={handleInputChange}
-            required
-            placeholder="Enter your token"
-          />
-        </div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'Renewing...' : 'Renew Token'}
-        </button>
-      </form>
-
-      {responseMessage && (
+      {loading ? (
+        <p>⏳ Processing your token renewal...</p>
+      ) : (
         <div
           className={`response-message ${responseMessage.success ? 'success' : 'error'}`}
           style={{ marginTop: '20px' }}

@@ -3,7 +3,7 @@ const UserTokenRequest = require("../models/TokenRequest"); // Adjust the path i
 const emailService = require("../services/emailService");
 require("dotenv").config();
 
-async function checkAndSendReminders() {
+const checkAndSendReminders = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     const now = new Date();

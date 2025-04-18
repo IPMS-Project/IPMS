@@ -67,7 +67,7 @@ const router = createBrowserRouter([
         element: <CoordinatorRequestDetailView />,
       },
       {
-        path: "renew-token",
+        path: "renew-token/:token",
         element: <TokenRenewal />,
       },
     ],
