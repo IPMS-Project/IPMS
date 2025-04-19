@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import "../styles/SupervisorDashboard.css";
+import "../styles/A1InternshipRequestForm.css";
 
-const ViewFormModal = ({ formData, onClose, onAction }) => {
+const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
   const [comment, setComment] = useState("");
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
 
-  const handleDecision = (action) => {
+  const handleAction = async (action) => {
     if (!comment.trim()) {
       setError("Comment is required before taking action.");
       return;
@@ -16,9 +16,11 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
       return;
     }
 
-    const payloadComment = `${comment.trim()} | Supervisor Signature: ${signature.trim()}`;
     setError("");
-    onAction(formData._id, formData.form_type, action, payloadComment);
+    const fullComment = `${comment.trim()} | Supervisor Signature: ${signature.trim()}`;
+    await onAction(formData._id, formData.form_type, action, fullComment);
+    onActionComplete(); // refresh table
+    onClose(); // close modal
   };
 
   return (
@@ -53,9 +55,8 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
             <tr>
               <td><strong>Credit Hours:</strong> {formData.creditHours}</td>
               <td>
-                <strong>Start Date:</strong> {new Date(formData.startDate).toLocaleDateString()}
-                <br />
-                <strong>End Date:</strong> {new Date(formData.endDate).toLocaleDateString()}
+                <strong>Start:</strong> {new Date(formData.startDate).toLocaleDateString()}<br />
+                <strong>End:</strong> {new Date(formData.endDate).toLocaleDateString()}
               </td>
             </tr>
           </tbody>
@@ -99,12 +100,9 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
         {error && <p style={{ color: "red", marginTop: "5px" }}>{error}</p>}
 
         <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "15px" }}>
-          <button className="approve" onClick={() => handleDecision("approve")}>Approve</button>
-          <button className="reject" onClick={() => handleDecision("reject")}>Reject</button>
-        </div>
-
-        <div style={{ marginTop: "10px", textAlign: "center" }}>
-          <button className="reject" onClick={onClose}>Close</button>
+          <button className="approve" onClick={() => handleAction("approve")}>Approve</button>
+          <button className="reject" onClick={() => handleAction("reject")}>Reject</button>
+          <button onClick={onClose}>Close</button>
         </div>
       </div>
     </div>

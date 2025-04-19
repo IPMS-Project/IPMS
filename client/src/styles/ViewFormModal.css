@@ -1,0 +1,143 @@
+/* ViewFormModal.css */
+
+.view-modal {
+    background: #ffffff !important;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 90%;
+    margin: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .view-modal h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .modal-content {
+  background-color: #fff !important;
+}
+  
+  .modal-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .modal-section h3 {
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.25rem;
+    font-size: 1.1rem;
+  }
+  
+  .info-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  
+  .info-item {
+    flex: 1 1 33%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .info-item label {
+    font-weight: bold;
+  }
+  
+  .task-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .task-table th,
+  .task-table td {
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    text-align: left;
+  }
+  
+  .task-table th {
+    background-color: #f3f3f3;
+  }
+  
+  .task-table td.outcome-yes {
+    background-color: #d2f8d2;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .task-table td.outcome-no {
+    background-color: #f9f9f9;
+    text-align: center;
+    color: #ccc;
+  }
+  
+  .comment-signature {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .comment-signature textarea,
+  .comment-signature input {
+    width: 100%;
+    padding: 8px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+  }
+  
+  .error-msg {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    gap: 1rem;
+  }
+  
+  .action-buttons button {
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .action-buttons .approve-btn {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .action-buttons .approve-btn:hover {
+    background-color: #218838;
+  }
+  
+  .action-buttons .reject-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .action-buttons .reject-btn:hover {
+    background-color: #c82333;
+  }
+  
+  .action-buttons .close-btn {
+    background-color: #6c757d;
+    color: white;
+  }
+  
+  .action-buttons .close-btn:hover {
+    background-color: #5a6268;
+  }
+  

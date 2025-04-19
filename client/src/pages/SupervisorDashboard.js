@@ -9,80 +9,61 @@ const SupervisorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-    useEffect(() => {
+  const token = localStorage.getItem("token") || "";
 
-      // Token used for authentication for future
-      // Now it will only be empty
-      const token = localStorage.getItem("token") || ""; 
-      
-      const fetchRequests = async () => {
-      try {
-          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+  const fetchRequests = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-          const formatted = res.data.map(item => ({
-            _id: item._id,
-            name: item.student?.userName || item.student?.name || "N/A",
-            student_id: item.student?._id || item._id,
-            form_type: item.form_type,
-            createdAt: item.createdAt,
-            supervisor_status: item.supervisor_status || "pending",
-            fullForm: item,
-            workplace: {
-                name: item.workplace?.name || "N/A",
-                website: item.workplace?.website || "N/A",
-                phone: item.workplace?.phone || "N/A",
-            },
-            internshipAdvisor: {
-                name: item.internshipAdvisor?.name || "N/A",
-                jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
-                email: item.internshipAdvisor?.email || "N/A",
-            },
-            creditHours: item.creditHours || 0,
-            startDate: item.startDate || "N/A",
-            endDate: item.endDate || "N/A",
-            tasks: item.tasks || [],
-            status: item.status || "pending",
-            supervisor_comment: item.supervisor_comment || "N/A"
-        }));
-        
+      const formatted = res.data.map((item) => ({
+        _id: item._id,
+        name: item.student?.userName || item.student?.name || "N/A",
+        student_id: item.student?._id || item._id,
+        form_type: item.form_type || "A.1",
+        createdAt: item.createdAt,
+        supervisor_status: item.supervisor_status || "pending",
+        fullForm: item,
+      }));
 
-        setRequests(formatted);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching Internship A1 forms:", err);
-        setMessage("Error fetching Internship A1 forms.", err);
-        setLoading(false);
-      }
-    };
+      setRequests(formatted);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching Internship A1 forms:", err);
+      setMessage("Error fetching Internship A1 forms.");
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchRequests();
   }, []);
 
-    const handleAction = async (id, form_type, action, comment) => {
+  const handleFormActionComplete = () => {
+    fetchRequests(); // Refresh table after Approve/Reject
+    setSelectedForm(null);
+  };
 
-        const token = localStorage.getItem("token");
-        
-        const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
-        if (!confirmed) return;
+  const handleAction = async (id, form_type, action, comment) => {
+    const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
+    if (!confirmed) return;
 
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
-          { comment },
-          {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-          }
+        { comment },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       setMessage(res.data.message || `${action} successful`);
-      setRequests(prev => prev.filter(req => req._id !== id));
+      setRequests((prev) => prev.filter((req) => req._id !== id));
       setSelectedForm(null);
     } catch (err) {
       console.error(`Failed to ${action} request:`, err);
@@ -92,6 +73,7 @@ const SupervisorDashboard = () => {
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
+
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
   let content;
@@ -118,13 +100,9 @@ const SupervisorDashboard = () => {
         </thead>
         <tbody>
           {requests.map((req) => (
-            <tr key={req._id}>
+            <tr key={req._id} className="clickable-row" onClick={() => openFormView(req.fullForm)}>
               <td>{req.name}</td>
-              <td>
-                <button className="link-button" onClick={() => openFormView(req.fullForm)}>
-                  {req.student_id}
-                </button>
-              </td>
+              <td>{req.student_id}</td>
               <td>{req.form_type}</td>
               <td>{formatDate(req.createdAt)}</td>
               <td>
@@ -149,6 +127,7 @@ const SupervisorDashboard = () => {
           formData={selectedForm}
           onClose={closeFormView}
           onAction={handleAction}
+          onActionComplete={handleFormActionComplete}
         />
       )}
     </div>
