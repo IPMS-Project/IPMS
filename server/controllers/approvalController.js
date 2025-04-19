@@ -2,6 +2,7 @@ const InternshipRequest = require("../models/InternshipRequest");
 const WeeklyReport = require("../models/WeeklyReport");
 const Evaluation = require("../models/Evaluation");
 const EmailService = require("../services/emailService");
+const UserTokenRequest = require("../models/TokenRequest");
 
 // =========================================== //
 //           Managing Supervisor Forms         //
@@ -100,8 +101,10 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       emailBody += `<p>Comment: ${comment}</p>`;
     }
 
+    const student = await UserTokenRequest.findById(form.student_id);
+      
     await EmailService.sendEmail({
-      to: form.student_id.email,
+      to: student.ouEmail,
       subject: emailSubject,
       html: emailBody,
     });
