@@ -1,12 +1,35 @@
 const mongoose = require("mongoose");
 const InternshipRequest = require("../models/InternshipRequest");
+const Users= require("../models/User")
 const Submission =  require("../models/Submission")
 
 async function insertFormData(formData) {
   try {
     console.log("Received Form Data:\n", JSON.stringify(formData, null, 2));
+    const duplicate = await Users.findOne({ email: formData.interneeEmail });
+    // if (duplicate) {
+    //   return { status: "duplicate", message: "This email already exists" };
+    // }
+    // const duplicate = await Users.findOne({ email: formData.interneeEmail });
+
+    if (duplicate) {
+      console.log("this email already exists")
+      return "This email already exists"
+    }
+
 
     // Assumes global mongoose connection is already established elsewhere in app
+    if (formData.status === "submitted") {
+      // if tasks are aligned , form will be sent to the supervisor. 
+      formData.supervisor_status="pending" 
+      formData.coordinator_status="" // no approval needed ?? TBD??
+      console.log("Submission sent to Supervisor Dashboard.");
+    } else if (formData.status === "pending manual review") {
+      //if tasks are not aligned, form will be sent to coordinator. coordinator approves -> coordinator should forward to supervisor for further approval
+      formData.coordinator_status="pending"
+      formData.supervisor_status="not submitted"
+      console.log("Task not aligned with CS Outcomes. Sent to coordinator for manual review.");
+    }
 
     const formattedData = {
       student: new mongoose.Types.ObjectId(), // TODO: Replace with actual signed-in student ID
@@ -28,8 +51,11 @@ async function insertFormData(formData) {
         description: task.description,
         outcomes: task.outcomes,
       })).filter(task => task.description.trim() !== ''), // remove empty tasks
-      status: "submitted", // Default status — adjust as needed
-      status: formData.status, // Default status — adjust as needed
+      // status: "submitted", // Default status — adjust as needed
+      // status: formData.status, // Default status — adjust as needed
+
+      supervisor_status: formData.supervisor_status ,//function based on if tasks are aligned/not aligned with outcomes
+      coordinator_status: formData.coordinator_status,
       approvals: ["advisor", "coordinator"], // TODO: Might be dynamic later
       reminders: [], // Placeholder for future reminder logic
       completedHours: parseInt(formData.creditHours) * 60, // Assuming 1 credit = 60 hours
@@ -37,28 +63,7 @@ async function insertFormData(formData) {
 
     const savedForm = await InternshipRequest.create(formattedData);
     console.log("Form saved successfully with ID:", savedForm._id);
-
-    if (formData.status === "submitted") {
-      // if tasks are aligned , form will be sent to the supervisor. 
-      formData.supervisor_status="pending" 
-      // const submission = {
-      //   name:`Internship at ${formData.workplaceName}`,
-      //   student_name: formData.interneeName,
-      //   details: formData.website,  
-      //   supervisor_status: "pending",
-      //   coordinator_status: "pending",
-      // };
-      // await Submission.create(submission);
-      console.log("Submission sent to Supervisor Dashboard.");
-    } else if (formData.status === "pending manual review") {
-      //if tasks are not aligned, form will be sent to coordinator. coordinator approves -> coordinator should forward to supervisor for further approval
-      formData.coordinator_status="pending"
-      // const instance={
-      //   // group a schema attributes
-      // };
-      // await groupaschema.create(instance) // group A schema
-      console.log("Task not aligned with CS Outcomes. Sent to coordinator for manual review.");
-    }
+    console.log("saved form",savedForm)
     return savedForm;
 
   } catch (error) {

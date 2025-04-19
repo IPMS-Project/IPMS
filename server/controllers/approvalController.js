@@ -55,7 +55,7 @@ exports.rejectSubmission = async (req, res) => {
 exports.getCoordinatorRequests = async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
-      status: "submitted",
+      coordinator_status: "pending", //modified - 1
     }).populate("student", "userName email");
     res.status(200).json(requests);
   } catch (err) {

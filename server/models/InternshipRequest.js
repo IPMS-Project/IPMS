@@ -51,11 +51,11 @@ const formA1 = new mongoose.Schema({
         type: [Task],
         required: true
     },
-    status: {
-        type: String,
-        required: true,
-        enum: ['draft', 'submitted','pending manual review' ,'approved']
-    },
+    // status: {
+    //     type: String,
+    //     required: true,
+    //     enum: ['draft', 'submitted','pending manual review' ,'approved']
+    // },
     approvals: {
         type: [String],
         enum: ['advisor', 'coordinator']
@@ -63,7 +63,17 @@ const formA1 = new mongoose.Schema({
     reminders: [Date],
     // requiredHours is an easily derived attribute
     // TODO needs to be a virtual getter that checks this student's WeeklyReports
-    completedHours: Number
+    completedHours: Number,
+
+    //custom fields
+    supervisor_status: {
+        type: String,
+        default: "pending"
+      },
+      coordinator_status: {
+        type: String,
+        default: "pending"
+      }
 }, { timestamps: true });
 formA1.virtual("requiredHours").get(function() {
     return this.creditHours * 60;

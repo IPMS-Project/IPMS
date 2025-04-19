@@ -15,7 +15,7 @@ router.post("/internshiprequests/:id/reject", rejectSubmission);
 router.get("/internshiprequests", async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
-      status: "submitted",
+      supervisor_status: "pending",
       // approvals: "advisor", // advisor has approved
       supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
     }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
@@ -73,6 +73,7 @@ function validateFormData(formData) {
     } 
   });
   formData.status = uniqueOutcomes.size < 3 ? 'pending manual review' : 'submitted';
+  console.log(formData.status)
   return null;
 }
 
@@ -81,15 +82,22 @@ router.post('/submit', async (req, res) => {
   const formData = req.body;
   const validationError = validateFormData(formData);
   if (validationError) {
+    console.log("Validation Error:", validationError); 
     return res.status(400).json({ message: validationError });
   }
 
   try {
-    await insertFormData(formData);
-    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted'});
+    const result=await insertFormData(formData);
+    if (result === "This email already exists") {
+      console.log("printing result",result)
+      return res.status(400).json({ message: result }); 
+    }
+    res.status(200).json({ message: 'Form received and handled!', manual: formData.status !== 'submitted'});
   } catch (error) {
-    console.error('Error handling form data:', error);
-    res.status(500).json({ message: 'Something went wrong' });
+    //console.error('Error handling form data:', error);
+    res.status(error.statusCode || 500).json({
+      message: error.message || 'Something went wrong',
+    });
   }
 });
 

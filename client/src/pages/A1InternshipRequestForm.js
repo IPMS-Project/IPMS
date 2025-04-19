@@ -87,6 +87,7 @@ const A1InternshipRequestForm = () => {
 
     const newErrors = {};
 
+
     if (!formData.interneeName) newErrors.interneeName = "Internee name is required";
     else if (!namePattern.test(formData.interneeName)) newErrors.interneeName = "Name should contain only letters and spaces";
 
@@ -145,15 +146,28 @@ const A1InternshipRequestForm = () => {
         },
         body: JSON.stringify(formData),
       });
-      if (!response.ok) {
-        throw new Error("Failed to submit form", {cause: response});
-      }
+      // if (!response.ok) {
+      //   throw new Error("Failed to submit form", {cause: response});
+      // }
       const data = await response.json();
-      console.log("Form submitted successfully:", data);
-      return data;
+      console.log("printing data",data)
+      console.log(data.message)
+      if (!response.ok) {
+        return { error: true, message: data.message || "Submission failed" };
+      }
+  
+      return { error: false, data };
+      // if (!response.ok) {
+      //   const error = new Error(data.message || "Failed to submit form");
+      //   error.status = response.status;
+      //   throw error;
+      //   // throw new Error(data.message || "Failed to submit form");
+      // }
+      // console.log("Form submitted successfully:", data);
+      // return data;
     } catch (error) {
-      console.error("Error submitting form:", error);
-      throw error;
+      //console.error("Error submitting form:", error);
+      return { error: true, message: "server error. Please try again." };
     }
   };
 
@@ -195,17 +209,24 @@ const A1InternshipRequestForm = () => {
         }));
   
         const submissionResponse = await submitFormData();
-  
-        const recipient = submissionResponse.manual ? "coordinator for manual review!" : "supervisor!";
+        if (submissionResponse.error) {
+          setErrors({ submit: submissionResponse.message })
+          return;
+        }
+        const recipient = submissionResponse.data.manual ? "coordinator for manual review!" : "supervisor!";
         setSuccessMsg("Form submitted successfully and sent to " + recipient);
         setTimeout(() => setSuccessMsg(""), 15000);
         setFormData(initialState);
+        setErrors({});
       } else {
         setErrors({ tasks: "Outcome alignment failed or returned no tasks." });
       }
     } catch (err) {
-      console.error("Error during submission:", err);
+      //console.error("Error during submission:", err);
       setErrors({ submit: "Form submission failed! " + err.message });
+      // setErrors({
+      //   submit: err.message || "Form submission failed!",
+      // });
     }
   };
   
@@ -234,7 +255,8 @@ const A1InternshipRequestForm = () => {
       return formData.tasks;
 
     } catch (error) {
-      console.error("Error:", error);
+     console.error("Error:", error);
+     throw error;
     }
   };
   return (
@@ -429,6 +451,7 @@ const A1InternshipRequestForm = () => {
           <button type="submit">Submit Form</button>
         </div>
         {successMsg && <div className="success-msg">{successMsg}</div>}
+        
       </form>
     </div>
   );
