@@ -17,18 +17,15 @@ const hashToken = (token) => {
 
 router.post("/request", async (req, res) => {
   try {
-    const { fullName, ouEmail, password, semester, academicAdvisor, role } =
-      req.body;
+    const { fullName, ouEmail, soonerId, password, semester, academicAdvisor, role } = req.body;
 
-    if (!fullName || !ouEmail || !password || !semester) {
+    if (!fullName || !ouEmail || !soonerId || !password || !semester) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
     const existing = await TokenRequest.findOne({ ouEmail });
     if (existing) {
-      return res
-        .status(400)
-        .json({ error: "Token request already exists for this email." });
+      return res.status(400).json({ error: "Token request already exists for this email." });
     }
 
     const plainToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
@@ -36,11 +33,12 @@ router.post("/request", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     const requestedAt = new Date();
-    const expiresAt = new Date(requestedAt.getTime() + 5 * 24 * 60 * 60 * 1000); // 5 days
+    const expiresAt = new Date(requestedAt.getTime() + 5 * 24 * 60 * 60 * 1000);
 
     const request = new TokenRequest({
       fullName,
       ouEmail,
+      soonerId,
       password: hashedPassword,
       semester,
       role,
@@ -89,16 +87,12 @@ router.post("/activate", async (req, res) => {
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: "Token is missing." });
     const hashedToken = hashToken(token);
-    console.log("Received token:", token);
     const user = await TokenRequest.findOne({ token: hashedToken });
 
     if (!user) return res.status(404).json({ error: "Token not found." });
-    if (user.deletedAt)
-      return res.status(403).json({ error: "Token has been deactivated." });
-    if (user.isActivated)
-      return res.status(400).json({ error: "Token already activated." });
-    if (new Date() > user.expiresAt)
-      return res.status(400).json({ error: "Token has expired." });
+    if (user.deletedAt) return res.status(403).json({ error: "Token has been deactivated." });
+    if (user.isActivated) return res.status(400).json({ error: "Token already activated." });
+    if (new Date() > user.expiresAt) return res.status(400).json({ error: "Token has expired." });
 
     user.isActivated = true;
     user.activatedAt = new Date();
@@ -124,10 +118,8 @@ router.post("/login", async (req, res) => {
     const user = await TokenRequest.findOne({ token: hashedToken });
 
     if (!user) return res.status(404).json({ error: "Invalid token." });
-    if (user.deletedAt)
-      return res.status(403).json({ error: "Token is deactivated." });
-    if (!user.isActivated)
-      return res.status(403).json({ error: "Token not activated." });
+    if (user.deletedAt) return res.status(403).json({ error: "Token is deactivated." });
+    if (!user.isActivated) return res.status(403).json({ error: "Token not activated." });
 
     res.json({ message: "Login successful", user });
   } catch (err) {
@@ -135,40 +127,32 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// login api
 router.post("/user-login", async (req, res) => {
   const { ouEmail, password, role } = req.body;
-  console.log(role);
+
   if (!ouEmail || !password || !role) {
     return res.status(400).json({ message: "All fields are required" });
   }
+
   try {
     const user = await TokenRequest.findOne({ ouEmail });
 
     if (!user) {
-      return res
-        .status(401)
-        .json({ message: "Email or password is incorrect" });
+      return res.status(401).json({ message: "Email or password is incorrect" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res
-        .status(401)
-        .json({ message: "Email or password is incorrect" });
+      return res.status(401).json({ message: "Email or password is incorrect" });
     }
 
-    // First, check if the entered role matches the user's actual role
     if (user.role.toLowerCase() !== role.toLowerCase()) {
       return res.status(403).json({ message: "User role mismatch." });
     }
 
-    // If the role is student, do additional token checks
     if (role.toLowerCase() === "student") {
       if (!user.isStudent) {
-        return res
-          .status(403)
-          .json({ message: "User is not registered as a student." });
+        return res.status(403).json({ message: "User is not registered as a student." });
       }
 
       if (!user.token || user.token === "") {
@@ -204,14 +188,11 @@ router.delete("/deactivate", async (req, res) => {
   try {
     const { token, ouEmail } = req.body;
     if (!token && !ouEmail) {
-      return res
-        .status(400)
-        .json({ error: "Token or Email is required for deactivation." });
+      return res.status(400).json({ error: "Token or Email is required for deactivation." });
     }
 
     let filter = {};
 
-    // Only hash the token if it exists
     if (token) {
       if (typeof token !== "string") {
         return res.status(400).json({ error: "Token must be a string." });
@@ -221,6 +202,7 @@ router.delete("/deactivate", async (req, res) => {
     } else {
       filter = { ouEmail };
     }
+
     const user = await TokenRequest.findOne(filter);
     if (!user) {
       return res.status(404).json({ error: "Token not found." });
@@ -241,41 +223,53 @@ router.delete("/deactivate", async (req, res) => {
   }
 });
 
-router.post('/renew', async (req, res) => {
-  const { token } = req.body;
-
+router.post("/renew", async (req, res) => {
   try {
-    
-    if (!token) return res.status(400).json({ error: "Token is missing." });
-    console.log("Received token:", token);
-    const userToken = await TokenRequest.findOne({ token: token });
+    const { token } = req.body;
 
-    if (!userToken) {
-      return res.status(404).json({ message: 'Token not found or invalid.' });
+    if (!token) {
+      return res.status(400).json({ message: "Token is required." });
     }
 
-    if (userToken.status !== 'activated') {
-      return res.status(400).json({ message: 'Token is not activated, cannot renew.' });
+    const user = await TokenRequest.findOne({ token: token });
+
+    if (!user) {
+      return res.status(404).json({ message: "Token not found." });
     }
 
-    // Renew the token logic (extend expiry, etc.)
-    const currentDate = new Date();
-    userToken.expiresAt = new Date(currentDate.setMonth(currentDate.getMonth() + 6));
-    await userToken.save();
+    if (user.deletedAt || user.status === "deleted") {
+      return res.status(403).json({ message: "Token has been deactivated." });
+    }
 
-    // Send confirmation email (optional)
-    await emailService.sendEmail({
-      to: userToken.ouEmail,
-      subject: 'Your Token Has Been Renewed',
-      html: `<p>Your token has been successfully renewed and will now expire on ${userToken.expiresAt.toLocaleDateString()}.</p>`,
+    if (!user.isActivated || user.status !== "activated") {
+      return res.status(403).json({ message: "Token is not activated." });
+    }
+
+    if (new Date() > user.expiresAt) {
+      return res.status(403).json({ message: "Token has already expired." });
+    }
+
+    const newToken = jwt.sign({ ouEmail: user.ouEmail }, JWT_SECRET, { expiresIn: "180d" });
+    const hashedNewToken = hashToken(newToken);
+
+    const newExpiresAt = new Date();
+    newExpiresAt.setMonth(newExpiresAt.getMonth() + 6);
+
+    user.token = hashedNewToken;
+    user.expiresAt = newExpiresAt;
+    user.status = "activated";
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Your token has been updated. You can now securely login.",
+      redirectUrl: `${FRONTEND_URL}/renewal-success`,
+      token: newToken,
+      expiresAt: newExpiresAt,
     });
-    
-    console.log('Token successfully renewed!')
-    return res.status(200).json({ message: 'Token successfully renewed!' });
-
   } catch (error) {
-    console.error('Error renewing token:', error);
-    return res.status(500).json({ message: 'An error occurred while renewing the token.' });
+    console.error("Token renewal error:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
