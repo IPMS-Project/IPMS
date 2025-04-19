@@ -227,26 +227,25 @@ router.post("/renew", async (req, res) => {
     const { token } = req.body;
 
     if (!token) {
-      return res.status(400).json({ error: "Token is required." });
+      return res.status(400).json({ message: "Token is required." });
     }
 
-    const hashedToken = hashToken(token);
-    const user = await TokenRequest.findOne({ token: hashedToken });
+    const user = await TokenRequest.findOne({ token: token });
 
     if (!user) {
-      return res.status(404).json({ error: "Token not found." });
+      return res.status(404).json({ message: "Token not found." });
     }
 
     if (user.deletedAt || user.status === "deleted") {
-      return res.status(403).json({ error: "Token has been deactivated." });
+      return res.status(403).json({ message: "Token has been deactivated." });
     }
 
     if (!user.isActivated || user.status !== "activated") {
-      return res.status(403).json({ error: "Token is not activated." });
+      return res.status(403).json({ message: "Token is not activated." });
     }
 
     if (new Date() > user.expiresAt) {
-      return res.status(403).json({ error: "Token has already expired." });
+      return res.status(403).json({ message: "Token has already expired." });
     }
 
     const newToken = jwt.sign({ ouEmail: user.ouEmail }, JWT_SECRET, { expiresIn: "180d" });
@@ -269,7 +268,7 @@ router.post("/renew", async (req, res) => {
     });
   } catch (error) {
     console.error("Token renewal error:", error);
-    res.status(500).json({ error: "Internal server error." });
+    res.status(500).json({ message: "Internal server error." });
   }
 });
 
