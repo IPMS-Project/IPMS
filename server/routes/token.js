@@ -222,8 +222,8 @@ router.post("/renew", async (req, res) => {
       return res.status(400).json({ error: "Token is required." });
     }
 
-    // const hashedToken = hashToken(token);
-    const user = await TokenRequest.findOne({ token: token });
+    const hashedToken = hashToken(token);
+    const user = await TokenRequest.findOne({ token: hashedToken });
 
     if (!user) {
       return res.status(404).json({ error: "Token not found." });
@@ -259,8 +259,6 @@ router.post("/renew", async (req, res) => {
       token: newToken,
       expiresAt: newExpiresAt,
     });
-
-    res.redirect(`${FRONTEND_URL}/renewal-success`);
   } catch (error) {
     console.error("Token renewal error:", error);
     res.status(500).json({ error: "Internal server error." });
