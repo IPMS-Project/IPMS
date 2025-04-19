@@ -171,7 +171,7 @@ router.post("/user-login", async (req, res) => {
         return res.status(403).json({ message: "Token not issued yet." });
       }
 
-      if (user.status !== "activated") {
+      if (!user.isActivated) {
         return res.status(403).json({ message: "Token is not activated yet." });
       }
 
@@ -179,9 +179,13 @@ router.post("/user-login", async (req, res) => {
       const tokenExpiry = new Date(user.expiresAt);
 
       if (tokenExpiry < now) {
-        return res
-          .status(403)
-          .json({ message: "Token has expired. Please request a new one." });
+        user.status = "deactivated";
+        await user.save();
+      
+        return res.status(403).json({
+          message: "Your account is deactivated due to token expiry.",
+          renewalLink: `${FRONTEND_URL}/renew-token?email=${user.ouEmail}`
+        });
       }
     }
 
