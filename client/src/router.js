@@ -2,6 +2,10 @@ import React from "react";
 
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6b783982 (Revert "Group d/vikash sprint2")
 
 // Layout
 import Layout from "./components/Layout";

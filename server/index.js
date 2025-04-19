@@ -1,5 +1,10 @@
 require("dotenv").config();
 const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 6b783982 (Revert "Group d/vikash sprint2")
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -11,20 +16,30 @@ const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 
+<<<<<<< HEAD
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
+=======
+>>>>>>> 6b783982 (Revert "Group d/vikash sprint2")
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6b783982 (Revert "Group d/vikash sprint2")
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use("/api/form", formRoutes); // register route as /api/form/submit
+<<<<<<< HEAD
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
+=======
+>>>>>>> 6b783982 (Revert "Group d/vikash sprint2")
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
@@ -76,10 +91,14 @@ app.get("/api/message", (req, res) => {
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6b783982 (Revert "Group d/vikash sprint2")
 app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
   try {
+    
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
 
@@ -123,12 +142,15 @@ app.post("/api/evaluation", async (req, res) => {
 });
 
 
+<<<<<<< HEAD
 //Form A.4
 
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
 
 
+=======
+>>>>>>> 6b783982 (Revert "Group d/vikash sprint2")
 // Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
   try {
