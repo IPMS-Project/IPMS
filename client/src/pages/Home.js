@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import React from "react";
 import { useState } from "react";
+=======
+import React, { useState } from "react";
+>>>>>>> team-a/development
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -14,21 +18,28 @@ function Home() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+<<<<<<< HEAD
     role: "",
+=======
+    role: "student",
+>>>>>>> team-a/development
   });
   const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+<<<<<<< HEAD
 
+=======
+>>>>>>> team-a/development
     const { email: ouEmail, password, role } = formData;
 
     if (!ouEmail || !password || !role) {
@@ -56,6 +67,7 @@ function Home() {
       if (response.ok) {
         const user = data.user;
 
+<<<<<<< HEAD
         // Store only required fields
         const limitedUserInfo = {
           fullName: user.fullName,
@@ -72,11 +84,16 @@ function Home() {
         // });
 
         navigate("/student-dashboard");
+=======
+        if (role === "coordinator") navigate("/coordinator-dashboard");
+        else if (role === "student") navigate("/student-dashboard");
+        else if (role === "supervisor") navigate("/supervisor-dashboard");
+>>>>>>> team-a/development
       } else {
         Swal.fire({
           icon: "error",
           title: "Login Failed",
-          text: data.message || "Something went wrong ",
+          text: data.message || "Something went wrong",
         });
       }
     } catch (error) {
@@ -97,9 +114,7 @@ function Home() {
         </div>
 
         <div className="login-options">
-          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>
-            Welcome back
-          </h2>
+          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>Welcome back</h2>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -118,10 +133,7 @@ function Home() {
                       formData.role === r ? "selected" : ""
                     }`}
                     onClick={() =>
-                      setFormData({
-                        ...formData,
-                        role: r,
-                      })
+                      setFormData((prev) => ({ ...prev, role: r }))
                     }
                   >
                     <Icon />
@@ -145,9 +157,7 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="email">
-                <FaEnvelope
-                  style={{ marginRight: "6px", verticalAlign: "middle" }}
-                />
+                <FaEnvelope style={{ marginRight: "6px", verticalAlign: "middle" }} />
                 Email
               </label>
               <input
@@ -163,9 +173,7 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="password">
-                <FaLock
-                  style={{ marginRight: "6px", verticalAlign: "middle" }}
-                />
+                <FaLock style={{ marginRight: "6px", verticalAlign: "middle" }} />
                 Password
               </label>
               <div className="password-wrapper">
@@ -187,15 +195,7 @@ function Home() {
               </div>
             </div>
 
-            <div
-              className="form-subtext"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "0.9rem",
-                marginBottom: "1rem",
-              }}
-            >
+            <div className="form-subtext">
               <label className="d-flex align-items-center">
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
