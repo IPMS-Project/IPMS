@@ -18,9 +18,11 @@ import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 import TokenRenewal from "./pages/TokenRenewal";
+import StudentDashboard from "./pages/StudentDashboard";
+import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
 
 // Create and export the router configuration
-const router = createBrowserRouter([
+const router = createBrowserRouter([  
   {
     path: "/",
     element: <Layout />,
@@ -33,11 +35,20 @@ const router = createBrowserRouter([
       {
         path: "signup",
         element: <SignUp />,
-      },
+      },  
       {
         path: "weekly-report",
         element: <WeeklyProgressReportForm />,
       },
+      {
+        path: "/student-dashboard",
+        element: (
+          <ProtectedRouteStudent>
+            <StudentDashboard />
+          </ProtectedRouteStudent>
+        )
+      },
+      
       {
         path: "a1-form",
         element: <A1InternshipRequestForm />,
