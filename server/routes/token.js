@@ -178,9 +178,13 @@ router.post("/user-login", async (req, res) => {
       const tokenExpiry = new Date(user.expiresAt);
 
       if (tokenExpiry < now) {
-        return res
-          .status(403)
-          .json({ message: "Token has expired. Please request a new one." });
+        user.status = "deactivated";
+        await user.save();
+      
+        return res.status(403).json({
+          message: "Your account is deactivated due to token expiry.",
+          renewalLink: `${FRONTEND_URL}/renew-token?email=${user.ouEmail}`
+        });
       }
     }
 
@@ -216,5 +220,39 @@ router.delete("/deactivate", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+router.post("/renew-token", async (req, res) => {
+  try {
+    const { ouEmail } = req.body;
+    const user = await TokenRequest.findOne({ ouEmail });
+
+    if (!user) return res.status(404).json({ error: "User not found." });
+
+    const newToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
+    const hashedToken = crypto.createHash("sha256").update(newToken).digest("hex");
+
+    const now = new Date();
+    const newExpiry = new Date(now.setMonth(now.getMonth() + 6));
+
+    user.token = hashedToken;
+    user.expiresAt = newExpiry;
+    user.status = "activated";
+    user.isActivated = true;
+    user.activatedAt = new Date();
+    user.deletedAt = null;
+    user.deactivationReason = null;
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Token renewed and account reactivated.",
+      token: newToken
+    });
+  } catch (err) {
+    console.error("Renew token error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 
 module.exports = router;
