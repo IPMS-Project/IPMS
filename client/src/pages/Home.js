@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import React from "react";
-import { useState } from "react";
-=======
 import React, { useState } from "react";
->>>>>>> team-a/development
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -18,11 +13,7 @@ function Home() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-<<<<<<< HEAD
-    role: "",
-=======
     role: "student",
->>>>>>> team-a/development
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,10 +27,6 @@ function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
-
-=======
->>>>>>> team-a/development
     const { email: ouEmail, password, role } = formData;
 
     if (!ouEmail || !password || !role) {
@@ -67,28 +54,9 @@ function Home() {
       if (response.ok) {
         const user = data.user;
 
-<<<<<<< HEAD
-        // Store only required fields
-        const limitedUserInfo = {
-          fullName: user.fullName,
-          id: user._id,
-          email:user.ouEmail
-        };
-        
-        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
-
-        // Swal.fire({
-        //   icon: "success",
-        //   title: "Login Successful",
-        //   text: `Welcome back, `,
-        // });
-
-        navigate("/student-dashboard");
-=======
         if (role === "coordinator") navigate("/coordinator-dashboard");
         else if (role === "student") navigate("/student-dashboard");
         else if (role === "supervisor") navigate("/supervisor-dashboard");
->>>>>>> team-a/development
       } else {
         Swal.fire({
           icon: "error",
