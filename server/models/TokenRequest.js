@@ -98,7 +98,7 @@ const userTokenRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'activated', 'expired', 'deleted'],
+      enum: ['pending', 'activated', 'expired', 'deleted','deactivated'],
       default: 'pending',
     },
   },

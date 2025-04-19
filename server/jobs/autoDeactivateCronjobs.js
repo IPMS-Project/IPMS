@@ -1,12 +1,12 @@
 const TokenRequest = require("../models/TokenRequest");
 
-const autoDeactivateExpiredTokens = async () => {
+const autoDeactivateCronjobs = async () => {
   try {
     const now = new Date();
 
     const result = await TokenRequest.updateMany(
       {
-        expiryDate: { $lt: now },
+        expiresAt: { $lt: now },
         status: "activated",
       },
       {
@@ -23,4 +23,4 @@ const autoDeactivateExpiredTokens = async () => {
   }
 };
 
-module.exports = autoDeactivateExpiredTokens;
+module.exports = autoDeactivateCronjobs;

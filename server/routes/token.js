@@ -170,7 +170,7 @@ router.post("/user-login", async (req, res) => {
         return res.status(403).json({ message: "Token not issued yet." });
       }
 
-      if (user.status !== "activated") {
+      if (!user.isActivated) {
         return res.status(403).json({ message: "Token is not activated yet." });
       }
 
