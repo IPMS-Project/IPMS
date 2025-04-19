@@ -1,12 +1,14 @@
-
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./WeeklyProgressReportForm.css"; // optional: for clean styling
+import { useNavigate, useParams } from "react-router-dom";
+import "./WeeklyProgressReportForm.css";
 
-const WeeklyProgressReportForm = () => {
+const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
+  const navigate = useNavigate();
+  const { reportId } = useParams();
+
   const [formData, setFormData] = useState({
-    week: "Week 1",
+    week: "",
     hours: "",
     tasks: "",
     lessons: "",
@@ -15,41 +17,75 @@ const WeeklyProgressReportForm = () => {
 
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    if (readOnly && reportId) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/api/reports/${reportId}`)
+        .then((res) => {
+          if (res.data.success) {
+            const {
+              week,
+              hours,
+              tasks,
+              lessons,
+              supervisorComments,
+            } = res.data.report;
+
+            setFormData({
+              week: week || "",
+              hours: hours || "",
+              tasks: tasks || "",
+              lessons: lessons || "",
+              supervisorComments: supervisorComments || "",
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load report", err);
+        });
+    }
+  }, [readOnly, reportId]);
+
   const handleChange = (e) => {
+    if (readOnly) return;
+
     const { name, value } = e.target;
+
+    if (name === "hours") {
+      const hoursValue = parseInt(value);
+      if (hoursValue > 40) {
+        setFormData((prev) => ({ ...prev, [name]: 40 }));
+        return;
+      }
+      if (hoursValue < 1 && value !== "") {
+        setFormData((prev) => ({ ...prev, [name]: 1 }));
+        return;
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Get the user ID from localStorage (ensure it exists)
-    // const user = JSON.parse(localStorage.getItem("user"));
-    // const studentId = user?.user?._id;
-  
-    // // Check if studentId exists in localStorage
-    // if (!studentId) {
-    //   setMessage("Student ID not found. Please log in again.");
-    //   return;
-    // }
-  
-    // Check that all required fields are filled
-    if (!formData.week || !formData.hours || !formData.tasks || !formData.lessons) {
-      setMessage("Please fill in all the fields.");
+
+    const { week, hours, tasks, lessons } = formData;
+
+    if (!week || !hours || !tasks || !lessons) {
+      setMessage("Please fill in all the required fields.");
       return;
     }
-  
-    //const payload = { studentId, ...formData };
-    const payload = {  ...formData };
-  
+
     try {
-      // Sending the form data to the backend
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, payload);
-  
-      // Display success message
-      setMessage(res.data.message || "Report submitted!");
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/reports`,
+        formData
+      );
+
+      setMessage(res.data.message || "Report submitted successfully!");
+
       setFormData({
-        week: "Week 1",
+        week: "",
         hours: "",
         tasks: "",
         lessons: "",
@@ -57,73 +93,104 @@ const WeeklyProgressReportForm = () => {
       });
     } catch (err) {
       console.error(err);
-      setMessage("Submission failed. Try again.");
+      setMessage("Submission failed. Please try again.");
     }
   };
-  
 
   return (
     <div className="a2-form-container">
-      <h2>A.2 - Weekly Progress Report</h2>
+      <h2>Weekly Progress Report</h2>
+
+      <button
+        className="view-submissions-btn"
+        onClick={() => navigate("/submitted-reports")}
+      >
+        View Previous Submissions
+      </button>
+
       <form onSubmit={handleSubmit} className="a2-form">
-        <div className="form-row">
-          <label>
-            Logbook Week:
-            <select name="week" value={formData.week} onChange={handleChange}>
+        <div className="week-hours-row">
+          <div className="form-group">
+            <label>Week</label>
+            <select
+              name="week"
+              value={formData.week}
+              onChange={handleChange}
+              disabled={readOnly}
+              required
+            >
+              <option value="">-- Select Week --</option>
               {Array.from({ length: 15 }, (_, i) => (
                 <option key={i} value={`Week ${i + 1}`}>
                   Week {i + 1}
                 </option>
               ))}
             </select>
-          </label>
-          <label>
-            Number of Hours:
+          </div>
+
+          <div className="form-group floating-label-group">
             <input
               type="number"
               name="hours"
               value={formData.hours}
               onChange={handleChange}
+              placeholder=" "
               required
-              placeholder="e.g., 12"
+              min="1"
+              max="40"
+              readOnly={readOnly}
             />
-          </label>
+            <label>Hours Worked</label>
+          </div>
         </div>
 
-        <div className="form-group">
-          <label>Tasks Performed:</label>
+        <div className="form-group floating-label-group">
           <textarea
             name="tasks"
             value={formData.tasks}
             onChange={handleChange}
+            placeholder=" "
             required
+            readOnly={readOnly}
           />
+          <label>Tasks Performed</label>
+          <div className="textarea-count">{formData.tasks.length}/300</div>
         </div>
 
-        <div className="form-group">
-          <label>Lessons Learned:</label>
+        <div className="form-group floating-label-group">
           <textarea
             name="lessons"
             value={formData.lessons}
             onChange={handleChange}
+            placeholder=" "
             required
+            readOnly={readOnly}
           />
+          <label>Lessons Learned</label>
+          <div className="textarea-count">{formData.lessons.length}/300</div>
         </div>
 
-        <div className="form-group">
-          <label>Internship Supervisor Approval & Comments:</label>
+        <div className="form-group floating-label-group">
           <textarea
             name="supervisorComments"
             value={formData.supervisorComments}
             onChange={handleChange}
-            placeholder="(Optional) If supervisor is filling directly"
+            placeholder=" "
+            readOnly
           />
+          <label>Supervisor Comments</label>
+          <div className="textarea-count">
+            {formData.supervisorComments.length}/300
+          </div>
         </div>
 
-        <button type="submit" className="submit-button">
-          Submit Report
-        </button>
+        {!readOnly && (
+          <button type="submit" className="submit-button">
+            Submit Report
+          </button>
+        )}
       </form>
+
       {message && <p className="form-message">{message}</p>}
     </div>
   );

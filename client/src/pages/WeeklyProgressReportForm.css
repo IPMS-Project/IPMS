@@ -1,45 +1,208 @@
-/* WeeklyProgressReportForm.css */
 
 .a2-form-container {
-    max-width: 700px;
-    margin: auto;
-    padding: 2rem;
-    border: 1px solid #ccc;
-    background: #f9f9f9;
-    border-radius: 8px;
+  max-width: 700px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  animation: fadeSlideIn 0.8s ease;
+}
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h2 {
+  text-align: center;
+  color: #263238;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  font-size: 1.8rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-row label,
+.form-group label {
+  font-weight: 600;
+  display: block;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  background-color: #fff;
+  max-width: 100%;
+}
+
+input:hover, select:hover, textarea:hover {
+  box-shadow: 0 0 8px rgba(155, 17, 30, 0.08);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #9b111e;
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.2);
+  transform: scale(1.02);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+textarea[readonly] {
+  background-color: #f1f1f1;
+  cursor: not-allowed;
+  color: #555;
+}
+
+.textarea-count {
+  text-align: right;
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  position: relative;
+}
+
+.floating-label-group {
+  position: relative;
+}
+
+.floating-label-group input:focus + label,
+.floating-label-group input:not(:placeholder-shown) + label,
+.floating-label-group textarea:focus + label,
+.floating-label-group textarea:not(:placeholder-shown) + label {
+  top: -10px;
+  left: 8px;
+  background: #fff;
+  font-size: 12px;
+  padding: 0 4px;
+  color: #9b111e;
+}
+
+.floating-label-group label {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  color: #888;
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.3s ease;
+}
+
+.submit-button {
+  background: #9b111e;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.submit-button:hover {
+  background: #b71c1c;
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(155, 17, 30, 0.4);
+}
+
+.form-message {
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 600;
+  color: green;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.a2-form-container:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: 0.3s ease;
+}
+
+@media (max-width: 500px) {
   .form-row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    justify-content: space-between;
+    flex-direction: column;
   }
-  
-  .form-row label {
-    flex: 1;
-  }
-  
-  .form-group {
-    margin-bottom: 1rem;
-  }
-  
-  textarea {
-    width: 100%;
-    height: 100px;
-  }
-  
-  .submit-button {
-    background: maroon;
-    color: white;
-    padding: 0.7rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .form-message {
-    margin-top: 1rem;
-    color: green;
-  }
-  
+}
+
+/* Hover Pop effect for Week select & Hours input */
+.week-hours-row select,
+.week-hours-row input[type="number"] {
+  transition: all 0.3s ease;
+}
+
+.week-hours-row select:hover,
+.week-hours-row input[type="number"]:hover {
+  transform: scale(1.03);
+  border-color: #9b111e;
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.15);
+}
+
+.week-hours-row input[type="number"]:focus {
+  transform: scale(1.04);
+  border-color: #9b111e;
+  box-shadow: 0 0 12px rgba(155, 17, 30, 0.3);
+}
+
+.week-hours-row select:focus {
+  transform: scale(1.04);
+  border-color: #9b111e;
+  box-shadow: 0 0 12px rgba(155, 17, 30, 0.3);
+}
+.view-submissions-btn {
+  background: #fff;
+  border: 2px solid #9b111e;
+  color: #9b111e;
+  padding: 8px 20px;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.view-submissions-btn:hover {
+  background: #9b111e;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.2);
+}
