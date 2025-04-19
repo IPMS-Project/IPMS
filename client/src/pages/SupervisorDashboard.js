@@ -54,8 +54,8 @@ const SupervisorDashboard = () => {
         setRequests(formatted);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching Internship A1 forms:", err);
-        setMessage("Error fetching Internship A1 forms.", err);
+        console.error("Error fetching forms:", err);
+        setMessage("Error fetching forms.", err);
         setLoading(false);
       }
     };
@@ -94,11 +94,15 @@ const SupervisorDashboard = () => {
   const closeFormView = () => setSelectedForm(null);
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
+  const sortedRequests = [...requests]
+   .filter((req) => req.status.toLowerCase() === "submitted")
+   .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
   let content;
 
   if (loading) {
     content = <p>Loading...</p>;
-  } else if (requests.length === 0) {
+  } else if (sortedRequests.length === 0) {
     content = (
       <div className="empty-message-container">
         <div className="empty-message">No pending approvals.</div>
@@ -117,7 +121,7 @@ const SupervisorDashboard = () => {
           </tr>
         </thead>
         <tbody>
-          {requests.map((req) => (
+          {sortedRequests.map((req) => (
             <tr key={req._id}>
               <td>{req.name}</td>
               <td>
