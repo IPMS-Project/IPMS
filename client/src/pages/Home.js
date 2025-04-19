@@ -34,9 +34,9 @@ function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`${formData.role} sign in attempted`, formData);
 
     const { email: ouEmail, password, role } = formData;
+
 
     if (!ouEmail || !password || !role) {
       return Swal.fire({
@@ -61,20 +61,24 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful 🌟",
-          text: `Welcome back, ${role}!`,
-        });
+        const user = data.user;
 
-        // Redirect user based on role
-        if (role === "coordinator") {
-          navigate("/coordinator-dashboard");
-        } else if (role === "student") {
-          navigate("/student-dashboard");
-        } else if (role === "supervisor") {
-          navigate("/supervisor-dashboard");
-        }
+        // Store only required fields
+        const limitedUserInfo = {
+          fullName: user.fullName,
+          id: user._id,
+          email:user.ouEmail
+        };
+        
+        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+
+        // Swal.fire({
+        //   icon: "success",
+        //   title: "Login Successful",
+        //   text: `Welcome back, `,
+        // });
+
+        navigate("/student-dashboard");
       } else {
         Swal.fire({
           icon: "error",
@@ -126,6 +130,7 @@ function Home() {
                         role: r,
                       })
                     }
+                
                   >
                     <Icon />
                     <p className="role-label">

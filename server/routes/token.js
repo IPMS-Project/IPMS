@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const TokenRequest = require("../models/TokenRequest");
 const emailService = require("../services/emailService");
+const User = require("../models/User")
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -48,7 +49,10 @@ router.post("/request", async (req, res) => {
       activationLinkSentAt: new Date(),
     });
 
+    
+
     await request.save();
+   
 
     const activationLink = `${FRONTEND_URL}/activate/${plainToken}`;
     const emailBody = `
@@ -154,7 +158,7 @@ router.post("/user-login", async (req, res) => {
         return res.status(403).json({ message: "Token not issued yet." });
       }
 
-      if (user.status !== "activated") {
+      if (!user.isActivated) {
         return res.status(403).json({ message: "Token is not activated yet." });
       }
 
@@ -162,8 +166,12 @@ router.post("/user-login", async (req, res) => {
       const tokenExpiry = new Date(user.expiresAt);
 
       if (tokenExpiry < now) {
+        user.status = "deactivated";
+        await user.save();
+      
         return res.status(403).json({
-          message: "Token has expired. Please request a new one.",
+          message: "Your account is deactivated due to token expiry.",
+          renewalLink: `${FRONTEND_URL}/renew-token?email=${user.ouEmail}`
         });
       }
     }
