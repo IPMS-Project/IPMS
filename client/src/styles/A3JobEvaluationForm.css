@@ -1,16 +1,9 @@
-/* Custom color for checked Bootstrap radio button */
-/* .form-check-input:checked {
-    background-color: #9d2235;
-    border-color: #9d2235;
-    accent-color: #9d2235;
-} */
+
 .custom-table input[type="radio"]:checked {
     background-color: #9d2235;       
     border-color: #9d2235;           
     box-shadow: 0 0 0 1px #9d2235;   
 }
-
-
 
 .custom-table thead th {
     color: white !important;
@@ -53,6 +46,10 @@
     justify-content: center;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh;
+    min-height: 80vh;
     padding: 10px;
 }
+
+.is-invalid {
+    border-color: #dc3545 !important;
+  }

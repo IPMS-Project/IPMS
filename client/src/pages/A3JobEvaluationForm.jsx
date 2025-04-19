@@ -38,11 +38,15 @@ const evaluationItems = [
 const A3JobEvaluationForm = () => {
   // Form state management
   const [formData, setFormData] = useState({
+    interneeName: "",
+    interneeID: "",
+    interneeEmail: "",
     advisorSignature: "",
     advisorAgreement: false,
     coordinatorSignature: "",
     coordinatorAgreement: false,
   });
+  const [errors, setErrors] = useState({});
 
   // Ratings and comments
   const [ratings, setRatings] = useState({});
@@ -58,6 +62,24 @@ const A3JobEvaluationForm = () => {
   const [selectedFont, setSelectedFont] = useState(fonts[0]);
   const [activeTab, setActiveTab] = useState("type");
 
+  // For validation of the form contents
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.interneeName?.trim()) newErrors.interneeName = "Name is required.";
+    if (!/^\d{9}$/.test(formData.interneeID || "")) newErrors.interneeID = "Enter a valid 9-digit Sooner ID.";
+    if (!/\S+@\S+\.\S+/.test(formData.interneeEmail || "")) newErrors.interneeEmail = "Invalid email.";
+    if (!formData.advisorSignature) newErrors.advisorSignature = "Signature is required.";
+    if (!formData.coordinatorSignature) newErrors.coordinatorSignature = "Signature is required.";
+    evaluationItems.forEach((item) => {
+      if (!ratings[item]) {
+        newErrors[`${item}_rating`] = "Please select one of these"; // Error message
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // Signature canvas ref
   const sigCanvasRef = useRef(null);
 
@@ -71,6 +93,7 @@ const A3JobEvaluationForm = () => {
   // Handle form input changes
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   // Rating selection
@@ -120,8 +143,8 @@ const A3JobEvaluationForm = () => {
   // Submit the form to the backend
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.advisorAgreement || !formData.coordinatorAgreement) {
-      alert("Please confirm both signature agreements before submitting.");
+    if (!validateForm() || !formData.advisorAgreement || !formData.coordinatorAgreement) {
+      alert("Please confirm internee details and both signature agreements before submitting.");
       return;
     }
     try {
@@ -130,12 +153,25 @@ const A3JobEvaluationForm = () => {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ formData, ratings, comments }),
+          body: JSON.stringify({
+            interneeName: formData.interneeName,
+            interneeID: formData.interneeID,
+            interneeEmail: formData.interneeEmail,
+            advisorSignature: formData.advisorSignature,
+            coordinatorSignature: formData.coordinatorSignature,
+            advisorAgreement: formData.advisorAgreement,
+            coordinatorAgreement: formData.coordinatorAgreement,
+            ratings,
+            comments,
+          }),
         }
       );
       if (response.ok) {
         alert("Evaluation submitted successfully!");
         setFormData({
+          interneeName: "", 
+          interneeID: "",
+          interneeEmail: "",
           advisorSignature: "",
           advisorAgreement: false,
           coordinatorSignature: "",
@@ -191,10 +227,33 @@ const A3JobEvaluationForm = () => {
     <div className="page-content">
       <h2 className="heading-maroon">A.3 – Job Performance Evaluation</h2>
       <Container
-        className="p-4 rounded shadow-lg"
+        className="p-4 rounded shadow-lg" 
         style={{ backgroundColor: "#fff", maxWidth: "900px", width: "100%" }}
       >
         <Form onSubmit={handleSubmit}>
+          <Row className="justify-content-center">
+            <Col xs={12}> 
+            <div className="border-box">
+              <h5 style={{ backgroundColor: '#9d2235', color: 'white', padding: '8px', borderRadius: '5px', textAlign: "center", width: '100%',}}>Internee Details</h5>
+                <Form.Group controlId="interneeName">
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control type="text" value={formData.interneeName} onChange={(e) => handleChange("interneeName", e.target.value)} isInvalid={!!errors.interneeName} placeholder="Enter full name" style={{ maxWidth: "300px" }}/>
+                  <Form.Text className="text-danger">{errors.interneeName}</Form.Text>
+                  
+                </Form.Group>
+                <Form.Group controlId="interneeID">
+                  <Form.Label>Sooner ID</Form.Label>
+                  <Form.Control type="text" maxLength={9} value={formData.interneeID} onChange={(e) => handleChange("interneeID", e.target.value)} isInvalid={!!errors.interneeID} placeholder="Enter 9-digit student ID" style={{ maxWidth: "300px" }}/>
+                  <Form.Text className="text-danger">{errors.interneeID}</Form.Text>
+                </Form.Group>
+                <Form.Group controlId="interneeEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control type="email" value={formData.interneeEmail} onChange={(e) => handleChange("interneeEmail", e.target.value)} isInvalid={!!errors.interneeEmail}  placeholder="Enter student email" style={{ maxWidth: "300px" }}/>
+                  <Form.Text className="text-danger">{errors.interneeEmail}</Form.Text>
+                  </Form.Group>
+            </div>
+          </Col>
+          </Row>
           <Table bordered responsive className="text-center custom-table">
             <thead>
               <tr>
@@ -207,41 +266,53 @@ const A3JobEvaluationForm = () => {
             <tbody>
               {evaluationItems.map((item, index) => (
                 <tr key={item}>
-                  <td>{item}</td>
-                  <td>
+                <td>{item}</td>
+                
+                {/* Radios grouped in one cell */}
+                <td colSpan={2}>
+                  <div className="d-flex gap-4 align-items-center">
                     <Form.Check
                       type="radio"
+                      id={`satisfactory-${index}`}
                       name={`item-${index}`}
+                      label="Satisfactory"
                       value="Satisfactory"
                       checked={ratings[item] === "Satisfactory"}
                       onChange={() => handleRatingChange(item, "Satisfactory")}
-                      required
+                      isInvalid={!!errors[`${item}_rating`]}
                     />
-                  </td>
-                  <td>
                     <Form.Check
                       type="radio"
+                      id={`unsatisfactory-${index}`}
                       name={`item-${index}`}
+                      label="Unsatisfactory"
                       value="Unsatisfactory"
                       checked={ratings[item] === "Unsatisfactory"}
-                      onChange={() =>
-                        handleRatingChange(item, "Unsatisfactory")
-                      }
+                      onChange={() => handleRatingChange(item, "Unsatisfactory")}
+                      isInvalid={!!errors[`${item}_rating`]}
                     />
-                  </td>
-                  <td>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      value={comments[item] || ""}
-                      onChange={(e) =>
-                        handleCommentChange(item, e.target.value)
-                      }
-                      placeholder="Enter comments"
-                      style={{ minWidth: "250px" }}
-                    />
-                  </td>
-                </tr>
+                  </div>
+                  
+                  {/* Show the error below both radio buttons */}
+                  {errors[`${item}_rating`] && (
+                    <Form.Control.Feedback type="invalid" className="d-block mt-1">
+                      {errors[`${item}_rating`]}
+                    </Form.Control.Feedback>
+                  )}
+                </td>
+              
+                {/* Comments box */}
+                <td>
+                  <Form.Control
+                    as="textarea"
+                    rows={2}
+                    value={comments[item] || ""}
+                    onChange={(e) => handleCommentChange(item, e.target.value)}
+                    placeholder="Enter comments"
+                    style={{ minWidth: "250px" }}
+                  />
+                </td>
+              </tr>
               ))}
             </tbody>
           </Table>
@@ -265,6 +336,7 @@ const A3JobEvaluationForm = () => {
                 >
                   {renderSignaturePreview("advisorSignature")}
                 </div>
+                <Form.Text className="text-danger">{errors.advisorSignature}</Form.Text>
                 <Form.Check
                   type="checkbox"
                   className="mt-2"
@@ -294,6 +366,7 @@ const A3JobEvaluationForm = () => {
                 >
                   {renderSignaturePreview("coordinatorSignature")}
                 </div>
+                <Form.Text className="text-danger">{errors.coordinatorSignature}</Form.Text>
                 <Form.Check
                   type="checkbox"
                   className="mt-2"

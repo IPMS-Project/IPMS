@@ -175,7 +175,7 @@ router.post("/user-login", async (req, res) => {
         return res.status(403).json({ message: "Token not issued yet." });
       }
 
-      if (user.status !== "activated") {
+      if (!user.isActivated) {
         return res.status(403).json({ message: "Token is not activated yet." });
       }
 
@@ -183,9 +183,13 @@ router.post("/user-login", async (req, res) => {
       const tokenExpiry = new Date(user.expiresAt);
 
       if (tokenExpiry < now) {
-        return res
-          .status(403)
-          .json({ message: "Token has expired. Please request a new one." });
+        user.status = "deactivated";
+        await user.save();
+      
+        return res.status(403).json({
+          message: "Your account is deactivated due to token expiry.",
+          renewalLink: `${FRONTEND_URL}/renew-token?email=${user.ouEmail}`
+        });
       }
     }
 
@@ -234,6 +238,44 @@ router.delete("/deactivate", async (req, res) => {
     res.json({ message: "Token soft-deleted successfully." });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/renew', async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    
+    if (!token) return res.status(400).json({ error: "Token is missing." });
+    console.log("Received token:", token);
+    const userToken = await TokenRequest.findOne({ token: token });
+
+    if (!userToken) {
+      return res.status(404).json({ message: 'Token not found or invalid.' });
+    }
+
+    if (userToken.status !== 'activated') {
+      return res.status(400).json({ message: 'Token is not activated, cannot renew.' });
+    }
+
+    // Renew the token logic (extend expiry, etc.)
+    const currentDate = new Date();
+    userToken.expiresAt = new Date(currentDate.setMonth(currentDate.getMonth() + 6));
+    await userToken.save();
+
+    // Send confirmation email (optional)
+    await emailService.sendEmail({
+      to: userToken.ouEmail,
+      subject: 'Your Token Has Been Renewed',
+      html: `<p>Your token has been successfully renewed and will now expire on ${userToken.expiresAt.toLocaleDateString()}.</p>`,
+    });
+    
+    console.log('Token successfully renewed!')
+    return res.status(200).json({ message: 'Token successfully renewed!' });
+
+  } catch (error) {
+    console.error('Error renewing token:', error);
+    return res.status(500).json({ message: 'An error occurred while renewing the token.' });
   }
 });
 
