@@ -3,16 +3,37 @@ import axios from "axios";
 import "../styles/SupervisorDashboard.css";
 import ViewFormModal from "./ViewFormModal";
 
+
 const SupervisorDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
+  const handleFormActionComplete = () => {
+    fetchRequests(); // ✅ Refresh from DB
+    setSelectedForm(null);
+  };
+  
+
+  const fetchRequests = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/a1forms`);
+      setRequests(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching requests:", err);
+      setMessage("Error fetching requests.");
+      setLoading(false);
+    }
+  };
+  
+
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/submissions/pending`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/a1forms`);
+
 
         setRequests(res.data);
         setLoading(false);
@@ -23,7 +44,10 @@ const SupervisorDashboard = () => {
       }
     };
     fetchRequests();
+    
   }, []);
+
+
 
   const handleAction = async (id, action, comment) => {
     const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
@@ -46,7 +70,10 @@ const SupervisorDashboard = () => {
 
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
-  const sortedRequests = [...requests].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const sortedRequests = [...requests]
+  .filter((req) => req.status.toLowerCase() === "submitted")
+  .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
 
   let content;
 
@@ -73,23 +100,21 @@ const SupervisorDashboard = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedRequests.map((req) => (
-            <tr key={req._id}>
-              <td>{req.name}</td>
-              <td>
-                <button className="link-button" onClick={() => openFormView(req)}>
-                  {req.student_id}
-                </button>
-              </td>
-              <td>{req.form_type}</td>
-              <td>{formatDate(req.createdAt)}</td>
-              <td>
-                <span className={`status-badge ${req.supervisor_status}`}>
-                  {req.supervisor_status}
-                </span>
-              </td>
-            </tr>
-          ))}
+        {sortedRequests.map((req) => (
+  <tr key={req._id} className="clickable-row" onClick={() => openFormView(req)}>
+  <td>{req.studentName}</td>
+  <td>{req.soonerId}</td>
+  <td>A.1</td>
+  <td>{formatDate(req.createdAt)}</td>
+  <td>
+    <span className={`status-badge ${req.status}`}>
+      {req.status}
+    </span>
+  </td>
+</tr>
+
+))}
+
         </tbody>
       </table>
     );
@@ -105,6 +130,7 @@ const SupervisorDashboard = () => {
           formData={selectedForm}
           onClose={closeFormView}
           onAction={handleAction}
+          onActionComplete={handleFormActionComplete}
         />
       )}
     </div>
