@@ -17,9 +17,9 @@ const hashToken = (token) => {
 
 router.post("/request", async (req, res) => {
   try {
-    const { fullName, ouEmail, password, semester, academicAdvisor, role } = req.body;
+    const { fullName, ouEmail, soonerId, password, semester, academicAdvisor, role } = req.body;
 
-    if (!fullName || !ouEmail || !password || !semester) {
+    if (!fullName || !ouEmail || !soonerId || !password || !semester) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -38,6 +38,7 @@ router.post("/request", async (req, res) => {
     const request = new TokenRequest({
       fullName,
       ouEmail,
+      soonerId,
       password: hashedPassword,
       semester,
       role,

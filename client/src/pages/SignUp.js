@@ -15,6 +15,7 @@ function SignUp() {
   const [step, setStep] = useState(1);
   const [fullName, setFullName] = useState("");
   const [ouEmail, setOuEmail] = useState("");
+  const [soonerId, setSoonerId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -61,12 +62,22 @@ function SignUp() {
       return;
     }
 
+    if (!/^\d{9}$/.test(soonerId)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Sooner ID",
+        text: "Sooner ID must be a 9-digit number.",
+      });
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/token/request`,
         {
           fullName,
           ouEmail,
+          soonerId,
           password,
           semester,
           academicAdvisor: role === "student" ? academicAdvisor : "",
@@ -255,6 +266,19 @@ function SignUp() {
                 required
               />
             </div>
+
+            <div className="form-group">
+              <label htmlFor="soonerId">Sooner ID</label>
+              <input
+                type="text"
+                id="soonerId"
+                value={soonerId}
+                onChange={(e) => setSoonerId(e.target.value)}
+                placeholder="Enter your 9-digit Sooner ID"
+                required
+              />
+            </div>
+
             <div className="password-row">
               <div className="form-group password-col">
                 <label htmlFor="password">New password</label>
