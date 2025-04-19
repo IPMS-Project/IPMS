@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import "../styles/CumulativeReviewForm.css"; // Optional for styling
+import "../styles/CumulativeReviewForm.css";
 
 const CumulativeReviewForm = () => {
   const { groupIndex } = useParams();
@@ -85,15 +85,27 @@ const CumulativeReviewForm = () => {
           </tr>
         </thead>
         <tbody>
-          {groupData.reports.map((report, index) => (
-            <tr key={index}>
-              <td>{report.week}</td>
-              <td>{report.hours}</td>
-              <td>{report.tasks}</td>
-              <td>{report.lessons}</td>
-            </tr>
-          ))}
-        </tbody>
+  {groupData.reports.map((report, index) => (
+    <tr
+      key={index}
+      className="clickable-row"
+      onClick={() =>
+        navigate(
+          `/weekly-report/${groupIndex}/week-${report.week}/${groupData.studentName}`,
+          {
+            state: { reportData: report },
+          }
+        )
+      }
+    >
+      <td>{report.week}</td>
+      <td>{report.hours}</td>
+      <td>{report.tasks}</td>
+      <td>{report.lessons}</td>
+    </tr>
+  ))}
+</tbody>
+
       </table>
 
       <textarea
@@ -104,9 +116,15 @@ const CumulativeReviewForm = () => {
       />
 
       <div className="actions">
-        <button onClick={handleSubmit}>Submit Comment</button>
-        <button onClick={() => navigate("/supervisor-dashboard")}>
+        <button
+          className="cancel-btn"
+          onClick={() => navigate("/supervisor-dashboard")}
+        >
           Cancel
+        </button>
+
+        <button className="submit-btn" onClick={handleSubmit}>
+          Submit Comment
         </button>
       </div>
     </div>

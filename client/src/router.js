@@ -12,6 +12,7 @@ import CumulativeReviewForm from "./pages/CumulativeReviewForm"; // 🚀 NEW PAG
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
+import SubmittedReports from "./pages/SubmittedReports";
 
 // Layout
 import Layout from "./components/Layout";
@@ -62,6 +63,23 @@ const router = createBrowserRouter([
         path: "review-cumulative/:groupIndex",   // 🚀 NEW ROUTE
         element: <CumulativeReviewForm />,
       },
+      {
+        path: "weekly-report/:groupIndex/week-:weekNumber/:studentName",
+        element: <WeeklyProgressReportForm />,  // <- Your Weekly Form Page
+      },
+      {
+        path: "submitted-reports",
+        element: <SubmittedReports />,
+      },
+      {
+        path: "submitted-reports/view/:reportId",
+        element: <WeeklyProgressReportForm readOnly={true} />,
+      },
+      {
+        path: "submitted-reports/view/:id",
+        element: <WeeklyProgressReportForm readOnly={true} />,
+      },
+      
     ],
   },
 ]);
