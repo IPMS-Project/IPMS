@@ -62,8 +62,8 @@ function Home() {
 
       if (response.ok) {
         const user = data.user;
-
-        // Store only required fields
+        if(role === "student"){
+           // Store only required fields
         const limitedUserInfo = {
           fullName: user.fullName,
           id: user._id,
@@ -71,6 +71,16 @@ function Home() {
         };
         
         localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+        navigate("/student-dashboard");
+        }else{
+          Swal.fire({
+            icon: "success",
+            title: "Login Successfull",
+            text: `Welcome , ${user.fullName}`,
+          });
+        }
+
+       
 
         // Swal.fire({
         //   icon: "success",
@@ -78,7 +88,7 @@ function Home() {
         //   text: `Welcome back, `,
         // });
 
-        navigate("/student-dashboard");
+       
       } else {
         Swal.fire({
           icon: "error",

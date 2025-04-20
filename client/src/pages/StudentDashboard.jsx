@@ -8,7 +8,7 @@ const StudentDashboard = () => {
   const user = JSON.parse(localStorage.getItem("ipmsUser"));
   const backendUrl = process.env.REACT_APP_API_URL;
   const ouEmail = user?.email;
-  const [approvalStatus, setApprovalStatus] = useState("draft");
+  const [approvalStatus, setApprovalStatus] = useState("not_submitted");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +47,12 @@ const StudentDashboard = () => {
             <h3>Request Internship (FORM A1)</h3>
             <p>Track your internship journey</p>
 
+            {approvalStatus === "not_submitted" && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                You have not submitted the form yet
+              </p>
+            )}
+
             {(approvalStatus === "submitted" ||
               approvalStatus === "pending manual review") && (
               <p style={{ fontSize: "0.85rem", color: "#888" }}>
@@ -62,14 +68,25 @@ const StudentDashboard = () => {
           <button
             className="card-button"
             onClick={() => {
-              if (approvalStatus === "draft") {
+              if (
+                approvalStatus === "draft" ||
+                approvalStatus === "not_submitted"
+              ) {
                 navigate("/a1-form");
               }
             }}
-            disabled={approvalStatus !== "draft"}
+            disabled={
+              approvalStatus !== "draft" && approvalStatus !== "not_submitted"
+            }
             style={{
-              backgroundColor: approvalStatus !== "draft" ? "#ccc" : "",
-              cursor: approvalStatus !== "draft" ? "not-allowed" : "pointer",
+              backgroundColor:
+                approvalStatus !== "draft" && approvalStatus !== "not_submitted"
+                  ? "#ccc"
+                  : "",
+              cursor:
+                approvalStatus !== "draft" && approvalStatus !== "not_submitted"
+                  ? "not-allowed"
+                  : "pointer",
             }}
           >
             {approvalStatus === "approved" ? "Track" : "Request Internship"}
@@ -80,6 +97,13 @@ const StudentDashboard = () => {
         <div className="card-section">
           <div className="card-content">
             <h3>Weekly Report (Form A2)</h3>
+
+            {approvalStatus === "not_submitted" && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Please fill your Form A1 first
+              </p>
+            )}
+
             {approvalStatus === "draft" && (
               <p style={{ fontSize: "0.85rem", color: "#888" }}>
                 Finish your Form A1 first
