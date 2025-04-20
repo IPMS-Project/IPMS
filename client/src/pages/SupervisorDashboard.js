@@ -11,9 +11,12 @@ const SupervisorDashboard = () => {
   const [message, setMessage] = useState("");
 
   const handleFormActionComplete = () => {
-    fetchRequests(); // ✅ Refresh from DB
-    setSelectedForm(null);
+    if (selectedForm) {
+      setRequests(prev => prev.filter(req => req.soonerId !== selectedForm.soonerId));
+      setSelectedForm(null);
+    }
   };
+  
   
 
   const fetchRequests = async () => {
