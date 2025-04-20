@@ -12,16 +12,16 @@ const SupervisorDashboard = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/submissions/pending`);
-
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/evaluation`);
         setRequests(res.data);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching requests:", err);
+        console.error("AXIOS ERROR:", err.response?.data || err.message);
         setMessage("Error fetching requests.");
         setLoading(false);
       }
     };
+
     fetchRequests();
   }, []);
 
@@ -30,7 +30,10 @@ const SupervisorDashboard = () => {
     if (!confirmed) return;
 
     try {
-      const res =  await axios.post(`${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`, { comment });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/evaluation/${id}/${action}`,
+        { comment }
+      );
 
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
@@ -43,63 +46,57 @@ const SupervisorDashboard = () => {
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
+  const formatDate = (date) => new Date(date).toLocaleDateString();
 
-  const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
-
-  const sortedRequests = [...requests].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
-  let content;
-
-  if (loading) {
-    content = <p>Loading...</p>;
-  }
-  else if (sortedRequests.length === 0) {
-    content = (
-      <div className="empty-message-container">
-        <div className="empty-message">No pending approvals.</div>
-      </div>
-    );
-  }
-  else {
-    content = (
-      <table className="dashboard-table">
-        <thead>
-          <tr>
-            <th>Student Name</th>
-            <th>Student ID</th>
-            <th>Form Type</th>
-            <th>Date Submitted</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedRequests.map((req) => (
-            <tr key={req._id}>
-              <td>{req.name}</td>
-              <td>
-                <button className="link-button" onClick={() => openFormView(req)}>
-                  {req.student_id}
-                </button>
-              </td>
-              <td>{req.form_type}</td>
-              <td>{formatDate(req.createdAt)}</td>
-              <td>
-                <span className={`status-badge ${req.supervisor_status}`}>
-                  {req.supervisor_status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }
+  const sortedRequests = [...requests].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
 
   return (
     <div className="dashboard-container">
       <h2>Supervisor Dashboard</h2>
       {message && <p className="status-msg">{message}</p>}
-      {content}
+      {loading ? (
+        <p>Loading...</p>
+      ) : sortedRequests.length === 0 ? (
+        <div className="empty-message-container">
+          <div className="empty-message">No A3 forms available.</div>
+        </div>
+      ) : (
+        <table className="dashboard-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Sooner ID</th>
+              <th>Email</th>
+              <th>Form Type</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedRequests.map((req) => (
+              <tr key={req._id}>
+                <td>{req.interneeName}</td>
+                <td>
+                  <button className="link-button" onClick={() => openFormView(req)}>
+                    {req.interneeID}
+                  </button>
+                </td>
+                <td>{req.interneeEmail}</td>
+                <td>{req.form_type}</td>
+                <td>{formatDate(req.createdAt)}</td>
+                <td>
+                  <span className={`status-badge ${req.supervisor_status}`}>
+                    {req.supervisor_status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
       {selectedForm && (
         <ViewFormModal
           formData={selectedForm}

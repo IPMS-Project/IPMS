@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "../styles/SupervisorDashboard.css";
 
 const ViewFormModal = ({ formData, onClose, onAction }) => {
-  const form = typeof formData.details === "string" ? JSON.parse(formData.details) : formData.details;
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
 
@@ -11,34 +10,56 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
       setError("Comment is required before taking action.");
       return;
     }
-    setError("");  // clear error
-    onAction(formData._id, action, comment);
+
+    const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
+    if (!confirmed) return;
+
+    setError("");
+    onAction(formData._id, action, comment.trim());
   };
+
+  const formatSignature = (sig) =>
+    sig?.type === "text" ? `${sig.value} (Font: ${sig.font})` : "Signature unavailable";
 
   return (
     <div className="modal-overlay">
-      <div className="modal-box">
-        <h2>Form: {formData.form_type}</h2>
-        <p><strong>Student:</strong> {formData.name}</p>
+      <div className="modal-box" style={{ maxHeight: "90vh", overflowY: "auto" }}>
+        <h2>A3 – Job Performance Evaluation</h2>
 
-        {form.tasks && (
-          <div>
-            <strong>Tasks:</strong>
-            <ul>{form.tasks.map((task, i) => <li key={i}>{task}</li>)}</ul>
-          </div>
+        <h3>Internee Details</h3>
+        <p><strong>Name:</strong> {formData.interneeName}</p>
+        <p><strong>Sooner ID:</strong> {formData.interneeID}</p>
+        <p><strong>Email:</strong> {formData.interneeEmail}</p>
+
+        <h3>Evaluation</h3>
+        {formData.evaluations?.length > 0 ? (
+          <table className="dashboard-table" style={{ marginTop: "10px" }}>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Rating</th>
+                <th>Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {formData.evaluations.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.category}</td>
+                  <td>{item.rating}</td>
+                  <td>{item.comment || "-"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No evaluation data found.</p>
         )}
 
-        {form.outcomes && (
-          <div>
-            <strong>Outcomes:</strong>
-            <ul>{form.outcomes.map((o, i) => <li key={i}>{o}</li>)}</ul>
-          </div>
-        )}
+        <h3>Signatures</h3>
+        <p><strong>Advisor Signature:</strong> {formatSignature(formData.advisorSignature)}</p>
+        <p><strong>Coordinator Signature:</strong> {formatSignature(formData.coordinatorSignature)}</p>
 
-        {form.week && <p><strong>Week:</strong> {form.week}</p>}
-        {form.lessonsLearned && <p><strong>Lessons Learned:</strong> {form.lessonsLearned}</p>}
-
-        <div>
+        <div style={{ marginTop: "15px" }}>
           <label><strong>Comment:</strong></label>
           <textarea
             value={comment}
@@ -50,7 +71,7 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
           {error && <p style={{ color: "red", marginTop: "5px" }}>{error}</p>}
         </div>
 
-        <div style={{ marginTop: "15px", display: "flex", gap: "10px", justifyContent: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "15px" }}>
           <button className="approve" onClick={() => handleDecision("approve")}>Approve</button>
           <button className="reject" onClick={() => handleDecision("reject")}>Reject</button>
         </div>
