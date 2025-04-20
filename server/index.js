@@ -12,7 +12,6 @@ const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 
-const coordinatorRoutes = require("./routes/coordinator");
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
 // Import cron job manager and register jobs
@@ -21,7 +20,6 @@ const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
 
 const cronJobRoutes = require("./routes/cronJobRoutes");
-
 
 const app = express();
 app.use(express.json());
@@ -81,7 +79,6 @@ app.get("/api/message", (req, res) => {
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
-app.use("/api/coordinator", coordinatorRoutes);
 
 app.use("/api/reports", weeklyReportRoutes);
 app.post("/api/createUser", async (req, res) => {
@@ -101,7 +98,17 @@ app.post("/api/createUser", async (req, res) => {
 });
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
+    const {
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
+      ratings,
+      comments,
+    } = req.body;
 
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
@@ -128,12 +135,10 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-
 //Form A.4
 
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
-
 
 // Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
