@@ -1,0 +1,192 @@
+/* WeeklyProgressReportForm.css */
+
+/* .a2-form-container {
+    max-width: 700px;
+    margin: auto;
+    padding: 2rem;
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    justify-content: space-between;
+  }
+  
+  .form-row label {
+    flex: 1;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  textarea {
+    width: 100%;
+    height: 100px;
+  }
+  
+  .submit-button {
+    background: maroon;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .form-message {
+    margin-top: 1rem;
+    color: green;
+  }
+   */
+
+   .four-week-container {
+    max-width: 650px;
+    margin: 50px auto;
+    padding: 40px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+  }
+  
+  .four-week-container:hover {
+    transform: scale(1.01);
+  }
+  
+  .four-week-title {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #1c1c1c;
+    font-size: 32px;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  
+  .four-week-label {
+    font-weight: 600;
+    margin-top: 20px;
+    display: block;
+    color: #333;
+    font-size: 14px;
+    transition: 0.3s;
+  }
+  
+  .four-week-input,
+  .four-week-textarea,
+  .four-week-select {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    transition: 0.3s;
+    font-size: 15px;
+  }
+  
+  .four-week-input:hover,
+  .four-week-textarea:hover,
+  .four-week-select:hover {
+    background-color: #f3f3f3;
+    border-color: #a00027;
+  }
+  
+  .four-week-input:focus,
+  .four-week-textarea:focus,
+  .four-week-select:focus {
+    border-color: #a00027;
+    box-shadow: 0 0 8px rgba(160, 0, 39, 0.3);
+    outline: none;
+  }
+  
+  .four-week-textarea {
+    min-height: 100px;
+  }
+  
+  .four-week-button {
+    width: 100%;
+    padding: 14px;
+    background-color: #a00027;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 600;
+    transition: 0.3s;
+  }
+  
+  .four-week-button:hover {
+    background-color: #800020;
+    transform: translateY(-2px);
+  }
+  
+  .form-message {
+    text-align: center;
+    font-weight: 600;
+    color: green;
+    margin-top: 15px;
+    animation: fade 1s ease-in-out;
+  }
+  
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .input-group {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 10px;
+    border-radius: 10px;
+  }
+  
+  .input-group:hover,
+  .input-group:focus-within {
+    transform: scale(1.02);
+    box-shadow: 0 0 12px rgba(160, 0, 39, 0.15);
+  }
+  .input-group {
+    margin-bottom: 25px;
+    padding: 15px;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    transition: 0.4s ease-in-out;
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.1);
+  }
+  
+  .input-group:has(textarea:focus),
+  .input-group:has(select:focus) {
+    box-shadow: 0 0 12px rgba(160, 0, 39, 0.3), 0 0 25px rgba(160, 0, 39, 0.1);
+    transform: scale(1.02);
+    background-color: #ffffff;
+    border: 1px solid rgba(160, 0, 39, 0.2);
+  }
+  .four-week-textarea:disabled {
+    background-color: #f1f1f1;
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+  /* Pop effect on hover for form fields */
+.four-week-textarea:hover,
+.four-week-select:hover {
+  transform: scale(1.03);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(160, 0, 39, 0.2);
+  border-color: #a00027;
+}
+
+.four-week-textarea:focus,
+.four-week-select:focus {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(160, 0, 39, 0.3);
+  border-color: #a00027;
+}
