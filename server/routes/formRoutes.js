@@ -68,7 +68,7 @@ function validateFormData(formData) {
 
   const tasks = formData.tasks;
   console.log(tasks);
-  if (tasks.filter((task) => task.description).length < 3)
+  if (tasks.filter((task) => task.description && task.description.trim() !== '').length < 3)
     return 'At least 3 tasks must be provided';
   const uniqueOutcomes = new Set();
   tasks.forEach((task) => {
