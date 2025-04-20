@@ -4,8 +4,20 @@ const { insertFormData } = require('../services/insertData');
 const InternshipRequest = require('../models/InternshipRequest');
 const emailService = require("../services/emailService");
 
+// GET route to fetch internship requests pending supervisor action
+router.get("/internshiprequests", async (req, res) => {
+  try {
+    const requests = await InternshipRequest.find({
+      status: "submitted",
+      supervisor_status: { $in: [null, "pending"] }
+    }).sort({ createdAt: 1 }).populate("student", "userName");
 
-let status = '';
+    res.status(200).json(requests);
+  } catch (err) {
+    console.error("Error fetching internship requests:", err);
+    res.status(500).json({ message: "Server error while fetching internship requests" });
+  }
+});
 
 function validateFormData(formData) {
   const requiredFields = [
@@ -45,9 +57,7 @@ router.post("/submit", async (req, res) => {
   }
 });
 
-
-// Get All A.1 Forms (Dashboard Table)
-// GET all A.1 forms (for dashboard)
+// GET all A.1 forms (for supervisor dashboard)
 router.get('/a1forms', async (req, res) => {
   try {
     const forms = await InternshipRequest.find({
@@ -64,26 +74,27 @@ router.get('/a1forms', async (req, res) => {
   }
 });
 
-
-
-
-// Get One Form by Sooner ID (Modal)
+// GET one A.1 form by Sooner ID
 router.get('/a1forms/:soonerId', async (req, res) => {
   try {
     const form = await InternshipRequest.findOne({
+      soonerId: req.params.soonerId,
       $or: [
         { supervisor_comment: { $exists: false } },
         { supervisor_comment: "" }
       ]
-    }).sort({ createdAt: -1 });
+    });
 
-    res.status(200).json(forms);
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    res.status(200).json(form);
   } catch (error) {
     console.error('Error fetching form:', error);
     res.status(500).json({ message: 'Error fetching form' });
   }
 });
-
 
 // Supervisor Approve/Reject Route
 router.post("/supervisor-action", async (req, res) => {
@@ -113,8 +124,5 @@ router.post("/supervisor-action", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-module.exports = router;
-
 
 module.exports = router;

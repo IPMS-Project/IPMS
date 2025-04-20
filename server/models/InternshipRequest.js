@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
-const formMetadata = require("./FormMetadata");
 
 const Task = new mongoose.Schema({
   _id: false,
@@ -10,15 +9,22 @@ const Task = new mongoose.Schema({
   },
   outcomes: {
     type: [String],
-    enum: ['problemSolving', 'solutionDevelopment', 'communication', 'decisionMaking', 'collaboration', 'application']
+    enum: [
+      'problemSolving',
+      'solutionDevelopment',
+      'communication',
+      'decisionMaking',
+      'collaboration',
+      'application'
+    ]
   }
 });
 
 const formA1 = new mongoose.Schema({
-  student: { // Optional if not using User ref directly
+  student: {
     type: ObjectId,
     ref: 'User',
-    required: false
+    required: false // optional if you are storing full info separately
   },
   studentName: {
     type: String,
@@ -29,7 +35,10 @@ const formA1 = new mongoose.Schema({
     required: true
   },
   supervisor_comment: { type: String },
-supervisor_status: { type: String, enum: ['Approved', 'Rejected', 'Pending'] },
+  supervisor_status: {
+    type: String,
+    enum: ['Approved', 'Rejected', 'Pending']
+  },
   studentEmail: {
     type: String,
     required: true
@@ -37,7 +46,7 @@ supervisor_status: { type: String, enum: ['Approved', 'Rejected', 'Pending'] },
   workplace: {
     name: {
       type: String,
-      required: true,
+      required: true
     },
     website: String,
     phone: {

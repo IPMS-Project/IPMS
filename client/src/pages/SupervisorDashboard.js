@@ -10,54 +10,50 @@ const SupervisorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
- const handleFormActionComplete = () => {
+const handleFormActionComplete = () => {
   if (selectedForm) {
     setRequests(prev => prev.filter(req => req.soonerId !== selectedForm.soonerId));
     setSelectedForm(null);
   }
 };
 
-  
+const fetchRequests = async () => {
+  try {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/a1forms`);
+    setRequests(res.data);
+    setLoading(false);
+  } catch (err) {
+    console.error("Error fetching requests:", err);
+    setMessage("Error fetching requests.");
+    setLoading(false);
+  }
+};
 
-  const fetchRequests = async () => {
-    try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/a1forms`);
-      setRequests(res.data);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching requests:", err);
-      setMessage("Error fetching requests.");
-      setLoading(false);
-    }
-  };
-  
-
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/a1forms`);
+useEffect(() => {
+  fetchRequests();
+}, []);
 
 
-        setRequests(res.data);
+        setRequests(formatted);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching requests:", err);
-        setMessage("Error fetching requests.");
+        console.error("Error fetching forms:", err);
+        setMessage("Error fetching forms.", err);
         setLoading(false);
       }
     };
-    fetchRequests();
+
+//     fetchRequests();
     
   }, []);
-
-
-
-  const handleAction = async (id, action, comment) => {
-    const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
-    if (!confirmed) return;
-
+const handleAction = async (id, action, comment) => {
+  const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
+  if (!confirmed) return;
     try {
-      const res =  await axios.post(`${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`, { comment });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
+          { comment }
+      );
 
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
@@ -70,7 +66,7 @@ const SupervisorDashboard = () => {
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
-
+  
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
   const sortedRequests = [...requests]
@@ -82,15 +78,13 @@ const SupervisorDashboard = () => {
 
   if (loading) {
     content = <p>Loading...</p>;
-  }
-  else if (sortedRequests.length === 0) {
+  } else if (sortedRequests.length === 0) {
     content = (
       <div className="empty-message-container">
         <div className="empty-message">No pending approvals.</div>
       </div>
     );
-  }
-  else {
+  } else {
     content = (
       <table className="dashboard-table">
         <thead>
@@ -103,19 +97,18 @@ const SupervisorDashboard = () => {
           </tr>
         </thead>
         <tbody>
-        {sortedRequests.map((req) => (
+{sortedRequests.map((req) => (
   <tr key={req._id} className="clickable-row" onClick={() => openFormView(req)}>
-  <td>{req.studentName}</td>
-  <td>{req.soonerId}</td>
-  <td>A.1</td>
-  <td>{formatDate(req.createdAt)}</td>
-  <td>
-    <span className={`status-badge ${req.status}`}>
-      {req.status}
-    </span>
-  </td>
-</tr>
-
+    <td>{req.studentName}</td>
+    <td>{req.soonerId}</td>
+    <td>A.1</td>
+    <td>{formatDate(req.createdAt)}</td>
+    <td>
+      <span className={`status-badge ${req.status}`}>
+        {req.status}
+      </span>
+    </td>
+  </tr>
 ))}
 
         </tbody>
