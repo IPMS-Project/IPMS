@@ -1,7 +1,5 @@
-exports.isSupervisor = (req, res, next) => {
-  // const supervisor = Sup.find({$id: username})
-
-  req.user = { role: "supervisor" }; // Mocking user role for demo
+const isSupervisor = (req, res, next) => {
+  req.user = { role: "supervisor" }; // mock
   if (req.user.role === "supervisor") {
     next();
   } else {
@@ -9,12 +7,28 @@ exports.isSupervisor = (req, res, next) => {
   }
 };
 
-exports.isCoordinator = (req, res, next) => {
-  req.user = { role: "coordinator" }; // Mocking role for now (or fetch from DB if implemented)
-
+const isCoordinator = (req, res, next) => {
+  req.user = { role: "coordinator" }; // mock
   if (req.user.role === "coordinator") {
     next();
   } else {
     res.status(403).json({ message: "Access denied. Not a coordinator." });
   }
+};
+
+const isStudent = (req, res, next) => {
+  const ipmsUser = JSON.parse(req.headers["ipms-user"] || "{}");
+  if (ipmsUser && ipmsUser.role === "student") {
+    req.user = ipmsUser; // Includes _id
+    next();
+  } else {
+    res.status(403).json({ message: "Student access denied" });
+  }
+};
+
+
+module.exports = {
+  isSupervisor,
+  isCoordinator,
+  isStudent,
 };

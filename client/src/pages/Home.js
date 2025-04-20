@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -16,12 +16,6 @@ function Home() {
     role: "student",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [role] = useState("student");
-
-  // Sync role into formData.role
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, role }));
-  }, [role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,11 +52,7 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful 🌟",
-          text: `Welcome back, ${role}!`,
-        });
+        const user = data.user;
 
         if (role === "coordinator") navigate("/coordinator-dashboard");
         else if (role === "student") navigate("/student-dashboard");
@@ -118,6 +108,16 @@ function Home() {
                     <p className="role-label">
                       {r.charAt(0).toUpperCase() + r.slice(1)}
                     </p>
+                    <span
+                      className="info-icon"
+                      title={
+                        r === "student"
+                          ? "Students request internships and submit weekly reports."
+                          : r === "supervisor"
+                          ? "Supervisors review and approve student progress."
+                          : "Coordinators manage the internship workflow and approvals."
+                      }
+                    ></span>
                   </div>
                 ))}
               </div>
