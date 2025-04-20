@@ -15,8 +15,6 @@ const approvalRoutes = require("./routes/approvalRoutes");
 const coordinatorRoutes = require("./routes/coordinator");
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
-const outcomeRoutes = require("./routes/outcomeRoutes");
-
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
