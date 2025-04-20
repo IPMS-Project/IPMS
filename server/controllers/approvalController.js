@@ -55,7 +55,7 @@ exports.rejectSubmission = async (req, res) => {
 exports.getCoordinatorRequests = async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
-      status: "submitted",
+      status: "pending",
     }).populate("student", "userName email");
     res.status(200).json(requests);
   } catch (err) {
@@ -65,7 +65,9 @@ exports.getCoordinatorRequests = async (req, res) => {
 
 exports.getCoordinatorRequestDetails = async (req, res) => {
   try {
-    const requestData = await InternshipRequest.findById(req.params.id).lean();
+    const requestData = await InternshipRequest.findById(req.params.id)
+      .populate("student", "userName email")
+      .lean();
 
     if (!requestData)
       return res.status(404).json({ message: "Request not found" });
@@ -82,7 +84,7 @@ exports.coordinatorApproveRequest = async (req, res) => {
       req.params.id,
       { status: "approved" },
       { new: true }
-    );
+    ).populate("student", "userName email");
 
     if (!request) return res.status(404).json({ message: "Request not found" });
 
@@ -107,9 +109,10 @@ exports.coordinatorRejectRequest = async (req, res) => {
       req.params.id,
       { status: "rejected" },
       { new: true }
-    );
+    ).populate("student", "userName email");
 
     if (!request) return res.status(404).json({ message: "Request not found" });
+    console.log("Sending email to:", request.student.email);
 
     await EmailService.sendEmail({
       to: request.student.email,
