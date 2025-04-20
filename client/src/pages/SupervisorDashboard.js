@@ -34,24 +34,15 @@ useEffect(() => {
 }, []);
 
 
-        setRequests(formatted);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching forms:", err);
-        setMessage("Error fetching forms.", err);
-        setLoading(false);
-      }
-    };
 
-//     fetchRequests();
-    
-  }, []);
+
 const handleAction = async (id, action, comment) => {
   const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
   if (!confirmed) return;
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
+        `${process.env.REACT_APP_API_URL}/api/supervisor/form/a1forms/${id}/${action}`,
+
           { comment }
       );
 
