@@ -5,12 +5,51 @@ const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 
 const coordinatorReminder = async () => {
-  await emailService.sendEmail({
-    to: process.env.EMAIL_DEFAULT_SENDER,
-    subject: "Reminder: Coordinator Approval Pending",
-    html: "<p>This is a cron-based reminder email from IPMS.</p>",
-    text: "Reminder: Coordinator Approval Pending",
-  });
+	const now = dayjs();
+	const fiveWorkingDays = now.subtract(7, "day").toDate(); // Approximate 5 working days as 7 calendar days
+
+	try {
+	const pending = await Submission.find({
+		coordinator_status: "pending",
+		last_coordinator_reminder_at: { $lt: fiveWorkingDays },
+	});
+
+	for (const submission of pending) {
+		// Fetch student and coordinator data
+		const student = await User.findById(submission.student_id);
+	    const coordinator = await User.findById(submission.coordinator_id);
+
+		const reminderCount = submission.coordinator_reminder_count || 0;
+		const lastReminded = submission.last_coordinator_reminder_at || submission.createdAt;
+
+		const nextReminderDue = dayjs(lastReminded).add(7, "day");  // Approximate 5 working days as 7 calendar days
+		const shouldRemindAgain = now.isAfter(nextReminderDue);
+		
+		if (reminderCount >= 2 && shouldRemindAgain) {
+			// Escalate to student
+			
+			console.log(`Returned to student for resubmit/delete: "${submission.name}"`);
+		} else if (shouldRemindAgain) {
+			// Gentle reminder to Coordinator
+			await emailService.sendEmail({
+				to: coordinator.email,
+				subject: `Reminder: Coordinator Approval Pending for "${submission.name}"`,
+				html: `<p>This is a cron-based reminder email from IPMS to review the submission by ${submission.student_name}.</p>`,
+				text: `Reminder: Coordinator Approval Pending for "${submission.name}".`,
+			});
+
+			// Update the document
+			submission.coordinator_reminder_count = reminderCount + 1;
+			submission.last_coordinator_reminder_at = new Date();
+			await submission.save();
+			
+			console.log(`Reminder sent to coordinator for "${submission.name}"`);
+		}
+	}
+	} catch (err) {
+	console.error("Error in coordinatorReminder:", err);
+	}
+
 };
 
 const supervisorReminder = async () => {
