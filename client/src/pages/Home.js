@@ -83,7 +83,10 @@ function Home() {
         Swal.fire({
           icon: "error",
           title: "Login Failed",
-          text: data.message || "Something went wrong ",
+          html: data.message + " " + 
+        (data.renewalLink 
+         ? `Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.` 
+         : "Something went wrong."),
         });
       }
     } catch (error) {

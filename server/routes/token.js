@@ -33,7 +33,7 @@ router.post("/request", async (req, res) => {
         return res.status(402).json({ error: "Token request already exists for this Sooner ID." });
       }
     }
-    
+
     const plainToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
     const hashedToken = hashToken(plainToken);
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -172,13 +172,14 @@ router.post("/user-login", async (req, res) => {
       const now = new Date();
       const tokenExpiry = new Date(user.expiresAt);
 
-      if (tokenExpiry < now) {
-        user.status = "deactivated";
-        await user.save();
-      
+      if (tokenExpiry < now || user.status === "deactivated") {
+        if(!user.status === "deactivated"){
+          user.status = "deactivated";
+          await user.save();
+        }
         return res.status(403).json({
-          message: "Your account is deactivated due to token expiry.",
-          renewalLink: `${FRONTEND_URL}/renew-token?email=${user.ouEmail}`
+          message : "Your account is deactivated due to token expiry.",
+          renewalLink: `${FRONTEND_URL}/renew-token/${user.token}`
         });
       }
     }
@@ -244,15 +245,7 @@ router.post("/renew", async (req, res) => {
     }
 
     if (user.deletedAt || user.status === "deleted") {
-      return res.status(403).json({ message: "Token has been deactivated." });
-    }
-
-    if (!user.isActivated || user.status !== "activated") {
-      return res.status(403).json({ message: "Token is not activated." });
-    }
-
-    if (new Date() > user.expiresAt) {
-      return res.status(403).json({ message: "Token has already expired." });
+      return res.status(403).json({ message: "Token has been deleted." });
     }
 
     const newToken = jwt.sign({ ouEmail: user.ouEmail }, JWT_SECRET, { expiresIn: "180d" });
