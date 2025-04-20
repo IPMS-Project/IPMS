@@ -13,6 +13,30 @@ const weeklyReportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  fullName: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  supervisorName: {
+    type: String,
+    default: "",
+  },
+  supervisorEmail: {
+    type: String,
+    default: "",
+  },
+  coordinatorName: {
+    type: String,
+    default: "",
+  },
+  coordinatorEmail: {
+    type: String,
+    default: "",
+  },
   week: {
     type: String,
     required: true,

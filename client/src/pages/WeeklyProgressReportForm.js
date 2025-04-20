@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 import "../styles/WeeklyProgressReportForm.css";
+
+const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
+  const navigate = useNavigate();
+  const { reportId } = useParams();
 
 const WeeklyProgressReportForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    soonerId: "",
-    week: "Week 1",
+    supervisorName: "",
+    supervisorEmail: "",
+    coordinatorName: "Dr. Mansoor Abdulhak",
+    coordinatorEmail: "sample@gmail.com",
+    week: "",
     hours: "",
     tasks: "",
     lessons: "",
@@ -19,7 +27,47 @@ const WeeklyProgressReportForm = () => {
   const [creditHours, setCreditHours] = useState(0);
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    if (readOnly && reportId) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/api/reports/${reportId}`)
+        .then((res) => {
+          if (res.data.success) {
+            const {
+              fullName,
+              email,
+              supervisorName,
+              supervisorEmail,
+              week,
+              hours,
+              tasks,
+              lessons,
+              supervisorComments,
+            } = res.data.report;
+
+            setFormData({
+              fullName: fullName || "",
+              email: email || "",
+              supervisorName: supervisorName || "",
+              supervisorEmail: supervisorEmail || "",
+              coordinatorName: "Dr. Mansoor Abdulhak",
+              coordinatorEmail: "sample@gmail.com",
+              week: week || "",
+              hours: hours || "",
+              tasks: tasks || "",
+              lessons: lessons || "",
+              supervisorComments: supervisorComments || "",
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load report", err);
+        });
+    }
+  }, [readOnly, reportId]);
+
   const handleChange = (e) => {
+    if (readOnly) return;
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -49,15 +97,9 @@ const WeeklyProgressReportForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.fullName ||
-      !formData.email ||
-      !formData.soonerId ||
-      !formData.week ||
-      !formData.hours ||
-      !formData.tasks ||
-      !formData.lessons
-    ) {
+    const { fullName, email, week, hours, tasks, lessons } = formData;
+
+    if (!fullName || !email || !week || !hours || !tasks || !lessons) {
       setMessage("Please fill in all the required fields.");
       return;
     }
@@ -73,8 +115,11 @@ const WeeklyProgressReportForm = () => {
       setFormData({
         fullName: "",
         email: "",
-        soonerId: "",
-        week: "Week 1",
+        supervisorName: "",
+        supervisorEmail: "",
+        coordinatorName: "Dr. Mansoor Abdulhak",
+        coordinatorEmail: "sample@gmail.com",
+        week: "",
         hours: "",
         tasks: "",
         lessons: "",
@@ -103,15 +148,101 @@ const WeeklyProgressReportForm = () => {
           required
         />
 
-        <label className="four-week-label">Email</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="four-week-input"
-          required
-        />
+      <form onSubmit={handleSubmit} className="a2-form">
+        {/* Student Details */}
+        <div className="form-group floating-label-group">
+          <input
+            type="text"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleChange}
+            placeholder=" "
+            required
+            readOnly={readOnly}
+          />
+          <label>Student Name</label>
+        </div>
+
+        <div className="form-group floating-label-group">
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder=" "
+            required
+            readOnly={readOnly}
+          />
+          <label>Student Email</label>
+        </div>
+
+        {/* Supervisor Details */}
+        <div className="form-group floating-label-group">
+          <input
+            type="text"
+            name="supervisorName"
+            value={formData.supervisorName}
+            onChange={handleChange}
+            placeholder=" "
+            readOnly={readOnly}
+          />
+          <label>Supervisor Name</label>
+        </div>
+
+        <div className="form-group floating-label-group">
+          <input
+            type="email"
+            name="supervisorEmail"
+            value={formData.supervisorEmail}
+            onChange={handleChange}
+            placeholder=" "
+            readOnly={readOnly}
+          />
+          <label>Supervisor Email</label>
+        </div>
+
+        {/* Coordinator (Always Read-Only, Pre-Filled) */}
+        <div className="form-group floating-label-group">
+          <input
+            type="text"
+            name="coordinatorName"
+            value={formData.coordinatorName}
+            placeholder=" "
+            readOnly
+          />
+          <label>Coordinator Name</label>
+        </div>
+
+        <div className="form-group floating-label-group">
+          <input
+            type="email"
+            name="coordinatorEmail"
+            value={formData.coordinatorEmail}
+            placeholder=" "
+            readOnly
+          />
+          <label>Coordinator Email</label>
+        </div>
+
+        {/* Week & Hours */}
+        <div className="week-hours-row">
+          <div className="form-group">
+            <label>Week</label>
+            <select
+              name="week"
+              value={formData.week}
+              onChange={handleChange}
+              disabled={readOnly}
+              required
+            >
+              <option value="">-- Select Week --</option>
+              {Array.from({ length: 15 }, (_, i) => (
+                <option key={i} value={`Week ${i + 1}`}>
+                  Week {i + 1}
+                </option>
+              ))}
+            </select>
+          </div>
 
         <label className="four-week-label">Sooner ID</label>
         <input
@@ -123,19 +254,19 @@ const WeeklyProgressReportForm = () => {
           required
         />
 
-        <label className="four-week-label">Logbook Week</label>
-        <select
-          name="week"
-          value={formData.week}
-          onChange={handleChange}
-          className="four-week-select"
-        >
-          {Array.from({ length: 15 }, (_, i) => (
-            <option key={i} value={`Week ${i + 1}`}>
-              Week {i + 1}
-            </option>
-          ))}
-        </select>
+        {/* Tasks, Lessons, Comments */}
+        <div className="form-group floating-label-group">
+          <textarea
+            name="tasks"
+            value={formData.tasks}
+            onChange={handleChange}
+            placeholder=" "
+            required
+            readOnly={readOnly}
+          />
+          <label>Tasks Performed</label>
+          <div className="textarea-count">{formData.tasks.length}/300</div>
+        </div>
 
         <label className="four-week-label">Number of Hours</label>
         <input

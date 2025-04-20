@@ -1,329 +1,208 @@
-/* WeeklyProgressReportForm.css */
 
-/* .a2-form-container {
-    max-width: 700px;
-    margin: auto;
-    padding: 2rem;
-    border: 1px solid #ccc;
-    background: #f9f9f9;
-    border-radius: 8px;
-  }
-  
-  .form-row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    justify-content: space-between;
-  }
-  
-  .form-row label {
-    flex: 1;
-  }
-  
-  .form-group {
-    margin-bottom: 1rem;
-  }
-  
-  textarea {
-    width: 100%;
-    height: 100px;
-  }
-  
-  .submit-button {
-    background: maroon;
-    color: white;
-    padding: 0.7rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  
-  .form-message {
-    margin-top: 1rem;
-    color: green;
-  }
-   */
-
-   .four-week-container {
-    max-width: 650px;
-    margin: 50px auto;
-    padding: 40px;
-    background-color: #f9f9f9;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    transition: 0.3s;
-  }
-  
-  .four-week-container:hover {
-    transform: scale(1.01);
-  }
-  
-  .four-week-title {
-    text-align: center;
-    margin-bottom: 30px;
-    color: #1c1c1c;
-    font-size: 32px;
-    font-weight: bold;
-    letter-spacing: 1px;
-  }
-  
-  .four-week-label {
-    font-weight: 600;
-    margin-top: 20px;
-    display: block;
-    color: #333;
-    font-size: 14px;
-    transition: 0.3s;
-  }
-  
-  .four-week-input,
-  .four-week-textarea,
-  .four-week-select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 8px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    transition: 0.3s;
-    font-size: 15px;
-  }
-  
-  .four-week-input:hover,
-  .four-week-textarea:hover,
-  .four-week-select:hover {
-    background-color: #f3f3f3;
-    border-color: #a00027;
-  }
-  
-  .four-week-input:focus,
-  .four-week-textarea:focus,
-  .four-week-select:focus {
-    border-color: #a00027;
-    box-shadow: 0 0 8px rgba(160, 0, 39, 0.3);
-    outline: none;
-  }
-  
-  .four-week-textarea {
-    min-height: 100px;
-  }
-  
-  .four-week-button {
-    width: 100%;
-    padding: 14px;
-    background-color: #a00027;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 17px;
-    font-weight: 600;
-    transition: 0.3s;
-  }
-  
-  .four-week-button:hover {
-    background-color: #800020;
-    transform: translateY(-2px);
-  }
-  
-  .form-message {
-    text-align: center;
-    font-weight: 600;
-    color: green;
-    margin-top: 15px;
-    animation: fade 1s ease-in-out;
-  }
-  
-  @keyframes fade {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  .input-group {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    padding: 10px;
-    border-radius: 10px;
-  }
-  
-  .input-group:hover,
-  .input-group:focus-within {
-    transform: scale(1.02);
-    box-shadow: 0 0 12px rgba(160, 0, 39, 0.15);
-  }
-  .input-group {
-    margin-bottom: 25px;
-    padding: 15px;
-    border-radius: 12px;
-    background-color: #f9f9f9;
-    transition: 0.4s ease-in-out;
-    box-shadow: 0 0 0px rgba(0, 0, 0, 0.1);
-  }
-  
-  .input-group:has(textarea:focus),
-  .input-group:has(select:focus) {
-    box-shadow: 0 0 12px rgba(160, 0, 39, 0.3), 0 0 25px rgba(160, 0, 39, 0.1);
-    transform: scale(1.02);
-    background-color: #ffffff;
-    border: 1px solid rgba(160, 0, 39, 0.2);
-  }
-  .four-week-textarea:disabled {
-    background-color: #f1f1f1;
-    cursor: not-allowed;
-    opacity: 0.8;
-  }
-  /* Pop effect on hover for form fields */
-.four-week-textarea:hover,
-.four-week-select:hover {
-  transform: scale(1.03);
-  transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(160, 0, 39, 0.2);
-  border-color: #a00027;
+.a2-form-container {
+  max-width: 700px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  animation: fadeSlideIn 0.8s ease;
 }
 
-.four-week-textarea:focus,
-.four-week-select:focus {
-  transform: scale(1.03);
-  box-shadow: 0 0 15px rgba(160, 0, 39, 0.3);
-  border-color: #a00027;
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.completion-box {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #e6ffe6;
-  border-left: 6px solid #28a745;
-  border-radius: 10px;
+
+h2 {
   text-align: center;
-  font-weight: 600;
-  color: #155724;
-  box-shadow: 0 0 10px rgba(0, 128, 0, 0.2);
+  color: #263238;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  font-size: 1.8rem;
 }
 
-.download-button {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 12px 20px;
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.form-row label,
+.form-group label {
   font-weight: 600;
-  font-size: 16px;
-  background-color: #800020;
-  color: white;
-  border-radius: 10px;
-  text-decoration: none;
+  display: block;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  background-color: #fff;
+  max-width: 100%;
+}
+
+input:hover, select:hover, textarea:hover {
+  box-shadow: 0 0 8px rgba(155, 17, 30, 0.08);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #9b111e;
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.2);
+  transform: scale(1.02);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+textarea[readonly] {
+  background-color: #f1f1f1;
+  cursor: not-allowed;
+  color: #555;
+}
+
+.textarea-count {
+  text-align: right;
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+  position: relative;
+}
+
+.floating-label-group {
+  position: relative;
+}
+
+.floating-label-group input:focus + label,
+.floating-label-group input:not(:placeholder-shown) + label,
+.floating-label-group textarea:focus + label,
+.floating-label-group textarea:not(:placeholder-shown) + label {
+  top: -10px;
+  left: 8px;
+  background: #fff;
+  font-size: 12px;
+  padding: 0 4px;
+  color: #9b111e;
+}
+
+.floating-label-group label {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  color: #888;
+  font-size: 14px;
+  pointer-events: none;
   transition: 0.3s ease;
 }
 
-.download-button:hover {
-  background-color: #a00027;
-  transform: scale(1.03);
-}
-
-.canvas-msg {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #333;
-  font-style: italic;
-}
-.four-week-container {
-  max-width: 650px;
-  margin: 50px auto;
-  padding: 40px;
-  background-color: #f9f9f9;
-  border-radius: 15px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-  transition: 0.3s;
-}
-
-.four-week-title {
-  text-align: center;
-  margin-bottom: 30px;
-  color: #1c1c1c;
-  font-size: 32px;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-.four-week-label {
-  font-weight: 600;
-  margin-top: 20px;
+.submit-button {
+  background: #9b111e;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: block;
-  color: #333;
-  font-size: 14px;
-}
-
-.four-week-input,
-.four-week-textarea,
-.four-week-select {
   width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  margin-top: 1rem;
+  font-weight: 600;
   font-size: 15px;
 }
 
-.four-week-button {
-  width: 100%;
-  padding: 14px;
-  background-color: #a00027;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 17px;
-  font-weight: 600;
-  transition: 0.3s;
-}
-
-.four-week-button:hover {
-  background-color: #800020;
-  transform: translateY(-2px);
+.submit-button:hover {
+  background: #b71c1c;
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(155, 17, 30, 0.4);
 }
 
 .form-message {
+  margin-top: 1rem;
   text-align: center;
   font-weight: 600;
   color: green;
-  margin-top: 15px;
+  animation: fadeIn 0.5s ease;
 }
 
-.completion-box {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #e6ffe6;
-  border-left: 6px solid #28a745;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: 600;
-  color: #155724;
-  box-shadow: 0 0 10px rgba(0, 128, 0, 0.2);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.download-button {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 12px 20px;
-  font-weight: 600;
-  font-size: 16px;
-  background-color: #800020;
-  color: white;
-  border-radius: 10px;
-  text-decoration: none;
+.a2-form-container:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   transition: 0.3s ease;
 }
 
-.download-button:hover {
-  background-color: #a00027;
-  transform: scale(1.03);
+@media (max-width: 500px) {
+  .form-row {
+    flex-direction: column;
+  }
 }
 
-.canvas-msg {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #333;
-  font-style: italic;
+/* Hover Pop effect for Week select & Hours input */
+.week-hours-row select,
+.week-hours-row input[type="number"] {
+  transition: all 0.3s ease;
+}
+
+.week-hours-row select:hover,
+.week-hours-row input[type="number"]:hover {
+  transform: scale(1.03);
+  border-color: #9b111e;
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.15);
+}
+
+.week-hours-row input[type="number"]:focus {
+  transform: scale(1.04);
+  border-color: #9b111e;
+  box-shadow: 0 0 12px rgba(155, 17, 30, 0.3);
+}
+
+.week-hours-row select:focus {
+  transform: scale(1.04);
+  border-color: #9b111e;
+  box-shadow: 0 0 12px rgba(155, 17, 30, 0.3);
+}
+.view-submissions-btn {
+  background: #fff;
+  border: 2px solid #9b111e;
+  color: #9b111e;
+  padding: 8px 20px;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.view-submissions-btn:hover {
+  background: #9b111e;
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.2);
 }
