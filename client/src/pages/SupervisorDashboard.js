@@ -3,53 +3,36 @@ import axios from "axios";
 import "../styles/SupervisorDashboard.css";
 import ViewFormModal from "./ViewFormModal";
 
+
 const SupervisorDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-    useEffect(() => {
+const handleFormActionComplete = () => {
+  if (selectedForm) {
+    setRequests(prev => prev.filter(req => req.soonerId !== selectedForm.soonerId));
+    setSelectedForm(null);
+  }
+};
 
-      // Token used for authentication for future
-      // Now it will only be empty
-      const token = localStorage.getItem("token") || ""; 
-      
-      const fetchRequests = async () => {
-      try {
-          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+const fetchRequests = async () => {
+  try {
+    const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/a1forms`);
+    setRequests(res.data);
+    setLoading(false);
+  } catch (err) {
+    console.error("Error fetching requests:", err);
+    setMessage("Error fetching requests.");
+    setLoading(false);
+  }
+};
 
-          const formatted = res.data.map(item => ({
-            _id: item._id,
-            name: item.student?.userName || item.student?.name || "N/A",
-            student_id: item.student?._id || item._id,
-            form_type: item.form_type,
-            createdAt: item.createdAt,
-            supervisor_status: item.supervisor_status || "pending",
-            fullForm: item,
-            workplace: {
-                name: item.workplace?.name || "N/A",
-                website: item.workplace?.website || "N/A",
-                phone: item.workplace?.phone || "N/A",
-            },
-            internshipAdvisor: {
-                name: item.internshipAdvisor?.name || "N/A",
-                jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
-                email: item.internshipAdvisor?.email || "N/A",
-            },
-            creditHours: item.creditHours || 0,
-            startDate: item.startDate || "N/A",
-            endDate: item.endDate || "N/A",
-            tasks: item.tasks || [],
-            status: item.status || "pending",
-            supervisor_comment: item.supervisor_comment || "N/A"
-        }));
-        
+useEffect(() => {
+  fetchRequests();
+}, []);
+
 
         setRequests(formatted);
         setLoading(false);
@@ -60,25 +43,16 @@ const SupervisorDashboard = () => {
       }
     };
 
-    fetchRequests();
+//     fetchRequests();
+    
   }, []);
-
-    const handleAction = async (id, form_type, action, comment) => {
-
-        const token = localStorage.getItem("token");
-        
-        const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
-        if (!confirmed) return;
-
+const handleAction = async (id, action, comment) => {
+  const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
+  if (!confirmed) return;
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
-          { comment },
-          {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-          }
+          { comment }
       );
 
       setMessage(res.data.message || `${action} successful`);
@@ -92,11 +66,13 @@ const SupervisorDashboard = () => {
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
-  const formatDate = (date) => new Date(date).toLocaleDateString();
+  
+  const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
   const sortedRequests = [...requests]
-   .filter((req) => req.status.toLowerCase() === "submitted")
-   .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  .filter((req) => req.status.toLowerCase() === "submitted")
+  .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
 
   let content;
 
@@ -121,23 +97,20 @@ const SupervisorDashboard = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedRequests.map((req) => (
-            <tr key={req._id}>
-              <td>{req.name}</td>
-              <td>
-                <button className="link-button" onClick={() => openFormView(req.fullForm)}>
-                  {req.student_id}
-                </button>
-              </td>
-              <td>{req.form_type}</td>
-              <td>{formatDate(req.createdAt)}</td>
-              <td>
-                <span className={`status-badge ${req.supervisor_status}`}>
-                  {req.supervisor_status}
-                </span>
-              </td>
-            </tr>
-          ))}
+{sortedRequests.map((req) => (
+  <tr key={req._id} className="clickable-row" onClick={() => openFormView(req)}>
+    <td>{req.studentName}</td>
+    <td>{req.soonerId}</td>
+    <td>A.1</td>
+    <td>{formatDate(req.createdAt)}</td>
+    <td>
+      <span className={`status-badge ${req.status}`}>
+        {req.status}
+      </span>
+    </td>
+  </tr>
+))}
+
         </tbody>
       </table>
     );
@@ -153,6 +126,7 @@ const SupervisorDashboard = () => {
           formData={selectedForm}
           onClose={closeFormView}
           onAction={handleAction}
+          onActionComplete={handleFormActionComplete}
         />
       )}
     </div>

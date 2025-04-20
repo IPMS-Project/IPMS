@@ -2,66 +2,59 @@ const InternshipRequest = require("../models/InternshipRequest");
 const WeeklyReport = require("../models/WeeklyReport");
 const Evaluation = require("../models/Evaluation");
 const EmailService = require("../services/emailService");
-const UserTokenRequest = require("../models/TokenRequest");
 
 // =========================================== //
 //           Managing Supervisor Forms         //
 // =========================================== //
 
 exports.getSupervisorForms = async (req, res, filter) => {
-    try {
-        // ----------------------------
-        //      Fetching A1 Form
-        // ----------------------------
-        const requests = await InternshipRequest.find(filter)
-                                                .populate("student_id", "userName email");
+  try {
+    // ----------------------------
+    //      Fetching A1 Form
+    // ----------------------------
+    const requests = await InternshipRequest.find(filter).populate("student_id", "userName email");
 
-        const typedRequests = requests.map(req => ({
-            ...req.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A1"    // add the custom type
-        }));
+    const typedRequests = requests.map((req) => ({
+      ...req.toObject(), // convert Mongoose doc to plain JS object
+      form_type: "A1", // add the custom type
+    }));
 
-        // ----------------------------
-        //      Fetching A2 Form
-        // ----------------------------
-        const reports = await WeeklyReport.find(filter)
-                                          .populate("student_id", "userName email");
+    // ----------------------------
+    //      Fetching A2 Form
+    // ----------------------------
+    const reports = await WeeklyReport.find(filter).populate("student_id", "userName email");
 
-        // Adding custom type to A2 Form
-        const typedReports = reports.map(report => ({
-            ...report.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A2"       // add the custom type
-        }));
+    const typedReports = reports.map((report) => ({
+      ...report.toObject(),
+      form_type: "A2",
+    }));
 
-        // ----------------------------
-        //      Fetching A3 Form
-        // ----------------------------
-        const evaluations = await Evaluation.find(filter)
-                                            .populate("student_id", "userName email");
+    // ----------------------------
+    //      Fetching A3 Form
+    // ----------------------------
+    const evaluations = await Evaluation.find(filter).populate("student_id", "userName email");
 
-        // Adding custom type to A3 Form
-        const typedEvaluations = evaluations.map(evaluation => ({
-            ...evaluation.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A3"     // add the custom type
-        }));
-        
-        // ----------------------------
-        //      Combine forms
-        // ----------------------------
-        const allRequests = [...typedRequests, ...typedReports, ...typedEvaluations];
+    const typedEvaluations = evaluations.map((evaluation) => ({
+      ...evaluation.toObject(),
+      form_type: "A3",
+    }));
 
-        // Sort by createdAt date
-        allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // ----------------------------
+    //      Combine forms
+    // ----------------------------
+    const allRequests = [...typedRequests, ...typedReports, ...typedEvaluations];
 
-        // Send response
-        res.status(200).json(allRequests);
-    } catch (err) {
-        res.status(500).json({
-            message: "Failed to fetch internship requests",
-            error: err.message,
-        });
-    }
-}
+    // Sort by createdAt date
+    allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.status(200).json(allRequests);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch internship requests",
+      error: err.message,
+    });
+  }
+};
 
 exports.handleSupervisorFormAction = async (req, res, action) => {
   try {
@@ -89,7 +82,9 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       supervisor_comment: comment,
     };
 
-    const form = await FormModel.findByIdAndUpdate(formId, update, { new: true }).populate("student_id", "userName email");
+    const form = await FormModel.findByIdAndUpdate(formId, update, {
+      new: true,
+    }).populate("student_id", "userName email");
 
     if (!form) {
       return res.status(404).json({ message: "Form not found" });
@@ -101,10 +96,8 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       emailBody += `<p>Comment: ${comment}</p>`;
     }
 
-    const student = await UserTokenRequest.findById(form.student_id);
-      
     await EmailService.sendEmail({
-      to: student.ouEmail,
+      to: form.student_id.email,
       subject: emailSubject,
       html: emailBody,
     });
@@ -119,17 +112,17 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
   }
 };
 
-
 // =========================================== //
 //           Coordinator Dashboard             //
 // =========================================== //
 
 // Coordinator Dashboard: Get All Internship Requests
 exports.getCoordinatorRequests = async (req, res) => {
-    try {
+  try {
     const requests = await InternshipRequest.find({
       status: "submitted",
     }).populate("student", "userName email");
+
     res.status(200).json(requests);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch requests" });
