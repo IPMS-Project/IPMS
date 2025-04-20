@@ -1,52 +1,48 @@
-const User = require("../models/User");
 const WeeklyReport = require("../models/WeeklyReport");
-
-/**
- * Report Controller – handles weekly report submissions and retrieval
- */
 
 const reportController = {
   // POST /api/reports
   createReport: async (req, res) => {
     try {
       const {
-        studentId,
+        fullName,
+        email,
+        soonerId,
         week,
         hours,
         tasks,
         lessons,
         supervisorComments
       } = req.body;
-       
 
-      // Role-check: Only students can submit (based on their ID)
-      // const user = await User.findById(studentId);
-      // if (!user || user.role.toLowerCase() !== "student") {
-      //   return res.status(403).json({
-      //     success: false,
-      //     message: "Only students can submit reports.",
-      //   });
-      // }
+      const numericHours = Number(hours);
+      console.log("Incoming report payload:", req.body);
 
-      // Basic field validation
-      if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
+      if (
+        !fullName ||
+        !email ||
+        !soonerId ||
+        !week ||
+        isNaN(numericHours) ||
+        !tasks ||
+        !lessons
+      ) {
         return res.status(400).json({
           success: false,
           message: "All required fields must be valid.",
         });
       }
-      
 
-      // Save the report
       const newReport = new WeeklyReport({
-        //studentId,
+        fullName,
+        email,
+        soonerId,
         week,
-        hours,
+        hours: numericHours,
         tasks,
         lessons,
         supervisorComments: supervisorComments || "",
       });
-      
 
       await newReport.save();
 
@@ -63,12 +59,12 @@ const reportController = {
     }
   },
 
-  // GET /api/reports/:userId
+  // GET /api/reports/:soonerId
   getReportsByStudent: async (req, res) => {
     try {
-      const { userId } = req.params;
+      const { soonerId } = req.params;
 
-      const reports = await WeeklyReport.find({ studentId: userId }).sort({
+      const reports = await WeeklyReport.find({ soonerId }).sort({
         createdAt: -1,
       });
 
@@ -78,9 +74,37 @@ const reportController = {
       });
     } catch (error) {
       console.error("Error in getReportsByStudent:", error);
-      res
-        .status(500)
-        .json({ success: false, message: "Failed to retrieve reports." });
+      res.status(500).json({
+        success: false,
+        message: "Failed to retrieve reports.",
+      });
+    }
+  },
+
+  // GET /api/reports/status/:soonerId
+  getReportStatus: async (req, res) => {
+    try {
+      const { soonerId } = req.params;
+
+      const reports = await WeeklyReport.find({ soonerId });
+      const submittedHours = reports.reduce((sum, report) => sum + report.hours, 0);
+
+      // For testing purposes, let's assume credit hours are embedded in each report (static fallback = 3)
+      const creditHours = 3;
+      const requiredHours = creditHours * 60;
+
+      res.status(200).json({
+        soonerId,
+        creditHours,
+        requiredHours,
+        submittedHours,
+      });
+    } catch (error) {
+      console.error("Error in getReportStatus:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch report status.",
+      });
     }
   },
 };

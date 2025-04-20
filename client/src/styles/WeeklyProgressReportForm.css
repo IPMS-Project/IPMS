@@ -190,3 +190,140 @@
   box-shadow: 0 0 15px rgba(160, 0, 39, 0.3);
   border-color: #a00027;
 }
+.completion-box {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #e6ffe6;
+  border-left: 6px solid #28a745;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+  color: #155724;
+  box-shadow: 0 0 10px rgba(0, 128, 0, 0.2);
+}
+
+.download-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 16px;
+  background-color: #800020;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #a00027;
+  transform: scale(1.03);
+}
+
+.canvas-msg {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #333;
+  font-style: italic;
+}
+.four-week-container {
+  max-width: 650px;
+  margin: 50px auto;
+  padding: 40px;
+  background-color: #f9f9f9;
+  border-radius: 15px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+}
+
+.four-week-title {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #1c1c1c;
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.four-week-label {
+  font-weight: 600;
+  margin-top: 20px;
+  display: block;
+  color: #333;
+  font-size: 14px;
+}
+
+.four-week-input,
+.four-week-textarea,
+.four-week-select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  font-size: 15px;
+}
+
+.four-week-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #a00027;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.four-week-button:hover {
+  background-color: #800020;
+  transform: translateY(-2px);
+}
+
+.form-message {
+  text-align: center;
+  font-weight: 600;
+  color: green;
+  margin-top: 15px;
+}
+
+.completion-box {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #e6ffe6;
+  border-left: 6px solid #28a745;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 600;
+  color: #155724;
+  box-shadow: 0 0 10px rgba(0, 128, 0, 0.2);
+}
+
+.download-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 16px;
+  background-color: #800020;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #a00027;
+  transform: scale(1.03);
+}
+
+.canvas-msg {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #333;
+  font-style: italic;
+}

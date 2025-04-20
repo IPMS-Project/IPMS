@@ -2,12 +2,8 @@ const express = require("express");
 const router = express.Router();
 const reportController = require("../controllers/reportController");
 
-// Routing weekly report actions
-
-// POST - Submit a new weekly report
 router.post("/", reportController.createReport);
-
-// GET - Fetch all reports by a specific student
-router.get("/:userId", reportController.getReportsByStudent);
+router.get("/status/:soonerId", reportController.getReportStatus);
+router.get("/:soonerId", reportController.getReportsByStudent);
 
 module.exports = router;
