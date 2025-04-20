@@ -93,14 +93,19 @@ function CoordinatorDashboard() {
               </p>
             </div>
 
-            <div className="action-buttons">
-              <button className="approve-btn" onClick={() => handleApprove(req._id)}>
-                Approve
-              </button>
-              <button className="reject-btn" onClick={() => handleReject(req._id)}>
-                Reject
-              </button>
-            </div>
+
+      {requests.length === 0 ? (
+        <p>No Pending Requests</p>
+      ) : (
+        requests.map((req) => (
+          <div
+            key={req._id}
+            className="request-card"
+            onClick={() => navigate(`/coordinator/request/${req._id}`)}
+          >
+            <h4>{req.student.userName}</h4>
+            <p>Email: {req.student.email}</p>
+            <p>Company: {req.workplace.name}</p>
           </div>
         ))}
       </div>

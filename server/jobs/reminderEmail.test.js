@@ -9,19 +9,57 @@ const mongoose = require("mongoose");
 jest.mock("../services/emailService");
 
 describe("reminderEmail", () => {
-    beforeEach( () => {
-        emailService.sendEmail.mockClear();
-    });
-
-    it("coordinatorReminder sends email", async () => {
-        await coordinatorReminder();
-        // Check sendEmail was called
-        expect(emailService.sendEmail).toHaveBeenCalledTimes(1);
-        expect(emailService.sendEmail).toHaveBeenCalledWith({to: process.env.EMAIL_DEFAULT_SENDER,
-            subject: "Reminder: Coordinator Approval Pending",
-            html: "<p>This is a cron-based reminder email from IPMS.</p>",
-            text: "Reminder: Coordinator Approval Pending",})
-    });
+    beforeEach(() => {
+		mockingoose.resetAll();
+		jest.clearAllMocks();
+	});
+	
+	it("should send a reminder to the coordinator", async () => {
+		const submissionId = new mongoose.Types.ObjectId();
+		const studentId = new mongoose.Types.ObjectId();
+		const studentMail = "student@example.com"
+		const coordinatorId = new mongoose.Types.ObjectId();
+		const coordinatorMail = "coordinator@example.com"
+		
+		const fakeSubmission = {
+			_id: submissionId,
+			name: "Test Submission",
+			student_id: studentId,
+			coordinator_id: coordinatorId,
+			createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+			coordinator_status: "pending",
+			coordinator_reminder_count: 0,
+			last_coordinator_reminder_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+			save: jest.fn(),
+		};
+	
+		// Mocking the Submission model
+		mockingoose(Submission).toReturn([fakeSubmission], "find");
+		jest.spyOn(User, "findById").mockImplementation((id) => {
+			if (id.equals(studentId)) {
+				return Promise.resolve({ _id: studentId, email: studentMail });
+			}
+			if (id.equals(coordinatorId)) {
+				return Promise.resolve({ _id: coordinatorId, email: coordinatorMail });
+			}
+			return Promise.resolve(null);
+		});
+		mockingoose(NotificationLog).toReturn({}, "save");
+		jest.spyOn(Submission.prototype, "save").mockResolvedValue(true);
+	
+		// Function to be tested
+		await coordinatorReminder();
+	
+		// Expectations
+		expect(emailService.sendEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+			to: expect.any(String),
+			subject: expect.stringContaining("Reminder")
+			})
+		);
+		
+		expect(Submission.prototype.save).toHaveBeenCalled();
+	});
 })
 
 // Supervisor reminder test

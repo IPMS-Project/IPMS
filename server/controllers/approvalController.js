@@ -52,7 +52,11 @@ const rejectSubmission = async (req, res) => {
 // 🔹 Coordinator Routes
 const getCoordinatorRequests = async (req, res) => {
   try {
-    const requests = await InternshipRequest.find({ status: "submitted" }).populate("student", "userName email");
+
+    const requests = await InternshipRequest.find({
+      status: "pending",
+    }).populate("student", "userName email");
+
     res.status(200).json(requests);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch requests" });
@@ -61,7 +65,12 @@ const getCoordinatorRequests = async (req, res) => {
 
 const getCoordinatorRequestDetails = async (req, res) => {
   try {
-    const requestData = await InternshipRequest.findById(req.params.id).lean();
+
+    const requestData = await InternshipRequest.findById(req.params.id)
+      .populate("student", "userName email")
+      .lean();
+
+
     if (!requestData)
       return res.status(404).json({ message: "Request not found" });
     res.status(200).json({ requestData, supervisorStatus: "Not Submitted" });
@@ -76,7 +85,7 @@ const coordinatorApproveRequest = async (req, res) => {
       req.params.id,
       { status: "approved" },
       { new: true }
-    );
+    ).populate("student", "userName email");
 
     if (!request)
       return res.status(404).json({ message: "Request not found" });
@@ -102,10 +111,12 @@ const coordinatorRejectRequest = async (req, res) => {
       req.params.id,
       { status: "rejected" },
       { new: true }
-    );
+    ).populate("student", "userName email");
 
-    if (!request)
-      return res.status(404).json({ message: "Request not found" });
+
+    if (!request) return res.status(404).json({ message: "Request not found" });
+    console.log("Sending email to:", request.student.email);
+
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -199,7 +210,7 @@ const getStudentSubmissions = async (req, res) => {
 
 console.log("DEBUG check - getStudentSubmissions:", typeof getStudentSubmissions);
 
-// ✅ Export all functions properly
+
 module.exports = {
   getPendingSubmissions,
   approveSubmission,

@@ -103,7 +103,17 @@ app.post("/api/createUser", async (req, res) => {
 });
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
+    const {
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
+      ratings,
+      comments,
+    } = req.body;
 
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
@@ -130,12 +140,10 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-
 //Form A.4
 
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
-
 
 // Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
