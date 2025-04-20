@@ -18,16 +18,22 @@ const hashToken = (token) => {
 router.post("/request", async (req, res) => {
   try {
     const { fullName, ouEmail, soonerId, password, semester, academicAdvisor, role } = req.body;
-
-    if (!fullName || !ouEmail || !soonerId || !password || !semester) {
+    if (!fullName || !ouEmail || !password || !semester) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
     const existing = await TokenRequest.findOne({ ouEmail });
     if (existing) {
-      return res.status(400).json({ error: "Token request already exists for this email." });
+      return res.status(401).json({ error: "Token request already exists for this email." });
     }
 
+    if(role==="student"){
+      const existingSoonerId = await TokenRequest.findOne({ soonerId });
+      if(existingSoonerId){
+        return res.status(402).json({ error: "Token request already exists for this Sooner ID." });
+      }
+    }
+    
     const plainToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
     const hashedToken = hashToken(plainToken);
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
@@ -38,7 +44,7 @@ router.post("/request", async (req, res) => {
     const request = new TokenRequest({
       fullName,
       ouEmail,
-      soonerId,
+      soonerId: role === "student" ? soonerId : "",
       password: hashedPassword,
       semester,
       role,

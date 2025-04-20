@@ -62,7 +62,7 @@ function SignUp() {
       return;
     }
 
-    if (!/^\d{9}$/.test(soonerId)) {
+    if (role=== "student" && !/^\d{9}$/.test(soonerId)) {
       Swal.fire({
         icon: "error",
         title: "Invalid Sooner ID",
@@ -77,7 +77,7 @@ function SignUp() {
         {
           fullName,
           ouEmail,
-          soonerId,
+          soonerId : role === "student" ? soonerId : "",
           password,
           semester,
           academicAdvisor: role === "student" ? academicAdvisor : "",
@@ -99,6 +99,7 @@ function SignUp() {
       // Clear form
       setFullName("");
       setOuEmail("");
+      setSoonerId("");
       setPassword("");
       setConfirmPassword("");
       setSemester("");
@@ -111,13 +112,22 @@ function SignUp() {
     } catch (error) {
       console.error("Error creating user:", error);
 
-      if (error.response && error.response.status === 400) {
+      if (error.response && error.response.status === 401) {
         Swal.fire({
           icon: "error",
           title: "Email Already Exists",
           text: "The provided email ID is already registered. Try logging in.",
         });
-      } else {
+      } 
+      else if(role=== "student" && error.response && error.response.status === 402){
+        Swal.fire({
+          icon: "error",
+          title: "Sooner ID Already Exists",
+          text: "The provided Sooner ID is already registered.",
+        });
+      }
+      else {
+        console.log("Error response:", error.response);
         Swal.fire({
           icon: "error",
           title: "Something went wrong",
@@ -267,7 +277,7 @@ function SignUp() {
               />
             </div>
 
-            <div className="form-group">
+            {role === "student" && <div className="form-group">
               <label htmlFor="soonerId">Sooner ID</label>
               <input
                 type="text"
@@ -277,7 +287,7 @@ function SignUp() {
                 placeholder="Enter your 9-digit Sooner ID"
                 required
               />
-            </div>
+            </div>}
 
             <div className="password-row">
               <div className="form-group password-col">
