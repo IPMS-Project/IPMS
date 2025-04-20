@@ -15,7 +15,7 @@ router.post("/internshiprequests/:id/reject", rejectSubmission);
 router.get("/internshiprequests", async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
-      status: "submitted",
+      supervisor_status: "pending",
       // approvals: "advisor", // advisor has approved
       supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
     }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
@@ -90,7 +90,7 @@ router.post('/submit', async (req, res) => {
 
   try {
     await insertFormData(formData);
-    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted'});
+    res.status(200).json({ message: 'Form received and handled!', manual: formData.status !== 'submitted'});
   } catch (error) {
     console.error('Error handling form data:', error);
     res.status(500).json({ message: 'Something went wrong' });
