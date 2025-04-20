@@ -1,6 +1,4 @@
 const nodemailer = require("nodemailer");
-const fs = require("fs");
-const path = require("path");
 require("dotenv").config();
 
 /**
@@ -20,30 +18,8 @@ class EmailService {
     });
 
     this.defaultSender =
-      process.env.EMAIL_DEFAULT_SENDER || "IPMS <noreply@ipms.edu>";
-
-    // Define the path for the email log file
-    this.logPath = path.join(__dirname, "../logs/emailLogs.json");
-  }
-
-  // Append email result to log file
-  appendToLog(entry) {
-    let logData = [];
-    try {
-      if (fs.existsSync(this.logPath)) {
-        const existing = fs.readFileSync(this.logPath, "utf8");
-        logData = JSON.parse(existing || "[]");
-      }
-    } catch (err) {
-      console.error("⚠️ Failed to read email log:", err.message);
-    }
-
-    logData.push(entry);
-    try {
-      fs.writeFileSync(this.logPath, JSON.stringify(logData, null, 2), "utf-8");
-    } catch (err) {
-      console.error("⚠️ Failed to write to email log:", err.message);
-    }
+    process.env.EMAIL_DEFAULT_SENDER ||
+    "Internship Program Management System <noreply@ipms.edu>";
   }
 
   /**
@@ -76,38 +52,20 @@ class EmailService {
         text: options.text || options.html.replace(/<[^>]*>/g, ""),
         attachments: options.attachments || [],
       };
-
+      
+      // Add optional fields if provided
       if (options.cc) mailOptions.cc = options.cc;
       if (options.bcc) mailOptions.bcc = options.bcc;
 
       const info = await this.transporter.sendMail(mailOptions);
-      console.log("✅ Email sent successfully:", info.messageId);
-
-      this.appendToLog({
-        time: new Date().toISOString(),
-        status: "Success",
-        to: mailOptions.to,
-        subject: mailOptions.subject,
-        messageId: info.messageId,
-      });
-
+      console.log("Email sent successfully:", info.messageId);
       return { success: true, messageId: info.messageId };
     } catch (error) {
-      console.error("❌ Error sending email:", error);
-
-      this.appendToLog({
-        time: new Date().toISOString(),
-        status: "Failed",
-        to: options.to,
-        subject: options.subject,
-        error: error.message,
-      });
-
+      console.error("Error sending email:", error);
       return { success: false, error: error.message };
     }
   }
 }
-
 // Create and export a singleton instance
 const emailService = new EmailService();
 module.exports = emailService;
