@@ -18,6 +18,9 @@ const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
 
+//Author Subhash Chandra: Form A3 Remidder Job Logic
+const { registerReminderA3Job } = require("./utils/reminderA3Utils");
+
 const app = express();
 app.use(express.json());
 app.use(cors());
