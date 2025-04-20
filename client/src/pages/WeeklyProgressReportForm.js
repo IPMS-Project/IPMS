@@ -7,7 +7,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   const navigate = useNavigate();
   const { reportId } = useParams();
 
-const WeeklyProgressReportForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -27,6 +26,7 @@ const WeeklyProgressReportForm = () => {
   const [creditHours, setCreditHours] = useState(0);
   const [message, setMessage] = useState("");
 
+  // Load report if read-only
   useEffect(() => {
     if (readOnly && reportId) {
       axios
@@ -77,9 +77,9 @@ const WeeklyProgressReportForm = () => {
       if (!formData.email) return;
 
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/reports/status/${formData.soonerId}`
+        `${process.env.REACT_APP_API_URL}/api/reports/status-by-email/${formData.email}`
       );
-      
+
       const { requiredHours, submittedHours, creditHours } = res.data;
       setRequiredHours(requiredHours);
       setSubmittedHours(submittedHours);
@@ -91,7 +91,6 @@ const WeeklyProgressReportForm = () => {
 
   useEffect(() => {
     fetchStatus();
-    // Only fetch when email is updated
   }, [formData.email]);
 
   const handleSubmit = async (e) => {
@@ -137,19 +136,8 @@ const WeeklyProgressReportForm = () => {
     <div className="four-week-container">
       <h2 className="four-week-title">A.2 - Weekly Progress Report</h2>
 
-      <form onSubmit={handleSubmit}>
-        <label className="four-week-label">Full Name</label>
-        <input
-          type="text"
-          name="fullName"
-          value={formData.fullName}
-          onChange={handleChange}
-          className="four-week-input"
-          required
-        />
-
       <form onSubmit={handleSubmit} className="a2-form">
-        {/* Student Details */}
+        {/* Student Info */}
         <div className="form-group floating-label-group">
           <input
             type="text"
@@ -176,7 +164,7 @@ const WeeklyProgressReportForm = () => {
           <label>Student Email</label>
         </div>
 
-        {/* Supervisor Details */}
+        {/* Supervisor Info */}
         <div className="form-group floating-label-group">
           <input
             type="text"
@@ -201,7 +189,7 @@ const WeeklyProgressReportForm = () => {
           <label>Supervisor Email</label>
         </div>
 
-        {/* Coordinator (Always Read-Only, Pre-Filled) */}
+        {/* Coordinator Info */}
         <div className="form-group floating-label-group">
           <input
             type="text"
@@ -224,7 +212,7 @@ const WeeklyProgressReportForm = () => {
           <label>Coordinator Email</label>
         </div>
 
-        {/* Week & Hours */}
+        {/* Week and Hours */}
         <div className="week-hours-row">
           <div className="form-group">
             <label>Week</label>
@@ -244,78 +232,71 @@ const WeeklyProgressReportForm = () => {
             </select>
           </div>
 
-        <label className="four-week-label">Sooner ID</label>
-        <input
-          type="text"
-          name="soonerId"
-          value={formData.soonerId}
-          onChange={handleChange}
-          className="four-week-input"
-          required
-        />
+          <div className="form-group floating-label-group">
+            <input
+              type="number"
+              name="hours"
+              value={formData.hours}
+              onChange={handleChange}
+              required
+              min="1"
+              max="40"
+              readOnly={readOnly}
+            />
+            <label>Number of Hours</label>
+          </div>
+        </div>
 
-        {/* Tasks, Lessons, Comments */}
+        {/* Tasks and Lessons */}
         <div className="form-group floating-label-group">
           <textarea
             name="tasks"
             value={formData.tasks}
             onChange={handleChange}
-            placeholder=" "
             required
+            placeholder=" "
             readOnly={readOnly}
           />
           <label>Tasks Performed</label>
-          <div className="textarea-count">{formData.tasks.length}/300</div>
         </div>
 
-        <label className="four-week-label">Number of Hours</label>
-        <input
-          type="number"
-          name="hours"
-          value={formData.hours}
-          onChange={handleChange}
-          className="four-week-input"
-          required
-          placeholder="e.g., 10"
-        />
+        <div className="form-group floating-label-group">
+          <textarea
+            name="lessons"
+            value={formData.lessons}
+            onChange={handleChange}
+            required
+            placeholder=" "
+            readOnly={readOnly}
+          />
+          <label>Lessons Learned</label>
+        </div>
 
-        <label className="four-week-label">Tasks Performed</label>
-        <textarea
-          name="tasks"
-          value={formData.tasks}
-          onChange={handleChange}
-          className="four-week-textarea"
-          required
-        />
+        <div className="form-group floating-label-group">
+          <textarea
+            name="supervisorComments"
+            value={formData.supervisorComments}
+            onChange={handleChange}
+            placeholder=" "
+            readOnly
+          />
+          <label>Supervisor Comments (optional)</label>
+        </div>
 
-        <label className="four-week-label">Lessons Learned</label>
-        <textarea
-          name="lessons"
-          value={formData.lessons}
-          onChange={handleChange}
-          className="four-week-textarea"
-          required
-        />
-
-        <label className="four-week-label">Supervisor Comments (optional)</label>
-        <textarea
-          name="supervisorComments"
-          value={formData.supervisorComments}
-          onChange={handleChange}
-          className="four-week-textarea"
-        />
-
-        <button type="submit" className="four-week-button">
-          Submit Report
-        </button>
+        {!readOnly && (
+          <button type="submit" className="four-week-button">
+            Submit Report
+          </button>
+        )}
       </form>
 
+      {/* Progress Tracker */}
       <div className="progress-section">
         <p>📚 Credit Hours: <strong>{creditHours}</strong></p>
         <p>⏳ Required Hours: <strong>{requiredHours}</strong></p>
         <p>✅ Submitted Hours: <strong>{submittedHours}</strong></p>
 
-        <progress value={submittedHours} max={requiredHours} style={{ width: "100%" }}></progress>
+        <progress value={submittedHours} max={requiredHours || 1} style={{ width: "100%" }}></progress>
 
         {submittedHours >= requiredHours && requiredHours > 0 && (
           <div className="completion-box">

@@ -9,10 +9,6 @@ const weeklyReportSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  soonerId: {
-    type: String,
-    required: true,
-  },
   fullName: {
     type: String,
     required: true,
