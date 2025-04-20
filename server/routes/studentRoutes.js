@@ -20,13 +20,11 @@ router.post("/", async (req, res) => {
     const internshipData = await InternshipRequest.findOne({ student: studentUser._id });
 
     if (!internshipData) {
-      return res.status(404).json({ message: "No internship request found for this student" });
+      // No record found, return a specific flag
+      return res.status(200).json({ message: "No internship request found", approvalStatus: "not_submitted" });
     }
 
-    
-
-    const approvalStatus = internshipData.status 
-    
+    const approvalStatus = internshipData.status;
 
     return res.status(200).json({ message: "Success", approvalStatus });
   } catch (error) {
@@ -34,6 +32,7 @@ router.post("/", async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
+
   
 
 module.exports = router;
