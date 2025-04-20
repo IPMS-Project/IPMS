@@ -1,59 +1,129 @@
-const Submission = require("../models/Submission");
 const InternshipRequest = require("../models/InternshipRequest");
+const WeeklyReport = require("../models/WeeklyReport");
+const Evaluation = require("../models/Evaluation");
 const EmailService = require("../services/emailService");
 
-// Get Supervisor Pending Submissions
-exports.getPendingSubmissions = async (req, res) => {
+// =========================================== //
+//           Managing Supervisor Forms         //
+// =========================================== //
+
+exports.getSupervisorForms = async (req, res, filter) => {
+    try {
+        // ----------------------------
+        //      Fetching A1 Form
+        // ----------------------------
+        const requests = await InternshipRequest.find(filter)
+                                                .populate("student_id", "userName email");
+
+        const typedRequests = requests.map(req => ({
+            ...req.toObject(), // convert Mongoose doc to plain JS object
+            form_type: "A1"    // add the custom type
+        }));
+
+        // ----------------------------
+        //      Fetching A2 Form
+        // ----------------------------
+        const reports = await WeeklyReport.find(filter)
+                                          .populate("student_id", "userName email");
+
+        // Adding custom type to A2 Form
+        const typedReports = reports.map(report => ({
+            ...report.toObject(), // convert Mongoose doc to plain JS object
+            form_type: "A2"       // add the custom type
+        }));
+
+        // ----------------------------
+        //      Fetching A3 Form
+        // ----------------------------
+        const evaluations = await Evaluation.find(filter)
+                                            .populate("student_id", "userName email");
+
+        // Adding custom type to A3 Form
+        const typedEvaluations = evaluations.map(evaluation => ({
+            ...evaluation.toObject(), // convert Mongoose doc to plain JS object
+            form_type: "A3"     // add the custom type
+        }));
+        
+        // ----------------------------
+        //      Combine forms
+        // ----------------------------
+        const allRequests = [...typedRequests, ...typedReports, ...typedEvaluations];
+
+        // Sort by createdAt date
+        allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        // Send response
+        res.status(200).json(allRequests);
+    } catch (err) {
+        res.status(500).json({
+            message: "Failed to fetch internship requests",
+            error: err.message,
+        });
+    }
+}
+
+exports.handleSupervisorFormAction = async (req, res, action) => {
   try {
-    const submissions = await Submission.find({ supervisor_status: "pending" });
-    res.json(submissions);
-  } catch (err) {
-    res.status(500).json({
-      message: "Failed to fetch pending submissions",
-      error: err.message,
+    const form_type = req.params.type;
+    const formId = req.params.id;
+    const { comment = "" } = req.body;
+
+    const models = {
+      A1: require("../models/InternshipRequest"),
+      A2: require("../models/WeeklyReport"),
+      A3: require("../models/Evaluation"),
+    };
+
+    const FormModel = models[form_type];
+    if (!FormModel) {
+      return res.status(400).json({ message: "Invalid form type" });
+    }
+
+    if (!["approve", "reject"].includes(action)) {
+      return res.status(400).json({ message: "Invalid action" });
+    }
+
+    const update = {
+      supervisor_status: action === "approve" ? "approved" : "rejected",
+      supervisor_comment: comment,
+    };
+
+    const form = await FormModel.findByIdAndUpdate(formId, update, { new: true }).populate("student_id", "userName email");
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+    let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
+    if (comment) {
+      emailBody += `<p>Comment: ${comment}</p>`;
+    }
+
+    await EmailService.sendEmail({
+      to: form.student_id.email,
+      subject: emailSubject,
+      html: emailBody,
     });
+
+    res.status(200).json({
+      message: `Form ${action}ed successfully`,
+      updatedForm: form,
+    });
+  } catch (err) {
+    console.error("SupervisorFormAction error:", err);
+    res.status(500).json({ message: "Error processing form", error: err.message });
   }
 };
 
-// Supervisor Approve Submission
-exports.approveSubmission = async (req, res) => {
-  const { id } = req.params;
-  const { comment } = req.body;
-  try {
-    const submission = await Submission.findByIdAndUpdate(
-      id,
-      { supervisor_status: "Approved", supervisor_comment: comment || "" },
-      { new: true }
-    );
-    if (!submission)
-      return res.status(404).json({ message: "Submission not found" });
-    res.json({ message: "Submission Approved", updatedSubmission: submission });
-  } catch (err) {
-    res.status(500).json({ message: "Approval Failed", error: err });
-  }
-};
 
-// Supervisor Reject Submission
-exports.rejectSubmission = async (req, res) => {
-  const { id } = req.params;
-  const { comment } = req.body;
-  try {
-    const submission = await Submission.findByIdAndUpdate(
-      id,
-      { supervisor_status: "Rejected", supervisor_comment: comment || "" },
-      { new: true }
-    );
-    if (!submission)
-      return res.status(404).json({ message: "Submission not found" });
-    res.json({ message: "Submission Rejected", updatedSubmission: submission });
-  } catch (err) {
-    res.status(500).json({ message: "Rejection Failed", error: err });
-  }
-};
+// =========================================== //
+//           Coordinator Dashboard             //
+// =========================================== //
 
 // Coordinator Dashboard: Get All Internship Requests
 exports.getCoordinatorRequests = async (req, res) => {
-  try {
+    try {
     const requests = await InternshipRequest.find({
       status: "submitted",
     }).populate("student", "userName email");
@@ -63,12 +133,14 @@ exports.getCoordinatorRequests = async (req, res) => {
   }
 };
 
+// Coordinator View Single Request
 exports.getCoordinatorRequestDetails = async (req, res) => {
   try {
     const requestData = await InternshipRequest.findById(req.params.id).lean();
 
-    if (!requestData)
+    if (!requestData) {
       return res.status(404).json({ message: "Request not found" });
+    }
 
     res.status(200).json({ requestData, supervisorStatus: "Not Submitted" });
   } catch (err) {
@@ -76,6 +148,7 @@ exports.getCoordinatorRequestDetails = async (req, res) => {
   }
 };
 
+// Coordinator Approve Request
 exports.coordinatorApproveRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
@@ -84,7 +157,9 @@ exports.coordinatorApproveRequest = async (req, res) => {
       { new: true }
     );
 
-    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -94,10 +169,11 @@ exports.coordinatorApproveRequest = async (req, res) => {
 
     res.json({ message: "Request Approved Successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Approval failed" });
+    res.status(500).json({ message: "Approval failed", error: err.message });
   }
 };
 
+// Coordinator Reject Request
 exports.coordinatorRejectRequest = async (req, res) => {
   const { reason } = req.body;
   if (!reason) return res.status(400).json({ message: "Reason required" });
@@ -109,7 +185,9 @@ exports.coordinatorRejectRequest = async (req, res) => {
       { new: true }
     );
 
-    if (!request) return res.status(404).json({ message: "Request not found" });
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -119,6 +197,6 @@ exports.coordinatorRejectRequest = async (req, res) => {
 
     res.json({ message: "Request Rejected Successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Rejection failed" });
+    res.status(500).json({ message: "Rejection failed", error: err.message });
   }
 };

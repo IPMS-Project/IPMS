@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const { insertFormData } = require('../services/insertData');
 const InternshipRequest = require('../models/InternshipRequest');
@@ -15,7 +15,7 @@ function validateFormData(formData) {
   ];
 
   for (const field of requiredFields) {
-    if (!formData[field] || formData[field] === '') {
+    if (!formData[field] || formData[field] === "") {
       return `Missing or empty required field: ${field}`;
     }
   }

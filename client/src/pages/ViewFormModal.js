@@ -25,9 +25,6 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
   const [error, setError] = useState("");
 
   const handleAction = async (action) => {
-    const confirm = window.confirm(`Are you sure you want to ${action} this form?`);
-    if (!confirm) return;
-
     if (!comment.trim()) {
       setError("Comment is required before taking action.");
       return;
@@ -202,6 +199,7 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
                   <input
                     type="text"
                     value={signature}
+                    // readOnly
                     onChange={(e) => setSignature(e.target.value)}
                   />
                 </td>
@@ -223,6 +221,12 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
               value={comment}
               onChange={(e) => setComment(e.target.value)}
             />
+            {/* <input
+              type="text"
+              placeholder="Supervisor signature"
+              value={signature}
+              onChange={(e) => setSignature(e.target.value)}
+            /> */}
           </div>
           {error && <div className="error-msg">{error}</div>}
 

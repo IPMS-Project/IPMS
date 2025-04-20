@@ -10,13 +10,13 @@ const SupervisorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  const handleFormActionComplete = () => {
-    if (selectedForm) {
-      setRequests(prev => prev.filter(req => req.soonerId !== selectedForm.soonerId));
-      setSelectedForm(null);
-    }
-  };
-  
+ const handleFormActionComplete = () => {
+  if (selectedForm) {
+    setRequests(prev => prev.filter(req => req.soonerId !== selectedForm.soonerId));
+    setSelectedForm(null);
+  }
+};
+
   
 
   const fetchRequests = async () => {
