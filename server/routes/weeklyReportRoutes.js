@@ -5,5 +5,5 @@ const reportController = require("../controllers/reportController");
 router.post("/", reportController.createReport);
 router.get("/status/:soonerId", reportController.getReportStatus);
 router.get("/:soonerId", reportController.getReportsByStudent);
-
+router.get("/download/:soonerId", reportController.downloadReport);
 module.exports = router;
