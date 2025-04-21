@@ -54,7 +54,7 @@ const getCoordinatorRequests = async (req, res) => {
   try {
 
     const requests = await InternshipRequest.find({
-      status: "pending",
+      coordinator_status: "pending",
     }).populate("student", "userName email");
 
     res.status(200).json(requests);
@@ -83,7 +83,7 @@ const coordinatorApproveRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { status: "approved" },
+      { coordinator_status: "approved" },
       { new: true }
     ).populate("student", "userName email");
 
@@ -109,7 +109,7 @@ const coordinatorRejectRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { status: "rejected" },
+      { coordinator_status: "rejected" },
       { new: true }
     ).populate("student", "userName email");
 

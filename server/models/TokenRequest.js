@@ -1,5 +1,3 @@
-// models/UserTokenRequest.js
-
 const mongoose = require('mongoose');
 
 /**
@@ -12,6 +10,7 @@ const mongoose = require('mongoose');
  * - fullName: Student's full name.
  * - password: Encrypted password for login authentication.
  * - ouEmail: Unique OU email for login.
+ * - soonerId: Unique 9-character ID assigned to the student.
  * - semester: The semester in which the internship is active.
  * - academicAdvisor: Reference to the academic advisor (if using a separate collection).
  * - token: Unique access token used for login.
@@ -23,7 +22,7 @@ const mongoose = require('mongoose');
  * - status: Optional string enum for tracking token state.
  * - activationLinkSentAt: Timestamp when the activation email was sent.
  * - password: Encrypted password for login authentication.
- *
+
  * Additional Features:
  * - Automatically sets `expiresAt` to 6 months from `requestedAt`.
  * - Uses `timestamps` to auto-generate `createdAt` and `updatedAt`.
@@ -50,6 +49,14 @@ const userTokenRequestSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
       match: [/^[\w-.]+@ou\.edu$/, 'Email must be a valid OU address'],
+    },
+    soonerId: {
+      type: String,
+      required: function () {
+        return this.role === 'student';
+      },
+      unique: true,
+      match: [/^\d{9}$/, 'Sooner ID must be exactly 9 digits'],
     },
     role: {
       type: String,
@@ -98,7 +105,7 @@ const userTokenRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'activated', 'expired', 'deleted'],
+      enum: ['pending', 'activated', 'expired', 'deleted','deactivated'],
       default: 'pending',
     },
   },

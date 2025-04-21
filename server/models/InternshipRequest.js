@@ -14,10 +14,10 @@ const Task = new mongoose.Schema({
 });
 
 const formA1 = new mongoose.Schema({
-    student: {
+    student: { 
         type: ObjectId,
         required: true,
-        ref: 'User'
+        ref: 'UserTokenRequest'
     },
     workplace: {
         name: {
@@ -52,11 +52,11 @@ const formA1 = new mongoose.Schema({
         type: [Task],
         required: true
     },
-    status: {
-        type: String,
-        required: true,
-        enum: ['draft', 'submitted', 'pending manual review', 'approved']
-    },
+    // status: {
+    //     type: String,
+    //     required: true,
+    //     enum: ['draft', 'submitted','pending manual review' ,'approved']
+    // },
     approvals: {
         type: [String],
         enum: ['advisor', 'coordinator']
@@ -82,7 +82,16 @@ const formA1 = new mongoose.Schema({
     },
 
     // TODO needs to be a virtual getter that checks this student's WeeklyReports
-    completedHours: Number
+    completedHours: Number,
+
+    supervisor_status: {
+        type: String,
+        default: "pending"
+      },
+      coordinator_status: {
+        type: String,
+        default: "pending"
+      }
 }, { timestamps: true });
 
 formA1.virtual("requiredHours").get(function() {
