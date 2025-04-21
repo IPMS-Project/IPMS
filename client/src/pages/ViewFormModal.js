@@ -51,6 +51,19 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
             </tr>
           </tbody>
         </table>
+
+        <div style={{ marginTop: "15px" }}>
+          <strong>Task Descriptions & Outcomes:</strong>
+          <ul>
+            {formData.tasks?.map((task, index) => (
+              <li key={index} style={{ marginBottom: "10px" }}>
+                <strong>Task {index + 1}:</strong> {task.description}
+                <br />
+                <strong>Outcomes:</strong> {task.outcomes?.join(", ") || "N/A"}
+              </li>
+            ))}
+          </ul>
+        </div>
     </>
   );
 

@@ -94,7 +94,7 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
     if (!form) {
       return res.status(404).json({ message: "Form not found" });
     }
-    
+
     const studentEmail =
       form.student_id?.email ||
       form.interneeEmail ||
@@ -104,29 +104,30 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
     if (!studentEmail) {
       console.warn("⚠️ No student email found for form:", form._id);
     } else {
-        const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
-        let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
-        if (comment) {
-          emailBody += `<p>Comment: ${comment}</p>`;
-        }
+      const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+      let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
+      if (comment) {
+        emailBody += `<p>Comment: ${comment}</p>`;
+      }
 
-    const student = await UserTokenRequest.findById(form.student_id);
-      
-    await EmailService.sendEmail({
-      to: student.ouEmail,
-      subject: emailSubject,
-      html: emailBody,
-    });
-      
-    res.status(200).json({
-      message: `Form ${action}ed successfully`,
-      updatedForm: form,
-    });
-  } catch (err) {
-    console.error("SupervisorFormAction error:", err);
-    res.status(500).json({ message: "Error processing form", error: err.message });
-  }
-};
+      const student = await UserTokenRequest.findById(form.student_id);
+
+      await EmailService.sendEmail({
+        to: student.ouEmail,
+        subject: emailSubject,
+        html: emailBody,
+      });
+
+      res.status(200).json({
+        message: `Form ${action}ed successfully`,
+        updatedForm: form,
+      });
+    } 
+    catch (err) {
+      console.error("SupervisorFormAction error:", err);
+      res.status(500).json({ message: "Error processing form", error: err.message });
+    }
+  };
 
 // =========================================== //
 //           Coordinator Dashboard             //
@@ -208,4 +209,5 @@ exports.coordinatorRejectRequest = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Rejection failed", error: err.message });
   }
+};
 };

@@ -100,62 +100,18 @@ const SupervisorDashboard = () => {
     .filter((req) => req.supervisor_status?.toLowerCase() === "pending")
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   
-  let content;
+    let content;
 
-  if (loading) {
-    content = <p>Loading...</p>;
-  } else if (sortedRequests.length === 0) {
-    content = (
-      <div className="empty-message-container">
-        <div className="empty-message">No pending approvals.</div>
-      </div>
-    );
-  } else {
-    content = (
-      <table className="dashboard-table">
-        <thead>
-          <tr>
-            <th>Student Name</th>
-            <th>Student ID</th>
-            <th>Form Type</th>
-            <th>Date Submitted</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedRequests.map((req) => (
-            <tr key={req._id}>
-              <td>{req.name}</td>
-              <td>
-                <button className="link-button" onClick={() => openFormView(req.fullForm)}>
-                  {req.student_id}
-                </button>
-              </td>
-              <td>{req.form_type}</td>
-              <td>{formatDate(req.createdAt)}</td>
-              <td>
-                <span className={`status-badge ${req.supervisor_status}`}>
-                  {req.supervisor_status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
-  }
-
-  return (
-    <div className="dashboard-container">
-      <h2>Supervisor Dashboard</h2>
-      {message && <p className="status-msg">{message}</p>}
-      {loading ? (
-        <p>Loading...</p>
-      ) : sortedRequests.length === 0 ? (
+    if (loading) {
+      content = <p>Loading...</p>;
+    } else if (sortedRequests.length === 0) {
+      content = (
         <div className="empty-message-container">
           <div className="empty-message">No pending approvals.</div>
         </div>
-      ) : (
+      );
+    } else {
+      content = (
         <table className="dashboard-table">
           <thead>
             <tr>
@@ -170,10 +126,10 @@ const SupervisorDashboard = () => {
           <tbody>
             {sortedRequests.map((req) => (
               <tr key={req._id}>
-                <td>{req.interneeName || req.studentName}</td>
+                <td>{req.interneeName || req.name}</td>
                 <td>
                   <button className="link-button" onClick={() => openFormView(req)}>
-                    {req.interneeID || req.soonerId}
+                    {req.interneeID || req.student_id}
                   </button>
                 </td>
                 <td>{req.interneeEmail || req.studentEmail}</td>
@@ -188,19 +144,25 @@ const SupervisorDashboard = () => {
             ))}
           </tbody>
         </table>
-      )}
-
-      {selectedForm && (
-        <ViewFormModal
-          formData={selectedForm}
-          onClose={closeFormView}
-          onAction={(id, action, comment, signature) =>
-            handleAction(selectedForm.form_type, id, action, comment, signature)
-          }
-        />
-      )}
-    </div>
-  );
+      );
+    }
+    
+    return (
+      <div className="dashboard-container">
+        <h2>Supervisor Dashboard</h2>
+        {message && <p className="status-msg">{message}</p>}
+        {content}
+        {selectedForm && (
+          <ViewFormModal
+            formData={selectedForm}
+            onClose={closeFormView}
+            onAction={(id, action, comment, signature) =>
+              handleAction(selectedForm.form_type, id, action, comment, signature)
+            }
+          />
+        )}
+      </div>
+    );
 };
 
 export default SupervisorDashboard;
