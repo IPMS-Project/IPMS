@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./SubmittedReports.css";
+import "../styles/SubmittedReports.css";
 
 const SubmittedReports = () => {
   const [reports, setReports] = useState([]);

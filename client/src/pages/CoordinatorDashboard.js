@@ -1,48 +1,96 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/dashboard.css";
+import "../styles/SupervisorDashboard.css"; // Styling reused
 
-function CoordinatorDashboard() {
-  const [requests, setRequests] = useState([]);
+const CoordinatorDashboard = () => {
   const navigate = useNavigate();
-
-  const fetchRequests = async () => {
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/coordinator/requests`
-      );
-      setRequests(res.data);
-    } catch (err) {
-      console.error("Failed to fetch requests:", err);
-    }
-  };
+  const [supervisedReports, setSupervisedReports] = useState([]);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchRequests();
+    const fetchSupervisedGroups = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/reports/supervised-groups`
+        );
+        let groups = res.data.groups || [];
+
+        // ✅ Filter out reviewed group from localStorage
+        const reviewedIndex = localStorage.getItem("reviewedGroupIndex");
+        if (reviewedIndex !== null) {
+          groups = groups.filter(
+            (group) => group.groupIndex.toString() !== reviewedIndex
+          );
+          localStorage.removeItem("reviewedGroupIndex");
+        }
+
+        setSupervisedReports(groups);
+      } catch (err) {
+        console.error("Error fetching supervised groups:", err);
+        setMessage("Failed to load reports.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSupervisedGroups();
   }, []);
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-title">Coordinator Dashboard</h2>
+      <h2>Coordinator Dashboard</h2>
 
-      {requests.length === 0 ? (
-        <p>No Pending Requests</p>
+      {message && <p className="status-msg">{message}</p>}
+
+      {loading ? (
+        <p>Loading...</p>
       ) : (
-        requests.map((req) => (
-          <div
-            key={req._id}
-            className="request-card"
-            onClick={() => navigate(`/coordinator/request/${req._id}`)}
-          >
-            {/* <h4>{req.student.userName}</h4>
-            <p>Email: {req.student.email}</p> */}
-            <p>Company: {req.workplace.name}</p>
-          </div>
-        ))
+        <>
+          <h3 className="section-heading">Reports Awaiting Coordinator Review</h3>
+          {supervisedReports.length === 0 ? (
+            <div className="empty-message-container">
+              <div className="empty-message">
+                No reports available for coordinator review.
+              </div>
+            </div>
+          ) : (
+            supervisedReports.map((group, idx) => (
+              <div key={idx} className="cumulative-report-card">
+                <h4 className="weeks-covered">
+                  Weeks Covered:{" "}
+                  {group.weeks?.map((w) => w.replace("Week ", "")).join(", ")}
+                </h4>
+
+                <ul className="week-report-grid">
+                  {group.reports.map((report, i) => (
+                    <li key={i} className="week-report-item">
+                      <span>Week {report.week.replace("Week ", "")}</span>
+                      <strong>Hours: {report.hours}</strong>
+                      <strong>Tasks: {report.tasks}</strong>
+                      <strong>
+                        Supervisor Comment: {report.supervisorComments || "N/A"}
+                      </strong>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  className="review-button red-btn"
+                  onClick={() =>
+                    navigate(`/review-cumulative/${group.groupIndex}/coordinator`)
+                  }
+                >
+                  Review & Comment
+                </button>
+              </div>
+            ))
+          )}
+        </>
       )}
     </div>
   );
-}
+};
 
 export default CoordinatorDashboard;

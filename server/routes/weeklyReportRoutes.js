@@ -1,20 +1,28 @@
 const express = require("express");
 const router = express.Router();
 const reportController = require("../controllers/reportController");
+const { getA1ByEmail } = require("../controllers/internshipRequestController");
 
-// Weekly Report Routes
+// ---------------------- Weekly Report ----------------------
 router.post("/", reportController.createReport);
 router.get("/mine", reportController.getMyReports);
 router.get("/student/:userId", reportController.getReportsByStudent);
 
-// Cumulative
+//  No conflict – safely namespaced
+router.get("/a1/:email", getA1ByEmail);
+
+// ------------------ Comments: Supervisor & Coordinator ------------------
+router.post("/supervisor-comments", reportController.submitSupervisorComments);
+router.post("/coordinator-comments", reportController.submitCoordinatorGroupComments);
+
+// ---------------------- Cumulative Reports ----------------------
 router.get("/cumulative/reports", reportController.getCumulativeReports);
 router.get("/cumulative/group/:groupIndex", reportController.getCumulativeGroup);
 
-// Supervisor Comments
-router.post("/supervisor-comments", reportController.submitSupervisorComments);
+// ---------------------- Group Fetches ----------------------
+router.get("/supervised-groups", reportController.getSupervisorReviewedGroups);
 
-// Single Report (for read-only view)
+// ---------------------- Single Report (must remain last!) ----------------------
 router.get("/:id", reportController.getReportById);
 
-module.exports = router; // ✅ This is critical!
+module.exports = router;

@@ -206,3 +206,124 @@ textarea[readonly] {
   transform: scale(1.05);
   box-shadow: 0 0 10px rgba(155, 17, 30, 0.2);
 }
+/* Progress bar container */
+.progress-info {
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
+
+/* Progress bar */
+.progress-bar-outer {
+  width: 100%;
+  height: 14px;
+  background: #e0e0e0;
+  border-radius: 20px;
+  margin-top: 0.4rem;
+  overflow: hidden;
+}
+
+.progress-bar-inner {
+  height: 100%;
+  background: #9b111e;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Divider between sections */
+.section-divider {
+  border-top: 1px dashed #ccc;
+  margin: 2rem 0 1.5rem;
+}
+
+/* Label subtitle under headers */
+.subtitle-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #777;
+  margin-top: -0.8rem;
+  margin-bottom: 1rem;
+}
+
+/* Badge for credit status */
+.credit-badge {
+  display: inline-block;
+  background: #e7f3ff;
+  color: #0c3b87;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+
+/* Glow input on valid */
+input:valid,
+textarea:valid,
+select:valid {
+  border-color: #4caf50;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.3);
+}
+
+/* Error message styling */
+.form-message.error {
+  color: #d32f2f;
+}
+/* Add glowing pop effect on form group hover */
+.form-group:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 12px rgba(155, 17, 30, 0.1);
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+/* Pop and glow for progress-info */
+.progress-info:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 14px rgba(155, 17, 30, 0.15);
+  transition: all 0.3s ease;
+  background-color: #fdfdfd;
+}
+
+/* Extra smooth entry animation */
+.form-group,
+.progress-info {
+  transition: all 0.3s ease;
+}
+
+/* Pop + glow on hover for read-only fields too */
+input[readonly]:hover,
+textarea[readonly]:hover {
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.1);
+  transform: scale(1.01);
+}
+.form-group:hover,
+.progress-info:hover {
+  cursor: pointer;
+}
+.form-group:hover,.progress-info:hover
+ {
+  box-shadow: 0 0 16px rgba(155, 17, 30, 0.25); /* stronger glow */
+  background-color: #fffdfd;
+  transform: scale(1.03);
+}
+.progress-info {
+  background-color: #fafafa;
+  padding: 1rem 1.2rem;
+  border: 1px solid #eee;
+  border-left: 5px solid #9b111e;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.progress-info:hover {
+  box-shadow: 0 0 15px rgba(155, 17, 30, 0.2);
+  transform: scale(1.02);
+  background-color: #fffdfd;
+}

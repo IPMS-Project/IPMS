@@ -1,100 +1,102 @@
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
+const CoordinatorReview = require("../models/CoordinatorReview");
+const InternshipRequest = require("../models/internshiprequest");
+const { sendStudentProgressEmail } = require("../jobs/reminderEmail");
 
 const STATIC_USER_ID = "vikash123";
 
 const reportController = {
-
-  // POST - Submit Weekly Report
   createReport: async (req, res) => {
     try {
-      const { week, hours, tasks, lessons } = req.body;
-  
+      const { week, hours, tasks, lessons, name, email, supervisorName, supervisorEmail, coordinatorName, coordinatorEmail } = req.body;
+
       if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
         return res.status(400).json({ success: false, message: "All required fields must be valid." });
       }
-  
-      // Create new report
+
       const newReport = new WeeklyReport({
         studentId: STATIC_USER_ID,
+        name,
+        email,
+        supervisorName,
+        supervisorEmail,
+        coordinatorName,
+        coordinatorEmail,
         week,
         hours,
         tasks,
         lessons,
-        supervisorComments: "", // Supervisor will update later
+        supervisorComments: "",
+        coordinatorComments: "",
       });
-  
+
       await newReport.save();
-  
-      // ✅ After saving, return updated reports to client
-      const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ week: 1 });
-  
+
+      const reports = await WeeklyReport.find({ email }).sort({ week: 1 });
+      const completedHours = reports.reduce((sum, r) => sum + (r.hours || 0), 0);
+
+      const internshipForm = await InternshipRequest.findOne({ email });
+      const requiredHours = internshipForm ? internshipForm.creditHours * 60 : 0;
+
+      await sendStudentProgressEmail({
+        name,
+        email,
+        completedHours,
+        remainingHours: requiredHours - completedHours,
+      });
+
       return res.status(201).json({
         success: true,
         message: "Weekly report submitted successfully.",
         reports
       });
-  
+
     } catch (error) {
       console.error("Error in createReport:", error);
       return res.status(500).json({ success: false, message: "Internal server error." });
     }
-  }
-,  
+  },
 
-
-  // GET - Fetch Reports for a Specific Student (Admin/Supervisor purpose)
   getReportsByStudent: async (req, res) => {
     try {
       const { userId } = req.params;
       const reports = await WeeklyReport.find({ studentId: userId }).sort({ week: 1 });
 
       return res.status(200).json({ success: true, reports });
-
     } catch (error) {
       console.error("Error in getReportsByStudent:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch reports." });
     }
   },
 
-
-  // GET - Fetch Reports for Logged-in Student (Student Purpose)
-  // GET - Fetch Reports for Logged-in Student (TEMP fallback for testing)
   getMyReports: async (req, res) => {
     try {
-      const studentId = req.user?.id || "vikash123"; // Static fallback
-  
-      // 1. Get all reports
+      const studentId = req.user?.id || STATIC_USER_ID;
       const reports = await WeeklyReport.find({ studentId }).sort({ week: 1 });
-  
-      // 2. Get all supervisor reviews for this student
+
       const reviews = await SupervisorReview.find({ studentId });
-  
-      // 3. Map weeks to comments
+
       const weekToComment = {};
       reviews.forEach((review) => {
         review.weeks.forEach((week) => {
           weekToComment[week] = review.comments;
         });
       });
-  
-      // 4. Merge supervisorComments into each report based on its week
+
       const enrichedReports = reports.map((r) => ({
         ...r._doc,
         supervisorComments: weekToComment[r.week] || "",
       }));
-  
+
       return res.status(200).json({ success: true, reports: enrichedReports });
-  
+
     } catch (error) {
       console.error("Error in getMyReports:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch your reports." });
     }
   },
 
-
-
-  // GET - Fetch all Cumulative Reports (Unreviewed)
   getCumulativeReports: async (req, res) => {
     try {
       const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ createdAt: 1 });
@@ -130,8 +132,6 @@ const reportController = {
     }
   },
 
-
-  // GET - Fetch a Specific Group by groupIndex
   getCumulativeGroup: async (req, res) => {
     try {
       const { groupIndex } = req.params;
@@ -164,24 +164,21 @@ const reportController = {
       return res.status(500).json({ success: false, message: "Internal server error." });
     }
   },
+
   getReportById: async (req, res) => {
     try {
       const report = await WeeklyReport.findById(req.params.id);
-  
       if (!report) {
         return res.status(404).json({ success: false, message: "Report not found" });
       }
-  
-      // ✅ Ensure supervisorComments is included
+
       return res.status(200).json({ success: true, report });
     } catch (error) {
       console.error("Error in getReportById:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch report" });
     }
-  }
-,  
+  },
 
-  // POST - Submit Supervisor Comment
   submitSupervisorComments: async (req, res) => {
     try {
       const { groupIndex, comments, weeks } = req.body;
@@ -199,7 +196,6 @@ const reportController = {
 
       await newReview.save();
 
-      // Update comments for respective weekly reports also
       await WeeklyReport.updateMany(
         { studentId: STATIC_USER_ID, week: { $in: weeks } },
         { $set: { supervisorComments: comments } }
@@ -213,6 +209,76 @@ const reportController = {
     }
   },
 
+  getSupervisorReviewedGroups: async (req, res) => {
+    try {
+      const supervisorReviews = await SupervisorReview.find({
+        studentId: STATIC_USER_ID
+      });
+
+      const reviewedGroups = [];
+
+      for (const review of supervisorReviews) {
+        const reports = await WeeklyReport.find({
+          studentId: STATIC_USER_ID,
+          week: { $in: review.weeks }
+        });
+
+        const allCoordinatorCommentsPresent = reports.every(
+          (r) => r.coordinatorComments && r.coordinatorComments.trim() !== ""
+        );
+
+        if (allCoordinatorCommentsPresent) continue;
+
+        reviewedGroups.push({
+          groupIndex: review.groupIndex,
+          weeks: review.weeks,
+          reports,
+        });
+      }
+
+      return res.status(200).json({ success: true, groups: reviewedGroups });
+    } catch (error) {
+      console.error("Error in getSupervisorReviewedGroups:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch supervisor-reviewed groups.",
+      });
+    }
+  },
+
+  submitCoordinatorGroupComments: async (req, res) => {
+    try {
+      const { groupIndex, comments, weeks } = req.body;
+
+      if (!comments || !weeks || weeks.length === 0) {
+        return res.status(400).json({ success: false, message: "Invalid comment data." });
+      }
+
+      const firstWeek = weeks[0];
+      const firstReport = await WeeklyReport.findOne({ studentId: STATIC_USER_ID, week: firstWeek });
+
+      const newReview = new CoordinatorReview({
+        studentId: STATIC_USER_ID,
+        groupIndex,
+        weeks,
+        supervisorComments: firstReport?.supervisorComments || "",
+        coordinatorComments: comments,
+      });
+
+      await newReview.save();
+
+      await WeeklyReport.updateMany(
+        { studentId: STATIC_USER_ID, week: { $in: weeks } },
+        { $set: { coordinatorComments: comments } }
+      );
+
+      return res.status(200).json({ success: true, message: "Coordinator comment submitted successfully." });
+
+    } catch (error) {
+      console.error("Error in submitCoordinatorGroupComments:", error);
+      return res.status(500).json({ success: false, message: "Failed to submit comment." });
+    }
+  }
 };
 
 module.exports = reportController;

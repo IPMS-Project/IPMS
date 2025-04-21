@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import axios from "axios";
-import "./WeeklyFourWeekReportForm.css";
+import "../styles/WeeklyFourWeekReportForm.css";
 
 const WeeklyFourWeekReportForm = () => {
   const userRole = localStorage.getItem("role") || "student"; // Default role is student
