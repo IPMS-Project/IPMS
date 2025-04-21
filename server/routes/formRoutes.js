@@ -39,8 +39,6 @@ function validateFormData(formData) {
       return `Missing or empty required field: ${field}`;
     }
   }
-});
-
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
     return "Tasks must be a non-empty array";

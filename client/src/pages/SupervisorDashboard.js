@@ -84,9 +84,7 @@ const SupervisorDashboard = () => {
         <div className="empty-message-container">
           <div className="empty-message">No pending approvals.</div>
         </div>
-      );
-    } else {
-      content = (
+      ) : (
         <table className="dashboard-table">
           <thead>
             <tr>
@@ -101,10 +99,10 @@ const SupervisorDashboard = () => {
           <tbody>
             {all_requests.map((req) => (
               <tr key={req._id}>
-                <td>{req.interneeName || req.name}</td>
+                <td>{req.interneeName || req.studentName}</td>
                 <td>
                   <button className="link-button" onClick={() => openFormView(req)}>
-                    {req.interneeID || req.student_id}
+                    {req.interneeID || req.soonerId}
                   </button>
                 </td>
                 <td>{req.interneeEmail || req.studentEmail}</td>
@@ -119,25 +117,19 @@ const SupervisorDashboard = () => {
             ))}
           </tbody>
         </table>
-      );
-    }
-    
-    return (
-      <div className="dashboard-container">
-        <h2>Supervisor Dashboard</h2>
-        {message && <p className="status-msg">{message}</p>}
-        {content}
-        {selectedForm && (
-          <ViewFormModal
-            formData={selectedForm}
-            onClose={closeFormView}
-            onAction={(id, action, comment, signature) =>
-              handleAction(selectedForm.form_type, id, action, comment, signature)
-            }
-          />
-        )}
-      </div>
-    );
+      )}
+
+      {selectedForm && (
+        <ViewFormModal
+          formData={selectedForm}
+          onClose={closeFormView}
+          onAction={(id, action, comment, signature) =>
+            handleAction(selectedForm.form_type, id, action, comment, signature)
+          }
+        />
+      )}
+    </div>
+  );
 };
 
 export default SupervisorDashboard;

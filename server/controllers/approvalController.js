@@ -109,6 +109,7 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       if (comment) {
         emailBody += `<p>Comment: ${comment}</p>`;
       }
+    }
 
     const student_id = form.student_id || form.internee_id || form.student;
     const student = await UserTokenRequest.findById(student_id);
@@ -216,5 +217,4 @@ exports.coordinatorRejectRequest = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Rejection failed", error: err.message });
   }
-};
 };
