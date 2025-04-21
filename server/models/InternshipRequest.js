@@ -1,18 +1,28 @@
 const mongoose = require("mongoose"); // why are we commonjs
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const formMetadata = require("./FormMetadata");
 
 const Task = new mongoose.Schema({
-    _id: false,
-    description: {
-        type: String,
-        required: true
-    },
-    outcomes: {
-        type: [String],
-        enum: ['problemSolving','solutionDevelopment', 'communication', 'decisionMaking', 'collaboration', 'application']
-    }
+  _id: false,
+  description: {
+    type: String,
+    required: true,
+  },
+  outcomes: [{
+    type: String,
+    enum: [
+      "problemSolving",
+      "solutionDevelopment",
+      "communication",
+      "decisionMaking",
+      "collaboration",
+      "application"
+    ]
+  }]
+  
 });
 const formA1 = new mongoose.Schema({
+    ...formMetadata,
     student: { 
         type: ObjectId,
         required: true,
@@ -57,22 +67,13 @@ const formA1 = new mongoose.Schema({
     //     enum: ['draft', 'submitted','pending manual review' ,'approved']
     // },
     approvals: {
-        type: [String],
-        enum: ['advisor', 'coordinator']
+      type: [String],
+      enum: ["advisor", "coordinator"],
     },
     reminders: [Date],
     // requiredHours is an easily derived attribute
     // TODO needs to be a virtual getter that checks this student's WeeklyReports
-    completedHours: Number,
-
-    supervisor_status: {
-        type: String,
-        default: "pending"
-      },
-      coordinator_status: {
-        type: String,
-        default: "pending"
-      }
+    completedHours: Number
 }, { timestamps: true });
 formA1.virtual("requiredHours").get(function() {
     return this.creditHours * 60;
