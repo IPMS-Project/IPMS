@@ -52,7 +52,7 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        const user = data.user;
+        //const user = data.user;
 
         if (role === "coordinator") navigate("/coordinator-dashboard");
         else if (role === "student") navigate("/student-dashboard");
