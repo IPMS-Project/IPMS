@@ -72,12 +72,20 @@ function Home() {
         
         localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
         navigate("/student-dashboard");
+        }else if(role === "supervisor"){
+          Swal.fire({
+            icon: "success",
+            title: "Login Successful 🌟",
+            text: `Welcome back, ${role}!`,
+          });
+          navigate("/supervisor-dashboard");
         }else{
           Swal.fire({
             icon: "success",
-            title: "Login Successfull",
-            text: `Welcome , ${user.fullName}`,
+            title: "Login Successful 🌟",
+            text: `Welcome back, ${role}!`,
           });
+          navigate("/coordinator-dashboard");
         }
 
        
