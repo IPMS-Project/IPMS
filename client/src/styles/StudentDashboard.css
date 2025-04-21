@@ -1,137 +1,137 @@
-.student-dashboard { 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem;
-    background-color: #f7f7f7;
-    min-height: 90vh;
-  }
+.student-dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  background-color: #f7f7f7;
+  min-height: 90vh;
+}
 
-.student-dashboard { 
-    font-family: 'Roboto', sans-serif;
-    margin: 30px;
-    padding: 20px;
-    background-color: #f9f9f9;
-  }
-  
-  .student-dashboard h2 {
-    color: #841617;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .submission-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background-color: #fff;
-  }
-  
-  .submission-table th,
-  .submission-table td {
-    padding: 10px;
-    border: 1px solid #ccc;
-    text-align: center;
-    font-size: 14px;
-  }
-  
-  .submission-table th {
-    background-color: #841617;
-    color: white;
-  }
-  
-  .btn-warning,
-  .btn-danger {
-    margin: 2px;
-    padding: 6px 12px;
-    font-size: 13px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .btn-warning {
-    background-color: #f0ad4e;
-    color: white;
-  }
-  
-  .btn-warning:hover {
-    background-color: #ec971f;
-  }
-  
-  .btn-danger {
-    background-color: #d9534f;
-    color: white;
-  }
-  
-  .btn-danger:hover {
-    background-color: #c9302c;
-  }
-  
-  .error-message {
-    color: red;
-    margin-top: 10px;
-    text-align: center;
+.student-dashboard {
+  font-family: "Roboto", sans-serif;
+  margin: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
 
-  .dashboard-header {
-    width: 100%;
-    max-width: 900px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-  
-  .user-role {
-    font-weight: bold;
-    font-size: 1rem;
-    color: #5c0a0a;
-  }
-  
-  .dashboard-card {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    padding: 2rem;
-    width: 100%;
-    max-width: 900px;
-  }
-  
-  .card-section {
-    background-color: #842020;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  }
-  
-  .card-content h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-  
-  .card-content p {
-    margin: 5px 0 0;
-    font-size: 0.9rem;
-  }
-  
-  .card-button {
-    background-color: white;
-    color: #842020;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-  }
-  
-  .card-button:hover {
-    background-color: #e6e6e6;
-  }
-  
+.student-dashboard h2 {
+  color: #841617;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.submission-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: #fff;
+}
+
+.submission-table th,
+.submission-table td {
+  padding: 10px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-size: 14px;
+}
+
+.submission-table th {
+  background-color: #841617;
+  color: white;
+}
+
+.btn-warning,
+.btn-danger {
+  margin: 2px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-warning {
+  background-color: #f0ad4e;
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: #ec971f;
+}
+
+.btn-danger {
+  background-color: #d9534f;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c9302c;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.dashboard-header {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.user-role {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #5c0a0a;
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+  width: 100%;
+  max-width: 900px;
+}
+
+.card-section {
+  background-color: #842020;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.card-content h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.card-content p {
+  margin: 5px 0 0;
+  font-size: 0.9rem;
+}
+
+.card-button {
+  background-color: white;
+  color: #842020;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.card-button:hover {
+  background-color: #e6e6e6;
+}
