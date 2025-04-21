@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import "../styles/WeeklyProgressReportForm.css";
 
 const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
@@ -25,6 +25,8 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   const [creditHours, setCreditHours] = useState(0);
   const [message, setMessage] = useState("");
 
+  const studentEmail = formData.email;
+
   // Load report if read-only
   useEffect(() => {
     if (readOnly && reportId) {
@@ -44,19 +46,18 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
               supervisorComments,
             } = res.data.report;
 
-            setFormData({
-              fullName: fullName || "",
-              email: email || "",
-              supervisorName: supervisorName || "",
-              supervisorEmail: supervisorEmail || "",
-              coordinatorName: "Dr. Mansoor Abdulhak",
-              coordinatorEmail: "sample@gmail.com",
-              week: week || "",
-              hours: hours || "",
-              tasks: tasks || "",
-              lessons: lessons || "",
-              supervisorComments: supervisorComments || "",
-            });
+            setFormData((prev) => ({
+              ...prev,
+              fullName,
+              email,
+              supervisorName,
+              supervisorEmail,
+              week,
+              hours,
+              tasks,
+              lessons,
+              supervisorComments,
+            }));
           }
         })
         .catch((err) => {
@@ -71,11 +72,12 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const fetchStatus = async () => {
+  // Fetch report status
+  const fetchStatus = useCallback(async () => {
     try {
-      if (!formData.email) return;
+      if (!studentEmail) return;
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/reports/status-by-email/${formData.email}`
+        `${process.env.REACT_APP_API_URL}/api/reports/status-by-email/${studentEmail}`
       );
       const { requiredHours, submittedHours, creditHours } = res.data;
       setRequiredHours(requiredHours);
@@ -84,34 +86,29 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     } catch (err) {
       console.error("Error fetching report status", err);
     }
-  };
+  }, [studentEmail]);
 
   useEffect(() => {
     fetchStatus();
-  }, [formData.email,fetchStatus]);
+  }, [fetchStatus]);
 
+  // Fetch A.1 data
   useEffect(() => {
     const delayFetch = setTimeout(() => {
       const fetchA1Data = async () => {
         try {
-          if (!formData.email) return;
+          if (!studentEmail) return;
           const res = await axios.get(
-            `${process.env.REACT_APP_API_URL}/api/reports/a1readonly/${formData.email}`
+            `${process.env.REACT_APP_API_URL}/api/reports/a1readonly/${studentEmail}`
           );
           const data = res.data;
-  
+
           setFormData((prev) => ({
             ...prev,
             supervisorName: data.supervisorName || "",
             supervisorEmail: data.supervisorEmail || "",
-            creditHours: data.creditHours || 0,
           }));
-  
-          // ✅ fetchStatus AFTER setting creditHours
-          setTimeout(() => {
-            fetchStatus();
-          }, 200);
-          
+          setCreditHours(data.creditHours || 0);
         } catch (err) {
           console.error("Error fetching supervisor info", err);
         }
@@ -119,7 +116,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
       fetchA1Data();
     }, 600);
     return () => clearTimeout(delayFetch);
-  }, [formData.email]);  
+  }, [studentEmail]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -164,72 +161,34 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
       <form onSubmit={handleSubmit} className="a2-form">
         {/* Student Info */}
         <div className="form-group floating-label-group">
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            placeholder=" "
-            required
-          />
+          <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder=" " required />
           <label>Student Name</label>
         </div>
 
         <div className="form-group floating-label-group">
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder=" "
-            required
-          />
+          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder=" " required />
           <label>Student Email</label>
         </div>
 
-        {/* Supervisor Info (Auto-filled) */}
+        {/* Supervisor Info */}
         <div className="form-group floating-label-group">
-          <input
-            type="text"
-            name="supervisorName"
-            value={formData.supervisorName}
-            placeholder=" "
-            readOnly
-          />
+          <input type="text" name="supervisorName" value={formData.supervisorName} placeholder=" " readOnly />
           <label>Supervisor Name</label>
         </div>
 
         <div className="form-group floating-label-group">
-          <input
-            type="email"
-            name="supervisorEmail"
-            value={formData.supervisorEmail}
-            placeholder=" "
-            readOnly
-          />
+          <input type="email" name="supervisorEmail" value={formData.supervisorEmail} placeholder=" " readOnly />
           <label>Supervisor Email</label>
         </div>
 
         {/* Coordinator Info */}
         <div className="form-group floating-label-group">
-          <input
-            type="text"
-            name="coordinatorName"
-            value={formData.coordinatorName}
-            placeholder=" "
-            readOnly
-          />
+          <input type="text" name="coordinatorName" value={formData.coordinatorName} placeholder=" " readOnly />
           <label>Coordinator Name</label>
         </div>
 
         <div className="form-group floating-label-group">
-          <input
-            type="email"
-            name="coordinatorEmail"
-            value={formData.coordinatorEmail}
-            placeholder=" "
-            readOnly
-          />
+          <input type="email" name="coordinatorEmail" value={formData.coordinatorEmail} placeholder=" " readOnly />
           <label>Coordinator Email</label>
         </div>
 
@@ -237,12 +196,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
         <div className="week-hours-row">
           <div className="form-group">
             <label>Week</label>
-            <select
-              name="week"
-              value={formData.week}
-              onChange={handleChange}
-              required
-            >
+            <select name="week" value={formData.week} onChange={handleChange} required>
               <option value="">-- Select Week --</option>
               {Array.from({ length: 15 }, (_, i) => (
                 <option key={i} value={`Week ${i + 1}`}>
@@ -253,50 +207,24 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
           </div>
 
           <div className="form-group floating-label-group">
-            <input
-              type="number"
-              name="hours"
-              value={formData.hours}
-              onChange={handleChange}
-              min="1"
-              max="40"
-              required
-            />
+            <input type="number" name="hours" value={formData.hours} onChange={handleChange} min="1" max="40" required />
             <label>Number of Hours</label>
           </div>
         </div>
 
         {/* Tasks and Lessons */}
         <div className="form-group floating-label-group">
-          <textarea
-            name="tasks"
-            value={formData.tasks}
-            onChange={handleChange}
-            required
-            placeholder=" "
-          />
+          <textarea name="tasks" value={formData.tasks} onChange={handleChange} required placeholder=" " />
           <label>Tasks Performed</label>
         </div>
 
         <div className="form-group floating-label-group">
-          <textarea
-            name="lessons"
-            value={formData.lessons}
-            onChange={handleChange}
-            required
-            placeholder=" "
-          />
+          <textarea name="lessons" value={formData.lessons} onChange={handleChange} required placeholder=" " />
           <label>Lessons Learned</label>
         </div>
 
         <div className="form-group floating-label-group">
-          <textarea
-            name="supervisorComments"
-            value={formData.supervisorComments}
-            onChange={handleChange}
-            placeholder=" "
-            readOnly
-          />
+          <textarea name="supervisorComments" value={formData.supervisorComments} onChange={handleChange} placeholder=" " readOnly />
           <label>Supervisor Comments (optional)</label>
         </div>
 
