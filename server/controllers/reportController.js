@@ -65,18 +65,32 @@ const getReportStatusByEmail = async (req, res) => {
   try {
     const { email } = req.params;
 
+    // 1. Find student by OU email
+    const student = await UserTokenRequest.findOne({ ouEmail: email.toLowerCase() }).select("_id");
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student not found" });
+    }
+
+    // 2. Find A.1 form using student._id
+    const a1Form = await InternshipRequest.findOne({ student: student._id });
+    if (!a1Form) {
+      return res.status(404).json({ success: false, message: "A.1 form not found for this student" });
+    }
+
+    // 3. Fetch submitted weekly reports
     const reports = await WeeklyReport.find({ email });
     const submittedHours = reports.reduce((sum, r) => sum + r.hours, 0);
 
-    const creditHours = 1; // Static assumption for now
+    const creditHours = a1Form.creditHours;
     const requiredHours = creditHours * 60;
 
-    res.status(200).json({
+    return res.status(200).json({
       email,
       creditHours,
       requiredHours,
       submittedHours,
     });
+
   } catch (error) {
     console.error("Error in getReportStatusByEmail:", error);
     res.status(500).json({

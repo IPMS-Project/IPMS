@@ -100,11 +100,19 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             `${process.env.REACT_APP_API_URL}/api/reports/a1readonly/${formData.email}`
           );
           const data = res.data;
+  
           setFormData((prev) => ({
             ...prev,
             supervisorName: data.supervisorName || "",
             supervisorEmail: data.supervisorEmail || "",
+            creditHours: data.creditHours || 0,
           }));
+  
+          // ✅ fetchStatus AFTER setting creditHours
+          setTimeout(() => {
+            fetchStatus();
+          }, 200);
+          
         } catch (err) {
           console.error("Error fetching supervisor info", err);
         }
@@ -112,7 +120,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
       fetchA1Data();
     }, 600);
     return () => clearTimeout(delayFetch);
-  }, [formData.email]);
+  }, [formData.email]);  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
