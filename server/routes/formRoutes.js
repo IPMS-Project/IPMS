@@ -1,79 +1,72 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const InternshipRequest = require("../models/InternshipRequest");
-const { insertFormData } = require("../services/insertData");
+const { insertFormData } = require('../services/insertData');
 
-// GET route to fetch internship requests pending supervisor action
-router.get("/internshiprequests", async (req, res) => {
-  try {
-    const requests = await InternshipRequest.find({
-      status: "submitted",
-      // approvals: "advisor", // advisor has approved
-      supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
-    }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
+let status = '';
 
-    res.status(200).json(requests);
-  } catch (err) {
-    console.error("Error fetching internship requests:", err);
-    res.status(500).json({ message: "Server error while fetching internship requests" });
-  }
-});
-
-// Validate and submit form
+// Validate required fields
 function validateFormData(formData) {
   const requiredFields = [
-    "workplaceName",
-    "website",
-    "phone",
-    "advisorName",
-    "advisorJobTitle",
-    "advisorEmail",
-    "creditHours",
-    "startDate",
-    "endDate",
-    "tasks"
+    'workplaceName',
+    'website',
+    'phone',
+    'advisorName',
+    'advisorJobTitle',
+    'advisorEmail',
+    'creditHours',
+    'startDate',
+    'endDate',
+    'tasks'
   ];
 
   for (const field of requiredFields) {
-    if (!formData[field] || formData[field] === "") {
+    if (!formData[field] || formData[field] === '') {
       return `Missing or empty required field: ${field}`;
     }
   }
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
-    return "Tasks must be a non-empty array";
+    return 'Tasks must be a non-empty array';
   }
+  // for (const [index, task] of formData.tasks.entries()) {
+  //   if (!task.description || !task.outcomes) {
+  //     return `Task at index ${index} is missing description or outcomes`;
+  //   }
+  // }
 
-  const outcomes = new Set();
-  formData.tasks.forEach((task) => {
-    task.outcomes?.forEach(o => outcomes.add(o));
+  // uncomment below if student has to fill in task outcomes
+  // const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
+  // if (filledTasks.length < 3)
+  //   return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`;
+
+  const tasks = formData.tasks;
+  console.log(tasks);
+  if (tasks.filter((task) => task.description).length < 3)
+    return 'At least 3 tasks must be provided';
+  const uniqueOutcomes = new Set();
+  tasks.forEach((task) => {
+    if (Array.isArray(task.outcomes)) {
+      task.outcomes.forEach(outcome => uniqueOutcomes.add(outcome));
+    } 
   });
-
-  formData.status = outcomes.size < 3 ? "pending manual review" : "submitted";
+  formData.status = uniqueOutcomes.size < 3 ? 'pending manual review' : 'submitted';
   return null;
 }
 
-router.post("/submit", async (req, res) => {
+router.post('/submit', async (req, res) => {
   const formData = req.body;
-
-  if (!formData.studentId) {
-    return res.status(400).json({ message: "Missing studentId in form data" });
+  const validationError = validateFormData(formData);
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
   }
-});
 
-// ===================
-// A3: Evaluation Form
-// ===================
-
-// Submit A3 form
-router.post("/submit-a3", async (req, res) => {
   try {
-    await insertFormData(formData);  // pass studentId through
-    res.status(200).json({ message: "Form received and stored." });
+    await insertFormData(formData);
+    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted'});
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    console.error('Error handling form data:', error);
+    res.status(500).json({ message: 'Something went wrong' });
   }
 });
-
 
 module.exports = router;
