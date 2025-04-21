@@ -4,7 +4,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import "../styles/WeeklyProgressReportForm.css";
 
 const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
-  const navigate = useNavigate();
   const { reportId } = useParams();
 
   const [formData, setFormData] = useState({
@@ -89,7 +88,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
 
   useEffect(() => {
     fetchStatus();
-  }, [formData.email]);
+  }, [formData.email,fetchStatus]);
 
   useEffect(() => {
     const delayFetch = setTimeout(() => {
