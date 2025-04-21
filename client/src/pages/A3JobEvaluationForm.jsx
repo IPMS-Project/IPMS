@@ -46,7 +46,7 @@ const A3JobEvaluationForm = () => {
     coordinatorSignature: "",
     coordinatorAgreement: false,
   });
-  const [advisorDetails, setAdvisorDetails] = useState(null);
+  // const [advisorDetails, setAdvisorDetails] = useState(null);
   const [errors, setErrors] = useState({});
   
   // Ratings and comments
