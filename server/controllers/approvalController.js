@@ -67,7 +67,7 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
   try {
     const form_type = req.params.type;
     const formId = req.params.id;
-    const { comment = "" } = req.body;
+    const { comment = "", signature = "" } = req.body;
 
     const models = {
       A1: require("../models/InternshipRequest"),
@@ -101,13 +101,21 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       emailBody += `<p>Comment: ${comment}</p>`;
     }
 
-    const student = await UserTokenRequest.findById(form.student_id);
-      
-    await EmailService.sendEmail({
-      to: student.ouEmail,
-      subject: emailSubject,
-      html: emailBody,
-    });
+    const student_id = form.student_id || form.internee_id || form.student;
+    const student = await UserTokenRequest.findById(student_id);
+    const student_mail = student?.ouEmail || form?.interneeEmail;
+
+    try {  
+        await EmailService.sendEmail({
+            to: student_mail,
+            subject: emailSubject,
+            html: emailBody,
+        });
+    } catch (err) {
+        console.error("Email sending error:", err);
+    }
+
+    console.log("Email sent to:", student_mail);
 
     res.status(200).json({
       message: `Form ${action}ed successfully`,
