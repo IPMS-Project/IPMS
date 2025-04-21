@@ -1,11 +1,22 @@
 const CronJob = require("../models/CronJob");
-const { evaluationReminder } = require("./reminderEmail");
 
-// Map of job names to their corresponding functions
+// Import ALL required reminder jobs from all branches
+const {
+  coordinatorReminder,
+  supervisorReminder,
+  evaluationReminder,
+} = require("./reminderEmail");
+
+const { checkAndSendReminders } = require("./tokenExpiryCheck");
+const autoDeactivateCronjobs = require("./autoDeactivateCronjobs");
+
+// Merge all job functions into one map
 const jobFunctions = {
   coordinatorApprovalReminder: coordinatorReminder,
-  supervisorApprovalReminder: supervisorReminder,  
-  evaluationReminderJob: evaluationReminder,
+  supervisorApprovalReminder: supervisorReminder,
+  evaluationReminderJob: evaluationReminder, // 👈 Your Sprint 3 addition
+  tokenExpiryReminder: checkAndSendReminders,
+  autoDeactivateCronjobs: autoDeactivateCronjobs,
   // Add more job functions here as needed
 };
 
@@ -13,19 +24,15 @@ async function getCronJobs() {
   try {
     const jobs = await CronJob.find({ isActive: true });
 
-    // Transform database records into the expected format
     return jobs.reduce((acc, job) => {
       if (jobFunctions[job.name]) {
         acc[job.name] = {
           schedule: job.schedule,
           job: async () => {
             try {
-              // Update last run time
               await CronJob.findByIdAndUpdate(job._id, {
                 lastRun: new Date(),
               });
-
-              // Execute the job
               await jobFunctions[job.name]();
             } catch (error) {
               console.error(`Error executing job ${job.name}:`, error);
