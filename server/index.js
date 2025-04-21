@@ -12,10 +12,10 @@ const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 
-const coordinatorRoutes = require("./routes/coordinator");
-const outcomeRoutes = require("./routes/outcomeRoutes");
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
+
+
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
@@ -83,7 +83,7 @@ app.get("/api/message", (req, res) => {
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
-app.use("/api/coordinator", coordinatorRoutes);
+
 app.use("/api/reports", weeklyReportRoutes);
 
 app.post("/api/createUser", async (req, res) => {
