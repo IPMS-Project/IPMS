@@ -18,8 +18,8 @@ router.post('/submit', async (req, res) => {
 //GET: Fetch A3 Forms for Supervisor Dashboard
 router.get('/', async (req, res) => {
     try {
-      const evaluations = await Evaluation.find({ form_type: 'A3' }).sort({ createdAt: -1 }); // ⬅️ Add sorting
-      res.status(200).json(evaluations);
+        const evaluations = await Evaluation.find({ supervisor_status: "pending" }).sort({ createdAt: -1 }); // ⬅️ Add sorting
+        res.status(200).json(evaluations);
     } catch (error) {
       console.error('Error fetching evaluations:', error);
       res.status(500).json({ error: 'Failed to fetch evaluations.' });
