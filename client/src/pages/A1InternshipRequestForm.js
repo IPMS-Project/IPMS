@@ -187,7 +187,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
       }
     }, 500);
     return () => clearTimeout(timeout);
-  }, [formData.tasks.map((t) => t.description).join(",")]);
+  }, [formData.tasks]);
 
   const renderOutcomeCell = (task, outcome, key) => {
     const normalizedOutcome = outcome.charAt(0).toLowerCase() + outcome.replace(/\s+/g, "").slice(1);
