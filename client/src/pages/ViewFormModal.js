@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import "../styles/SupervisorDashboard.css";
-import "../styles/ViewFormModal.css";
 
 const outcomeLabels = [
   "Problem Solving",
@@ -210,9 +209,9 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
     </>
   );
 
-  return (
-      <div className="modal-overlay">
-      <div className="modal-box modal-content form-container" style={{ maxHeight: "90vh", overflowY: "auto" }}>
+    return (
+        <div className="modal-overlay">
+        <div className="modal-content form-container">
         {formData.form_type === "A1" ? renderA1() : renderA3()}
       {renderSignaturesAndActions()}
       </div>
