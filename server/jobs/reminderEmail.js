@@ -75,7 +75,43 @@ const supervisorReminder = async () => {
     }
 };
 
+const Evaluation = require("../models/Evaluation");
+
+const evaluationReminder = async () => {
+  try {
+    const pendingEvals = await Evaluation.find({
+      evaluations: { $exists: false },
+      advisorAgreement: true,
+    });
+
+    for (const evalDoc of pendingEvals) {
+      const emailHtml = `
+        <p>Dear Supervisor,</p>
+        <p>This is a reminder to complete the <strong>Final Job Performance Evaluation (Form A.3)</strong> for:</p>
+        <ul>
+          <li><strong>Name:</strong> ${evalDoc.interneeName}</li>
+          <li><strong>Sooner ID:</strong> ${evalDoc.interneeID}</li>
+        </ul>
+        <p>The deadline is approaching. Please use the link below to complete the evaluation:</p>
+        <p><a href="${process.env.CLIENT_URL}/evaluation/${evalDoc._id}">Complete A.3 Evaluation</a></p>
+        <p>Thanks,<br/>IPMS Team</p>
+      `;
+
+      await emailService.sendEmail({
+        to: evalDoc.interneeEmail, // or supervisor's email if you have it
+        subject: "Reminder: Pending A.3 Evaluation Submission",
+        html: emailHtml,
+      });
+
+      console.log(`✅ Reminder sent for: ${evalDoc.interneeName}`);
+    }
+  } catch (error) {
+    console.error("❌ Error sending A.3 reminders:", error);
+  }
+};
+
 module.exports = {
     coordinatorReminder,
-    supervisorReminder
+    supervisorReminder,
+	evaluationReminder,
 };

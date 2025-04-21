@@ -145,3 +145,36 @@ describe("supervisorReminder escalation", () => {
 	expect(saveSpy).not.toHaveBeenCalled();
     });
 });
+
+const Evaluation = require("../models/Evaluation");
+
+describe("evaluationReminder", () => {
+  beforeEach(() => {
+    mockingoose.resetAll();
+    emailService.sendEmail.mockClear();
+  });
+
+  it("should send evaluation reminder emails to pending A.3 entries", async () => {
+    const fakeEval = {
+      _id: new mongoose.Types.ObjectId(),
+      interneeName: "Test Student",
+      interneeID: "113689712",
+      interneeEmail: "student@example.com",
+      advisorAgreement: true,
+    };
+
+    // Mock Evaluation.find to return one pending evaluation
+    mockingoose(Evaluation).toReturn([fakeEval], "find");
+
+    const { evaluationReminder } = require("./reminderEmail");
+    await evaluationReminder();
+
+    expect(emailService.sendEmail).toHaveBeenCalledTimes(1);
+    expect(emailService.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: "student@example.com",
+        subject: expect.stringContaining("Reminder: Pending A.3 Evaluation"),
+      })
+    );
+  });
+});
