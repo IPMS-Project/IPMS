@@ -128,10 +128,10 @@ const SupervisorDashboard = () => {
                 <td>{req.interneeName || req.name}</td>
                 <td>
                   <button className="link-button" onClick={() => openFormView(req)}>
-                    {req.interneeID || req.name}
+                    {req.soonerId || req.student_id}
                   </button>
                 </td>
-                <td>{req.interneeEmail || req.soonerID}</td>
+                <td>{req.interneeEmail || req.student_id.email}</td>
                 <td>{req.form_type}</td>
                 <td>{formatDate(req.createdAt)}</td>
                 <td>

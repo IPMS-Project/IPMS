@@ -1,24 +1,6 @@
 import React, { useState } from "react";
 import "../styles/SupervisorDashboard.css";
 
-const outcomeLabels = [
-  "Problem Solving",
-  "Solution Development",
-  "Communication",
-  "Decision-Making",
-  "Collaboration",
-  "Application",
-];
-
-const outcomeDescriptions = [
-    "Understand and solve complex computing problems",
-    "Create, build, and assess computing solutions",
-    "Communicate clearly and confidently",
-    "Make responsible decisions",
-    "Work well within a team",
-    "Apply computer science algorithms to create practical solutions",
-];
-
 const ViewFormModal = ({ formData, onClose, onAction }) => {
     const [comment, setComment] = useState("");
   const [signature, setSignature] = useState("");
@@ -44,12 +26,12 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
           </thead>
           <tbody>
             <tr>
-              <td><strong>Student Name:</strong> {formData.student_id?.userName || formData.student_id?.name || "N/A"}</td>
-              <td><strong>Student ID:</strong> {formData.studentEmail || "N/A"}</td>
+              <td><strong>Student Name:</strong> {formData.interneeName || formData.name || "N/A"}</td>
+              <td><strong>Student ID:</strong> {formData.soonerId || "N/A"}</td>
             </tr>
             <tr>
-              <td><strong>Email:</strong> {formData.student_id?.email || "N/A"}</td>
-              <td><strong>Phone:</strong> {formData.workplace?.phone || "N/A"}</td>
+              <td><strong>Email:</strong> {formData.interneeEmail || "N/A"}</td>
+              <td><strong>Phone:</strong> {formData.workplaceName || "N/A"}</td>
             </tr>
             <tr>
               <td><strong>Workplace Name:</strong> {formData.workplace?.name || "N/A"}</td>
