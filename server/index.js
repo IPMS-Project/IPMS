@@ -10,7 +10,7 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
-const studentRoutes = require("./routes/studentRoutes")
+const studentRoutes = require("./routes/studentRoutes");
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
@@ -19,7 +19,7 @@ const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
 
-//Author Subhash Chandra: Form A3 Remidder Job Logic
+// Author Subhash Chandra: Form A3 Reminder Job Logic
 const { registerReminderA3Job } = require("./utils/reminderA3Utils");
 
 const app = express();
@@ -82,7 +82,8 @@ app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
 
 app.use("/api/reports", weeklyReportRoutes);
-app.use("/api/student",studentRoutes)
+app.use("/api/student", studentRoutes);
+
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -93,14 +94,23 @@ app.post("/api/createUser", async (req, res) => {
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to create user", error: error.message });
+    res.status(500).json({ message: "Failed to create user", error: error.message });
   }
 });
+
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
+    const {
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
+      ratings,
+      comments,
+    } = req.body;
 
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
@@ -127,12 +137,9 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-
-//Form A.4
-
+// Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
-
 
 // Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {

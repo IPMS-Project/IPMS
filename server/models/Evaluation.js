@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const formMetadata = require('./FormMetadata');
 
 // Signature schema for both advisor and coordinator
 const signatureSchema = new mongoose.Schema({
@@ -35,6 +36,14 @@ const evaluationItemSchema = new mongoose.Schema({
 
 // Main evaluation schema
 const evaluationSchema = new mongoose.Schema({
+  ...formMetadata,
+
+  interneeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false
+  },
+
   internshipId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Internship',
@@ -65,7 +74,7 @@ const evaluationSchema = new mongoose.Schema({
 
   evaluations: {
     type: [evaluationItemSchema],
-    validate: [arr => arr.length === 3, 'Exactly 3 evaluation items are required']
+    validate: [arr => arr.length > 0, 'At least one evaluation item is required']
   },
 
   advisorSignature: {
