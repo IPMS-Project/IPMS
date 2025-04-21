@@ -94,12 +94,21 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
     if (!form) {
       return res.status(404).json({ message: "Form not found" });
     }
+    
+    const studentEmail =
+      form.student_id?.email ||
+      form.interneeEmail ||
+      form.studentEmail ||
+      null;
 
-    const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
-    let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
-    if (comment) {
-      emailBody += `<p>Comment: ${comment}</p>`;
-    }
+    if (!studentEmail) {
+      console.warn("⚠️ No student email found for form:", form._id);
+    } else {
+        const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+        let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
+        if (comment) {
+          emailBody += `<p>Comment: ${comment}</p>`;
+        }
 
     const student = await UserTokenRequest.findById(form.student_id);
       
@@ -108,7 +117,7 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       subject: emailSubject,
       html: emailBody,
     });
-
+      
     res.status(200).json({
       message: `Form ${action}ed successfully`,
       updatedForm: form,
@@ -119,12 +128,10 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
   }
 };
 
-
 // =========================================== //
 //           Coordinator Dashboard             //
 // =========================================== //
 
-// Coordinator Dashboard: Get All Internship Requests
 exports.getCoordinatorRequests = async (req, res) => {
     try {
     const requests = await InternshipRequest.find({
@@ -140,7 +147,6 @@ exports.getCoordinatorRequests = async (req, res) => {
 exports.getCoordinatorRequestDetails = async (req, res) => {
   try {
     const requestData = await InternshipRequest.findById(req.params.id).lean();
-
     if (!requestData) {
       return res.status(404).json({ message: "Request not found" });
     }

@@ -8,7 +8,7 @@ const SupervisorDashboard = () => {
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-
+  
     useEffect(() => {
 
       // Token used for authentication for future
@@ -82,22 +82,24 @@ const SupervisorDashboard = () => {
       );
 
       setMessage(res.data.message || `${action} successful`);
-      setRequests(prev => prev.filter(req => req._id !== id));
-      setSelectedForm(null);
+      setRequests(prev => prev.filter(req => req._id !== id)); // remove from table
+      return true;
     } catch (err) {
       console.error(`Failed to ${action} request:`, err);
       setMessage(`Failed to ${action} request.`);
+      return false;
     }
   };
+  
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
   const sortedRequests = [...requests]
-   .filter((req) => req.status.toLowerCase() === "submitted")
-   .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-
+    .filter((req) => req.supervisor_status?.toLowerCase() === "pending")
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  
   let content;
 
   if (loading) {
@@ -147,12 +149,54 @@ const SupervisorDashboard = () => {
     <div className="dashboard-container">
       <h2>Supervisor Dashboard</h2>
       {message && <p className="status-msg">{message}</p>}
-      {content}
+      {loading ? (
+        <p>Loading...</p>
+      ) : sortedRequests.length === 0 ? (
+        <div className="empty-message-container">
+          <div className="empty-message">No pending approvals.</div>
+        </div>
+      ) : (
+        <table className="dashboard-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Sooner ID</th>
+              <th>Email</th>
+              <th>Form Type</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedRequests.map((req) => (
+              <tr key={req._id}>
+                <td>{req.interneeName || req.studentName}</td>
+                <td>
+                  <button className="link-button" onClick={() => openFormView(req)}>
+                    {req.interneeID || req.soonerId}
+                  </button>
+                </td>
+                <td>{req.interneeEmail || req.studentEmail}</td>
+                <td>{req.form_type}</td>
+                <td>{formatDate(req.createdAt)}</td>
+                <td>
+                  <span className={`status-badge ${req.supervisor_status || req.status}`}>
+                    {req.supervisor_status || req.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
       {selectedForm && (
         <ViewFormModal
           formData={selectedForm}
           onClose={closeFormView}
-          onAction={handleAction}
+          onAction={(id, action, comment, signature) =>
+            handleAction(selectedForm.form_type, id, action, comment, signature)
+          }
         />
       )}
     </div>

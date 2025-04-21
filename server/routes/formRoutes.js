@@ -39,6 +39,8 @@ function validateFormData(formData) {
       return `Missing or empty required field: ${field}`;
     }
   }
+});
+
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
     return "Tasks must be a non-empty array";
@@ -59,7 +61,14 @@ router.post("/submit", async (req, res) => {
   if (!formData.studentId) {
     return res.status(400).json({ message: "Missing studentId in form data" });
   }
+});
 
+// ===================
+// A3: Evaluation Form
+// ===================
+
+// Submit A3 form
+router.post("/submit-a3", async (req, res) => {
   try {
     await insertFormData(formData);  // pass studentId through
     res.status(200).json({ message: "Form received and stored." });
