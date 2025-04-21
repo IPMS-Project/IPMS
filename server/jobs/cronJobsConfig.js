@@ -14,7 +14,7 @@ const autoDeactivateCronjobs = require("./autoDeactivateCronjobs");
 const jobFunctions = {
   coordinatorApprovalReminder: coordinatorReminder,
   supervisorApprovalReminder: supervisorReminder,
-  evaluationReminderJob: evaluationReminder, // 👈 Your Sprint 3 addition
+  evaluationReminderJob: evaluationReminder, // 👈 Sprint 3 task
   tokenExpiryReminder: checkAndSendReminders,
   autoDeactivateCronjobs: autoDeactivateCronjobs,
   // Add more job functions here as needed
