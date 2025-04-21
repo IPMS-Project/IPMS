@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../styles/A1InternshipRequestForm.css";
 
 const outcomeLabels = [
   "Problem Solving",
   "Solution Development",
   "Communication",
-  "Decision Making",
+  "Decision-Making",
   "Collaboration",
   "Application",
 ];
@@ -36,7 +36,7 @@ const A1InternshipRequestForm = () => {
     advisorSignature: "",
     coordinatorApproval: "",
     creditHours: "",
-    tasks: Array(5).fill({ description: "", outcomes: [] }),
+    tasks: Array(5).fill({ description: "" }),
   };
 
   const [formData, setFormData] = useState(initialState);
@@ -78,11 +78,10 @@ const A1InternshipRequestForm = () => {
     updatedTasks[index] = { ...updatedTasks[index], description: value };
     setFormData((prev) => ({ ...prev, tasks: updatedTasks }));
   };
-  
 
   const validateForm = () => {
     const namePattern = /^[A-Za-z\s]+$/;
-    const soonerIdPattern = /^[0-9]{9}$/;
+    const numberPattern = /^[0-9]+$/;
     const phonePattern = /^[0-9]{10}$/;
     const emailPattern = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
 
@@ -92,7 +91,7 @@ const A1InternshipRequestForm = () => {
     else if (!namePattern.test(formData.interneeName)) newErrors.interneeName = "Name should contain only letters and spaces";
 
     if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
-    else if (!soonerIdPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be a 9-digit number";
+    else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
 
     if (!formData.interneeEmail) newErrors.interneeEmail = "Email is required";
     else if (!emailPattern.test(formData.interneeEmail)) newErrors.interneeEmail = "Invalid email format";
@@ -210,6 +209,7 @@ const A1InternshipRequestForm = () => {
     }
   };
   
+  //function to send description to backend
   const sendTaskDescriptions = async (descriptions) => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/align-outcomes`, {
@@ -226,82 +226,17 @@ const A1InternshipRequestForm = () => {
   
       const data = await response.json();
       console.log("Alignment result:", data);
-  
-      const updatedTasks = data.results.map(({ task, matched_outcomes }) => ({
+      formData.tasks = data.results.map(({ task, matched_outcomes }) => ({
         description: task,
         outcomes: matched_outcomes
       }));
-  
-      setFormData(prev => ({
-        ...prev,
-        tasks: updatedTasks
-      }));
-      console.log("Set updated tasks to state:", updatedTasks);
 
-      console.log("Current formData.tasks after set:", formData.tasks);
+      return formData.tasks;
 
-  
-      return updatedTasks;
-  
     } catch (error) {
       console.error("Error:", error);
     }
   };
-
-  const taskDescriptionsKey = formData.tasks.map((t) => t.description).join(",");
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const descriptions = formData.tasks.map((task) => task.description.trim()).filter(Boolean);
-  
-      if (descriptions.length > 0) {
-        fetch(`${process.env.REACT_APP_API_URL}/api/align-outcomes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tasks: descriptions }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            const updatedTasks = formData.tasks.map((task) => {
-              const match = data.results.find((r) => r.task === task.description);
-              return match ? { ...task, outcomes: match.matched_outcomes } : { ...task, outcomes: [] };
-            });
-            setFormData((prev) => ({ ...prev, tasks: updatedTasks }));
-          })
-          .catch((err) => console.error("Outcome alignment error:", err));
-      }
-    }, 500); // debounce for 0.5 sec
-  
-    return () => clearTimeout(timeout);
-  }, [taskDescriptionsKey]);
-
-
-  const renderOutcomeCell = (task, outcome, key) => {
-    const normalizedOutcome = outcome.charAt(0).toLowerCase() + outcome.replace(/\s+/g, "").slice(1);
-    const isMatched = task.outcomes.includes(normalizedOutcome);
-    // console.log("Rendering cell for", outcome, "→ matched:", task.outcomes);
-
-  
-    return (
-      <td key={key} style={{ backgroundColor: isMatched ? "#c6f6d5" : "", padding: "4px" }}>
-        <input
-          type="text"
-          value={isMatched ? "✔" : ""}
-          readOnly
-          style={{
-            width: "100%",
-            boxSizing: "border-box",
-            border: "none",
-            textAlign: "center",
-            backgroundColor: "transparent",
-          }}
-        />
-      </td>
-    );
-  };
-  
-  
-
   return (
     <div className="form-container">
       <h2>A.1 - Internship Request Form</h2>
@@ -408,35 +343,34 @@ const A1InternshipRequestForm = () => {
             <thead>
               <tr>
                 <th style={{ width: "20%" }}>Task</th>
-                {outcomeLabels.map((label, j) => (
-  <th key={`label-${j}`} style={{ width: "13.33%" }}>
-    {label}
-    <br />
-    <small>({outcomeDescriptions[j]})</small>
-  </th>
-))}
-
+                {outcomeLabels.map((label, i) => (
+                  <th key={label} style={{ width: "13.33%" }}>
+                    {label}
+                    <br />
+                    <small>({outcomeDescriptions[i]})</small>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-            {formData.tasks.map((task, i) => (
-  <tr key={i}>
-    <td>
-      <input
-        type="text"
-        placeholder={`Task ${i + 1}`}
-        value={task.description}
-        onChange={(e) => handleTaskChange(i, e.target.value)}
-        style={{ width: "100%", padding: "4px", boxSizing: "border-box" }}
-      />
-    </td>
-
-    {outcomeLabels.map((label, j) =>
-      renderOutcomeCell(formData.tasks[i], label, `${i}-${j}`)
-    )}
-  </tr>
-))}
-
+              {formData.tasks.map((task, i) => (
+                <tr key={i}>
+                  <td>
+                    <input
+                      type="text"
+                      placeholder={`Task ${i + 1}`}
+                      value={task.description}
+                      onChange={(e) => handleTaskChange(i, e.target.value)}
+                      style={{ width: "100%", padding: "4px", boxSizing: "border-box" }}
+                    />
+                  </td>
+                  {outcomeLabels.map((_, j) => (
+                    <td key={j}>
+                      <input type="text" value="" readOnly style={{ width: "100%", padding: "4px", boxSizing: "border-box" }} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
