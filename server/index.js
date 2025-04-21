@@ -13,8 +13,6 @@ const approvalRoutes = require("./routes/approvalRoutes");
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
-const evaluationRoutes = require("./routes/evaluationRoutes");
-
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
@@ -26,7 +24,6 @@ app.use(cors());
 app.use("/api/form", formRoutes); // register route as /api/form/submit
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
-app.use("/api/evaluation", evaluationRoutes);
 app.use("/api", outcomeRoutes);
 
 const mongoConfig = {
