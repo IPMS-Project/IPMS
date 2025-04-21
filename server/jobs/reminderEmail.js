@@ -4,7 +4,7 @@ const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
-const InternshipRequest = require("../models/internshiprequest");
+const InternshipRequest = require("../models/InternshipRequest");
 const dayjs = require("dayjs");
 
 // Coordinator reminder: weekly report reviewed by supervisor but not yet commented by coordinator
