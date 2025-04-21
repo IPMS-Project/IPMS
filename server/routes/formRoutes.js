@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { insertFormData } = require('../services/insertData');
 const WeeklyReport = require('../models/WeeklyReport');
-const EmailService = require('../services/EmailService'); //
+const EmailService = require('../services/EmailService'); // ✅ Email
 
 let status = '';
 
@@ -17,7 +17,11 @@ router.post('/submit', async (req, res) => {
   try {
     formData.form_type = "A2";
     await insertFormData(formData);
-    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted' });
+    res.status(200).json({
+      message: 'Form received and handled!',
+      status,
+      manual: formData.status !== 'submitted'
+    });
   } catch (error) {
     console.error('Error handling form data:', error);
     res.status(500).json({ message: 'Something went wrong' });
@@ -62,7 +66,7 @@ router.patch('/approve/:id', async (req, res) => {
   }
 });
 
-// --- Reject A2 Form + Send Email Notification ---
+// --- Reject A2 Form (clean and optionally sends email) ---
 router.patch('/reject/:id', async (req, res) => {
   const { comment } = req.body;
 
@@ -74,19 +78,19 @@ router.patch('/reject/:id', async (req, res) => {
         supervisorComments: comment || "No comment provided"
       },
       { new: true }
-    ).populate("student_id", "userName email"); // ✅ populate student info
+    );
 
     if (!updated) {
       return res.status(404).json({ message: "Form not found" });
     }
 
-    // ✅ Send email to student
+    // ✅ If student_id is populated and contains email
     if (updated.student_id && updated.student_id.email) {
       await EmailService.sendEmail({
         to: updated.student_id.email,
         subject: "Your A2 Weekly Report has been Rejected",
         html: `
-          <p>Hello ${updated.student_id.userName},</p>
+          <p>Hello ${updated.student_id.userName || "Student"},</p>
           <p>Your A2 Weekly Report (Week ${updated.week}) has been <strong>rejected</strong> by the supervisor.</p>
           <p><strong>Comment:</strong> ${comment || "No additional comment provided."}</p>
         `

@@ -1,5 +1,6 @@
 const Submission = require("../models/Submission");
 const InternshipRequest = require("../models/InternshipRequest");
+const WeeklyReport = require("../models/WeeklyReport"); // ✅ added for A2
 const EmailService = require("../services/emailService");
 
 // Get Supervisor Pending Submissions
@@ -48,6 +49,42 @@ exports.rejectSubmission = async (req, res) => {
     res.json({ message: "Submission Rejected", updatedSubmission: submission });
   } catch (err) {
     res.status(500).json({ message: "Rejection Failed", error: err });
+  }
+};
+
+// ✅ Supervisor Reject Weekly Report (A2)
+exports.rejectWeeklyReport = async (req, res) => {
+  const { id } = req.params;
+  const { comment } = req.body;
+
+  try {
+    const report = await WeeklyReport.findByIdAndUpdate(
+      id,
+      {
+        supervisor_status: "rejected",
+        supervisorComments: comment || "No comment provided",
+      },
+      { new: true }
+    );
+
+    if (!report) return res.status(404).json({ message: "Weekly Report not found" });
+
+    if (report.email) {
+      await EmailService.sendEmail({
+        to: report.email,
+        subject: "Weekly Report Rejected",
+        html: `
+          <p>Hello,</p>
+          <p>Your A2 Weekly Report for <strong>${report.week}</strong> has been <strong>rejected</strong> by the supervisor.</p>
+          <p><strong>Comment:</strong> ${comment || "No additional comment provided."}</p>
+        `,
+      });
+    }
+
+    res.status(200).json({ message: "Weekly Report rejected and student notified", form: report });
+  } catch (err) {
+    console.error("Error rejecting Weekly Report:", err);
+    res.status(500).json({ message: "Rejection failed", error: err.message });
   }
 };
 
