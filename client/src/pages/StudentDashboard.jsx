@@ -6,14 +6,13 @@ const StudentDashboard = () => {
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("ipmsUser"));
-  const backendUrl = process.env.REACT_APP_API_URL;
   const ouEmail = user?.email;
   const [approvalStatus, setApprovalStatus] = useState("not_submitted");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${backendUrl}/api/student`, {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/student`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
