@@ -9,48 +9,49 @@ const SupervisorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/evaluation`);
-        setRequests(res.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("AXIOS ERROR:", err.response?.data || err.message);
-        setMessage("Error fetching requests.");
-        setLoading(false);
-      }
-    };
+  const fetchRequests = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`);
+      setRequests(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching requests:", err);
+      setMessage("Error fetching requests.");
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchRequests();
   }, []);
 
-  const handleAction = async (id, action, comment) => {
+  const handleAction = async (formType, id, action, comment, signature) => {
     const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
-    if (!confirmed) return;
-
+    if (!confirmed) return false;
+  
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/evaluation/${id}/${action}`,
-        { comment }
+        `${process.env.REACT_APP_API_URL}/api/supervisor/form/${formType}/${id}/${action}`,
+        { comment, signature }
       );
-
       setMessage(res.data.message || `${action} successful`);
-      setRequests(prev => prev.filter(req => req._id !== id));
-      setSelectedForm(null);
+      setRequests(prev => prev.filter(req => req._id !== id)); // remove from table
+      return true;
     } catch (err) {
       console.error(`Failed to ${action} request:`, err);
       setMessage(`Failed to ${action} request.`);
+      return false;
     }
   };
+  
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
-  const sortedRequests = [...requests].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
+  const sortedRequests = [...requests]
+    .filter((req) => req.supervisor_status?.toLowerCase() === "pending")
+    .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
   return (
     <div className="dashboard-container">
@@ -60,7 +61,7 @@ const SupervisorDashboard = () => {
         <p>Loading...</p>
       ) : sortedRequests.length === 0 ? (
         <div className="empty-message-container">
-          <div className="empty-message">No A3 forms available.</div>
+          <div className="empty-message">No pending approvals.</div>
         </div>
       ) : (
         <table className="dashboard-table">
@@ -77,18 +78,18 @@ const SupervisorDashboard = () => {
           <tbody>
             {sortedRequests.map((req) => (
               <tr key={req._id}>
-                <td>{req.interneeName}</td>
+                <td>{req.interneeName || req.studentName}</td>
                 <td>
                   <button className="link-button" onClick={() => openFormView(req)}>
-                    {req.interneeID}
+                    {req.interneeID || req.soonerId}
                   </button>
                 </td>
-                <td>{req.interneeEmail}</td>
+                <td>{req.interneeEmail || req.studentEmail}</td>
                 <td>{req.form_type}</td>
                 <td>{formatDate(req.createdAt)}</td>
                 <td>
-                  <span className={`status-badge ${req.supervisor_status}`}>
-                    {req.supervisor_status}
+                  <span className={`status-badge ${req.supervisor_status || req.status}`}>
+                    {req.supervisor_status || req.status}
                   </span>
                 </td>
               </tr>
@@ -101,7 +102,9 @@ const SupervisorDashboard = () => {
         <ViewFormModal
           formData={selectedForm}
           onClose={closeFormView}
-          onAction={handleAction}
+          onAction={(id, action, comment, signature) =>
+            handleAction(selectedForm.form_type, id, action, comment, signature)
+          }
         />
       )}
     </div>

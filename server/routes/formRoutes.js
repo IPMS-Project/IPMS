@@ -1,71 +1,85 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { insertFormData } = require('../services/insertData');
+const InternshipRequest = require('../models/InternshipRequest');
+const Evaluation = require('../models/Evaluation');
+const emailService = require("../services/emailService");
 
-let status = '';
+// ==========================
+// A1: InternshipRequest Form
+// ==========================
 
-// Validate required fields
-function validateFormData(formData) {
-  const requiredFields = [
-    'workplaceName',
-    'website',
-    'phone',
-    'advisorName',
-    'advisorJobTitle',
-    'advisorEmail',
-    'creditHours',
-    'startDate',
-    'endDate',
-    'tasks'
-  ];
-
-  for (const field of requiredFields) {
-    if (!formData[field] || formData[field] === '') {
-      return `Missing or empty required field: ${field}`;
-    }
-  }
-
-  if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
-    return 'Tasks must be a non-empty array';
-  }
-  // for (const [index, task] of formData.tasks.entries()) {
-  //   if (!task.description || !task.outcomes) {
-  //     return `Task at index ${index} is missing description or outcomes`;
-  //   }
-  // }
-
-  // uncomment below if student has to fill in task outcomes
-  // const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
-  // if (filledTasks.length < 3)
-  //   return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`;
-
-  const tasks = formData.tasks;
-  console.log(tasks);
-  if (tasks.filter((task) => task.description).length < 3)
-    return 'At least 3 tasks must be provided';
-  const uniqueOutcomes = new Set();
-  tasks.forEach((task) => {
-    if (Array.isArray(task.outcomes)) {
-      task.outcomes.forEach(outcome => uniqueOutcomes.add(outcome));
-    } 
-  });
-  formData.status = uniqueOutcomes.size < 3 ? 'pending manual review' : 'submitted';
-  return null;
-}
-
-router.post('/submit', async (req, res) => {
-  const formData = req.body;
-  const validationError = validateFormData(formData);
-  if (validationError) {
-    return res.status(400).json({ message: validationError });
-  }
-
+// Submit A1 form
+router.post("/submit", async (req, res) => {
   try {
-    await insertFormData(formData);
-    res.status(200).json({ message: 'Form received and handled!', status, manual: formData.status !== 'submitted'});
+    const form = new InternshipRequest({
+      ...req.body,
+      supervisor_status: "pending" // ✅ Required for dashboard visibility
+    });
+
+    await form.save();
+    res.status(201).json({ message: "A1 form submitted successfully!" });
   } catch (error) {
-    console.error('Error handling form data:', error);
-    res.status(500).json({ message: 'Something went wrong' });
+    console.error("A1 Validation Errors:", error.errors);
+    res.status(400).json({ message: error.message, errors: error.errors });
+  }
+});
+
+// Get all A1 forms for supervisor (if still used anywhere)
+router.get('/a1forms', async (req, res) => {
+  try {
+    const forms = await InternshipRequest.find({
+      $or: [
+        { supervisor_comment: { $exists: false } },
+        { supervisor_comment: "" }
+      ]
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(forms);
+  } catch (error) {
+    console.error('Error fetching A.1 forms:', error);
+    res.status(500).json({ message: 'Failed to fetch forms' });
+  }
+});
+
+// Get a specific A1 form by Sooner ID
+router.get('/a1forms/:soonerId', async (req, res) => {
+  try {
+    const form = await InternshipRequest.findOne({
+      soonerId: req.params.soonerId,
+      $or: [
+        { supervisor_comment: { $exists: false } },
+        { supervisor_comment: "" }
+      ]
+    });
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    res.status(200).json(form);
+  } catch (error) {
+    console.error('Error fetching form:', error);
+    res.status(500).json({ message: 'Error fetching form' });
+  }
+});
+
+// ===================
+// A3: Evaluation Form
+// ===================
+
+// Submit A3 form
+router.post("/submit-a3", async (req, res) => {
+  try {
+    const form = new Evaluation({
+      ...req.body,
+      supervisor_status: "pending" // ✅ Required for dashboard visibility
+    });
+
+    await form.save();
+    res.status(201).json({ message: "A3 form submitted successfully!" });
+  } catch (err) {
+    console.error("A3 submission error:", err);
+    res.status(500).json({ message: "Failed to submit A3 form" });
   }
 });
 

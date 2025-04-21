@@ -17,7 +17,7 @@ const outcomeRoutes = require("./routes/outcomeRoutes");
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
-const evaluationRoutes = require("./routes/evaluationRoutes");
+
 
 const app = express();
 app.use(express.json());
@@ -26,7 +26,6 @@ app.use("/api/form", formRoutes); // register route as /api/form/submit
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
-app.use("/api/evaluation", evaluationRoutes);
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
