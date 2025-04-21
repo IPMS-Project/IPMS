@@ -34,9 +34,9 @@ function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`${formData.role} sign in attempted`, formData);
 
     const { email: ouEmail, password, role } = formData;
+
 
     if (!ouEmail || !password || !role) {
       return Swal.fire({
@@ -61,34 +61,50 @@ function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful 🌟",
-          text: `Welcome back, ${role}!`,
-          timer: 1500,
-          showConfirmButton: false,
-        });
-
-        // Redirect user based on role
-        if (role === "coordinator") {
-          navigate("/coordinator-dashboard");
-        } else if (role === "student") {
-          navigate("/student-dashboard");
-        } else if (role === "supervisor") {
+        const user = data.user;
+        if(role === "student"){
+           // Store only required fields
+        const limitedUserInfo = {
+          fullName: user.fullName,
+          id: user._id,
+          email:user.ouEmail
+        };
+        
+        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+        navigate("/student-dashboard");
+        }else if(role === "supervisor"){
+          Swal.fire({
+            icon: "success",
+            title: "Login Successful 🌟",
+            text: `Welcome back, ${role}!`,
+          });
           navigate("/supervisor-dashboard");
+        }else{
+          Swal.fire({
+            icon: "success",
+            title: "Login Successful 🌟",
+            text: `Welcome back, ${role}!`,
+          });
+          navigate("/coordinator-dashboard");
         }
-  
-        // Wait for Swal before redirect
-        setTimeout(() => {
-          if (role === "student") navigate("/weekly-report");
-          else if (role === "supervisor") navigate("/supervisor-dashboard");
-          else if (role === "coordinator") navigate("/coordinator-dashboard");
-        }, 1500);
+
+       
+
+        // Swal.fire({
+        //   icon: "success",
+        //   title: "Login Successful",
+        //   text: `Welcome back, `,
+        // });
+
+       
       } else {
         Swal.fire({
           icon: "error",
           title: "Login Failed",
-          text: data.message || "Something went wrong ",
+          html: data.message + " " + 
+        (data.renewalLink 
+         ? `Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.` 
+         : "Something went wrong."),
         });
       }
     } catch (error) {
@@ -100,7 +116,6 @@ function Home() {
       });
     }
   };
-  
 
   return (
     <div className="content-container">
@@ -136,6 +151,7 @@ function Home() {
                         role: r,
                       })
                     }
+                
                   >
                     <Icon />
                     <p className="role-label">

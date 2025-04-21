@@ -19,14 +19,11 @@ const Task = new mongoose.Schema({
     ]
   }
 });
-
-const formA1 = new mongoose.Schema(
-  {
-    student: {
-      // Get student's name, email, id from User
-      type: ObjectId,
-      required: true,
-      ref: "User"
+const formA1 = new mongoose.Schema({
+    student: { 
+        type: ObjectId,
+        required: true,
+        ref: 'UserTokenRequest'
     },
     workplace: {
       name: {
@@ -62,20 +59,32 @@ const formA1 = new mongoose.Schema(
       type: [Task],
       required: true
     },
-    status: {
-      type: String,
-      required: true,
-      enum: ["draft", "submitted", "pending manual review", "approved"]
-    },
+    // status: {
+    //     type: String,
+    //     required: true,
+    //     enum: ['draft', 'submitted','pending manual review' ,'approved']
+    // },
     approvals: {
       type: [String],
       enum: ["advisor", "coordinator"]
     },
     reminders: [Date],
-    completedHours: Number // TODO: Connect to WeeklyReports to compute
-  },
-  { timestamps: true }
-);
+    // requiredHours is an easily derived attribute
+    // TODO needs to be a virtual getter that checks this student's WeeklyReports
+    completedHours: Number,
+
+    supervisor_status: {
+        type: String,
+        default: "pending"
+      },
+      coordinator_status: {
+        type: String,
+        default: "pending"
+      }
+}, { timestamps: true });
+formA1.virtual("requiredHours").get(function() {
+    return this.creditHours * 60;
+})
 
 // ✅ Virtual field for requiredHours (creditHours × 60)
 formA1.virtual("requiredHours").get(function () {

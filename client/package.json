@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.2",
     "bootstrap": "^5.3.5",
+    "client": "file:",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
@@ -18,7 +19,9 @@
     "react-signature-canvas": "^1.1.0-alpha.2",
     "react-toastify": "^11.0.5",
     "sweetalert2": "^11.17.2",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "date-fns": "^4.1.0",
+    "react-datepicker": "^8.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -43,6 +46,6 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
-        ]
+    ]
   }
 }
