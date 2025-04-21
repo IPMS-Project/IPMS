@@ -17,7 +17,7 @@ const formA1 = new mongoose.Schema({
     student: {
         type: ObjectId,
         required: true,
-        ref: 'User'
+        ref: 'UserTokenRequest'
     },
     workplace: {
         name: {

@@ -11,6 +11,7 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
+const studentRoutes = require("./routes/studentRoutes")
 
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
@@ -85,7 +86,7 @@ app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
 
 app.use("/api/reports", weeklyReportRoutes);
-
+app.use("/api/student",studentRoutes)
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
