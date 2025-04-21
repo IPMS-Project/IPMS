@@ -7,6 +7,17 @@ async function insertFormData(formData) {
     console.log("Received Form Data:\n", JSON.stringify(formData, null, 2));
 
     // Assumes global mongoose connection is already established elsewhere in app
+    if (formData.status === "submitted") {
+      // if tasks are aligned , form will be sent to the supervisor. 
+      formData.supervisor_status="pending" 
+      formData.coordinator_status="not submitted"  //TBD
+      console.log("Submission sent to Supervisor Dashboard.");
+    } else if (formData.status === "pending manual review") {
+      //if tasks are not aligned, form will be sent to coordinator. coordinator approves -> coordinator should forward to supervisor for further approval
+      formData.coordinator_status="pending"
+      formData.supervisor_status="not submitted"
+      console.log("Task not aligned with CS Outcomes. Sent to coordinator for manual review.");
+    }
 
     const formattedData = {
       student: new mongoose.Types.ObjectId(), // TODO: Replace with actual signed-in student ID
