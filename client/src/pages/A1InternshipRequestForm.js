@@ -248,8 +248,6 @@ const A1InternshipRequestForm = () => {
     }
   };
 
-  const taskDescriptionsKey = formData.tasks.map((t) => t.description).join(",");
-
   useEffect(() => {
     const timeout = setTimeout(() => {
       const descriptions = formData.tasks.map((task) => task.description.trim()).filter(Boolean);
@@ -273,7 +271,7 @@ const A1InternshipRequestForm = () => {
     }, 500); // debounce for 0.5 sec
   
     return () => clearTimeout(timeout);
-  }, [taskDescriptionsKey]);
+  }, [formdata.tasks]);
 
 
   const renderOutcomeCell = (task, outcome, key) => {
