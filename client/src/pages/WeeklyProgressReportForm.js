@@ -75,11 +75,9 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   const fetchStatus = async () => {
     try {
       if (!formData.email) return;
-
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/reports/status-by-email/${formData.email}`
       );
-
       const { requiredHours, submittedHours, creditHours } = res.data;
       setRequiredHours(requiredHours);
       setSubmittedHours(submittedHours);
@@ -93,11 +91,32 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     fetchStatus();
   }, [formData.email]);
 
+  useEffect(() => {
+    const delayFetch = setTimeout(() => {
+      const fetchA1Data = async () => {
+        try {
+          if (!formData.email) return;
+          const res = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/reports/a1readonly/${formData.email}`
+          );
+          const data = res.data;
+          setFormData((prev) => ({
+            ...prev,
+            supervisorName: data.supervisorName || "",
+            supervisorEmail: data.supervisorEmail || "",
+          }));
+        } catch (err) {
+          console.error("Error fetching supervisor info", err);
+        }
+      };
+      fetchA1Data();
+    }, 600);
+    return () => clearTimeout(delayFetch);
+  }, [formData.email]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { fullName, email, week, hours, tasks, lessons } = formData;
-
     if (!fullName || !email || !week || !hours || !tasks || !lessons) {
       setMessage("Please fill in all the required fields.");
       return;
@@ -110,7 +129,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
       );
 
       setMessage(res.data.message || "Report submitted successfully!");
-
       setFormData({
         fullName: "",
         email: "",
@@ -146,7 +164,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             onChange={handleChange}
             placeholder=" "
             required
-            readOnly={readOnly}
           />
           <label>Student Name</label>
         </div>
@@ -159,20 +176,18 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             onChange={handleChange}
             placeholder=" "
             required
-            readOnly={readOnly}
           />
           <label>Student Email</label>
         </div>
 
-        {/* Supervisor Info */}
+        {/* Supervisor Info (Auto-filled) */}
         <div className="form-group floating-label-group">
           <input
             type="text"
             name="supervisorName"
             value={formData.supervisorName}
-            onChange={handleChange}
             placeholder=" "
-            readOnly={readOnly}
+            readOnly
           />
           <label>Supervisor Name</label>
         </div>
@@ -182,9 +197,8 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             type="email"
             name="supervisorEmail"
             value={formData.supervisorEmail}
-            onChange={handleChange}
             placeholder=" "
-            readOnly={readOnly}
+            readOnly
           />
           <label>Supervisor Email</label>
         </div>
@@ -220,7 +234,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
               name="week"
               value={formData.week}
               onChange={handleChange}
-              disabled={readOnly}
               required
             >
               <option value="">-- Select Week --</option>
@@ -238,10 +251,9 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
               name="hours"
               value={formData.hours}
               onChange={handleChange}
-              required
               min="1"
               max="40"
-              readOnly={readOnly}
+              required
             />
             <label>Number of Hours</label>
           </div>
@@ -255,7 +267,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             onChange={handleChange}
             required
             placeholder=" "
-            readOnly={readOnly}
           />
           <label>Tasks Performed</label>
         </div>
@@ -267,7 +278,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             onChange={handleChange}
             required
             placeholder=" "
-            readOnly={readOnly}
           />
           <label>Lessons Learned</label>
         </div>

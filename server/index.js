@@ -12,7 +12,7 @@ const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
-
+const weeklyRoutes = require("./routes/weeklyReportRoutes");
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
@@ -25,6 +25,7 @@ app.use("/api/form", formRoutes); // register route as /api/form/submit
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
+app.use("/api/reports", weeklyRoutes);
 
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,

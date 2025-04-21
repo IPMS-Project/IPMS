@@ -1,4 +1,6 @@
 const WeeklyReport = require("../models/WeeklyReport");
+const InternshipRequest = require("../models/InternshipRequest");
+const UserTokenRequest = require("../models/TokenRequest");
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
@@ -84,6 +86,41 @@ const getReportStatusByEmail = async (req, res) => {
   }
 };
 
+// --- GET: A1 Readonly Info by Student Email ---
+const getA1Readonly = async (req, res) => {
+  try {
+    const { email } = req.params;
+    console.log("🔍 Looking for student with email:", email);
+
+    const student = await UserTokenRequest.findOne({ ouEmail: email.toLowerCase() }).select("_id fullName ouEmail");
+    if (!student) {
+      console.log("❌ No student found with that email");
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    console.log("✅ Student found:", student);
+
+    const a1Form = await InternshipRequest.findOne({ student: student._id });
+    if (!a1Form) {
+      console.log("❌ No A.1 form found for student:", student._id);
+      return res.status(404).json({ message: "A.1 form not found for this student" });
+    }
+
+    console.log("✅ A.1 form found:", a1Form);
+
+    return res.status(200).json({
+      fullName: student.fullName,
+      email: student.ouEmail,
+      supervisorName: a1Form.internshipAdvisor?.name || "",
+      supervisorEmail: a1Form.internshipAdvisor?.email || "",
+      creditHours: a1Form.creditHours || 0,
+    });
+  } catch (error) {
+    console.error("🔥 Error in getA1Readonly:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 // --- GET: Download Form A.2 PDF by Email ---
 const downloadReport = async (req, res) => {
   try {
@@ -138,5 +175,6 @@ const downloadReport = async (req, res) => {
 module.exports = {
   createReport,
   getReportStatusByEmail,
+  getA1Readonly,
   downloadReport,
 };
