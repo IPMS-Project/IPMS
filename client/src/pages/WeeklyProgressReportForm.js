@@ -27,7 +27,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
 
   const studentEmail = formData.email;
 
-  // Load report if read-only
+  // Fetch report details if in read-only mode
   useEffect(() => {
     if (readOnly && reportId) {
       axios
@@ -60,19 +60,11 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             }));
           }
         })
-        .catch((err) => {
-          console.error("Failed to load report", err);
-        });
+        .catch((err) => console.error("Failed to load report", err));
     }
   }, [readOnly, reportId]);
 
-  const handleChange = (e) => {
-    if (readOnly) return;
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Fetch report status
+  // Fetch status for tracker
   const fetchStatus = useCallback(async () => {
     try {
       if (!studentEmail) return;
@@ -92,7 +84,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     fetchStatus();
   }, [fetchStatus]);
 
-  // Fetch A.1 data
+  // Fetch A.1 details (supervisor + credits)
   useEffect(() => {
     const delayFetch = setTimeout(() => {
       const fetchA1Data = async () => {
@@ -115,9 +107,18 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
       };
       fetchA1Data();
     }, 600);
-    return () => clearTimeout(delayFetch);
-  }, [formData.email, fetchStatus]);  
 
+    return () => clearTimeout(delayFetch);
+  }, [studentEmail]);
+
+  // Input changes
+  const handleChange = (e) => {
+    if (readOnly) return;
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { fullName, email, week, hours, tasks, lessons } = formData;
@@ -192,16 +193,14 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
           <label>Coordinator Email</label>
         </div>
 
-        {/* Week and Hours */}
+        {/* Week + Hours */}
         <div className="week-hours-row">
           <div className="form-group">
             <label>Week</label>
             <select name="week" value={formData.week} onChange={handleChange} required>
               <option value="">-- Select Week --</option>
               {Array.from({ length: 15 }, (_, i) => (
-                <option key={i} value={`Week ${i + 1}`}>
-                  Week {i + 1}
-                </option>
+                <option key={i} value={`Week ${i + 1}`}>Week {i + 1}</option>
               ))}
             </select>
           </div>
@@ -212,7 +211,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
           </div>
         </div>
 
-        {/* Tasks and Lessons */}
+        {/* Tasks + Lessons */}
         <div className="form-group floating-label-group">
           <textarea name="tasks" value={formData.tasks} onChange={handleChange} required placeholder=" " />
           <label>Tasks Performed</label>
