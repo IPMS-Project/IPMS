@@ -96,7 +96,7 @@ const SupervisorDashboard = () => {
                 <td>{req.interneeName || req.studentName}</td>
                 <td>
                   <button className="link-button" onClick={() => openFormView(req)}>
-                    {req.interneeID || req.soonerId}
+                    {req._id || req.soonerId}
                   </button>
                 </td>
                 <td>{req.interneeEmail || req.studentEmail}</td>
