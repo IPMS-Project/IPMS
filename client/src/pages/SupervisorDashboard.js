@@ -116,7 +116,7 @@ const SupervisorDashboard = () => {
           <thead>
             <tr>
               <th>Student Name</th>
-              <th>Student Email</th>
+              <th>Sooner ID</th>
               <th>Form Type</th>
               <th>Submitted</th>
               <th>Status</th>
@@ -131,7 +131,7 @@ const SupervisorDashboard = () => {
                     {req.interneeID || req.name}
                   </button>
                 </td>
-                <td>{req.interneeEmail || req.email}</td>
+                <td>{req.interneeEmail || req.soonerID}</td>
                 <td>{req.form_type}</td>
                 <td>{formatDate(req.createdAt)}</td>
                 <td>
