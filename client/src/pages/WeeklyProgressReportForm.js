@@ -82,7 +82,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     };
 
     if (!readOnly) fetchA1Data();
-  }, []);
+  }, [readOnly]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
