@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const UserTokenRequest = require("../models/TokenRequest");
 
 const formMetadata = {
   student_id: { type: mongoose.Schema.Types.ObjectId, ref: "UserTokenRequest"},

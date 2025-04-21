@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../styles/SupervisorDashboard.css";
 
 const ViewFormModal = ({ formData, onClose, onAction }) => {
-    const [comment, setComment] = useState("");
+  const [comment, setComment] = useState("");
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
 
@@ -26,15 +26,13 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
           </thead>
           <tbody>
             <tr>
-              <td><strong>Student Name:</strong> {formData.interneeName || formData.name || "N/A"}</td>
+              <td><strong>Student Name:</strong> {formData.interneeName || "N/A"}</td>
               <td><strong>Student ID:</strong> {formData.soonerId || "N/A"}</td>
-            </tr>
-            <tr>
               <td><strong>Email:</strong> {formData.interneeEmail || "N/A"}</td>
-              <td><strong>Phone:</strong> {formData.workplaceName || "N/A"}</td>
             </tr>
             <tr>
               <td><strong>Workplace Name:</strong> {formData.workplace?.name || "N/A"}</td>
+              <td><strong>Phone:</strong> {formData.workplace?.phone || "N/A"}</td>
               <td><strong>Website:</strong> {formData.workplace?.website || "N/A"}</td>
             </tr>
             <tr>
