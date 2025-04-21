@@ -116,7 +116,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
       fetchA1Data();
     }, 600);
     return () => clearTimeout(delayFetch);
-  }, [studentEmail]);
+  }, [formData.email, fetchStatus]);  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
