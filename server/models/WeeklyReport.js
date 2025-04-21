@@ -7,6 +7,11 @@ const weeklyReportSchema = new mongoose.Schema({
     required: true,
   },
 
+  email: {
+    type: String,
+    required: true,
+  },
+
   week: {
     type: String,
     required: true,

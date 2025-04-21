@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import "./WeeklyProgressReportForm.css";
+import "../styles/WeeklyProgressReportForm.css";
 
 const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   const navigate = useNavigate();
@@ -23,13 +23,8 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
         .get(`${process.env.REACT_APP_API_URL}/api/reports/${reportId}`)
         .then((res) => {
           if (res.data.success) {
-            const {
-              week,
-              hours,
-              tasks,
-              lessons,
-              supervisorComments,
-            } = res.data.report;
+            const { week, hours, tasks, lessons, supervisorComments } =
+              res.data.report;
 
             setFormData({
               week: week || "",

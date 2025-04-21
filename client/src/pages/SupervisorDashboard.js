@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2";
 import "../styles/SupervisorDashboard.css";
 import ViewFormModal from "./ViewFormModal";
 
@@ -19,7 +18,9 @@ const SupervisorDashboard = () => {
       try {
         const [res1, res2] = await Promise.all([
           axios.get(`${process.env.REACT_APP_API_URL}/api/submissions/pending`),
-          axios.get(`${process.env.REACT_APP_API_URL}/api/reports/cumulative/reports`)
+          axios.get(
+            `${process.env.REACT_APP_API_URL}/api/reports/cumulative/reports`
+          ),
         ]);
         setRequests(res1.data || []);
         setCumulativeReports(res2.data?.cumulativeReports || []);
@@ -34,11 +35,15 @@ const SupervisorDashboard = () => {
   }, []);
 
   const handleAction = async (id, action, comment) => {
-    if (!window.confirm(`Are you sure you want to ${action} this request?`)) return;
+    if (!window.confirm(`Are you sure you want to ${action} this request?`))
+      return;
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`, { comment });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`,
+        { comment }
+      );
       setMessage(res.data.message || `${action} successful`);
-      setRequests(prev => prev.filter(req => req._id !== id));
+      setRequests((prev) => prev.filter((req) => req._id !== id));
       setSelectedForm(null);
     } catch (err) {
       console.error(err);
@@ -79,10 +84,21 @@ const SupervisorDashboard = () => {
                 {requests.map((req) => (
                   <tr key={req._id}>
                     <td>{req.name}</td>
-                    <td><button className="link-button" onClick={() => setSelectedForm(req)}>{req.student_id}</button></td>
+                    <td>
+                      <button
+                        className="link-button"
+                        onClick={() => setSelectedForm(req)}
+                      >
+                        {req.student_id}
+                      </button>
+                    </td>
                     <td>{req.form_type}</td>
                     <td>{formatDate(req.createdAt)}</td>
-                    <td><span className={`status-badge ${req.supervisor_status}`}>{req.supervisor_status}</span></td>
+                    <td>
+                      <span className={`status-badge ${req.supervisor_status}`}>
+                        {req.supervisor_status}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -96,7 +112,12 @@ const SupervisorDashboard = () => {
           ) : (
             cumulativeReports.map((group, index) => (
               <div key={index} className="cumulative-report-card">
-                <h4 className="weeks-covered">Weeks Covered: {group.weeks?.map(week => week.replace("Week ", "")).join(", ")}</h4>
+                <h4 className="weeks-covered">
+                  Weeks Covered:{" "}
+                  {group.weeks
+                    ?.map((week) => week.replace("Week ", ""))
+                    .join(", ")}
+                </h4>
                 <ul className="week-report-grid">
                   {group.reports.map((rep, idx) => (
                     <li key={idx} className="week-report-item">
@@ -106,7 +127,14 @@ const SupervisorDashboard = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="review-button red-btn" onClick={() => navigate(`/review-cumulative/${group.groupIndex}`)}>Review & Comment</button>
+                <button
+                  className="review-button red-btn"
+                  onClick={() =>
+                    navigate(`/review-cumulative/${group.groupIndex}`)
+                  }
+                >
+                  Review & Comment
+                </button>
               </div>
             ))
           )}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./SubmittedReports.css";
+import "../styles/SubmittedReports.css";
 
 const SubmittedReports = () => {
   const [reports, setReports] = useState([]);
@@ -11,7 +11,9 @@ const SubmittedReports = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine`);
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/reports/mine`
+        );
         if (res.data.success) {
           setReports(res.data.reports);
         }
@@ -49,7 +51,9 @@ const SubmittedReports = () => {
               <tr
                 key={report._id}
                 className="clickable-row"
-                onClick={() => navigate(`/submitted-reports/view/${report._id}`)}
+                onClick={() =>
+                  navigate(`/submitted-reports/view/${report._id}`)
+                }
               >
                 <td>{report.week}</td>
                 <td>{report.hours}</td>

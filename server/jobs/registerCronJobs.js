@@ -60,5 +60,5 @@ if (require.main === module) {
       .catch((error) =>
         console.error("❌ Failed to refresh cron jobs:", error)
       );
-  }, 5 * 60 * 1000); // Refresh every 5 minutes
+  }, 1 * 60 * 1000); // Refresh every 1 minutes
 }

@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import axios from "axios";
-import "./WeeklyFourWeekReportForm.css";
+import "../styles/WeeklyFourWeekReportForm.css";
 
 const WeeklyFourWeekReportForm = () => {
   const userRole = localStorage.getItem("role") || "student"; // Default role is student
@@ -37,7 +36,10 @@ const WeeklyFourWeekReportForm = () => {
     console.log("Payload Sending:", payload);
 
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/fourWeekReports`, payload);
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/fourWeekReports`,
+        payload
+      );
       setMessage("✅ Report Submitted Successfully!");
 
       setFormData({
@@ -59,7 +61,6 @@ const WeeklyFourWeekReportForm = () => {
       <h2 className="four-week-title">4-Week Progress Report</h2>
 
       <form onSubmit={handleSubmit}>
-
         {/* Select Week */}
         <label className="four-week-label">Select Week:</label>
         <select
@@ -117,13 +118,19 @@ const WeeklyFourWeekReportForm = () => {
         <textarea
           name="supervisorComments"
           className="four-week-textarea"
-          placeholder={isSupervisor ? "Enter your comments here..." : "Only Supervisor can fill..."}
+          placeholder={
+            isSupervisor
+              ? "Enter your comments here..."
+              : "Only Supervisor can fill..."
+          }
           value={formData.supervisorComments}
           onChange={handleChange}
           disabled={!isSupervisor}
         />
         {!isSupervisor && (
-          <p style={{ fontSize: "13px", color: "grey" }}>*Only Supervisors are allowed to fill this section.</p>
+          <p style={{ fontSize: "13px", color: "grey" }}>
+            *Only Supervisors are allowed to fill this section.
+          </p>
         )}
 
         {/* Coordinator Comments */}
@@ -131,16 +138,24 @@ const WeeklyFourWeekReportForm = () => {
         <textarea
           name="coordinatorComments"
           className="four-week-textarea"
-          placeholder={isCoordinator ? "Enter your comments here..." : "Only Coordinator can fill..."}
+          placeholder={
+            isCoordinator
+              ? "Enter your comments here..."
+              : "Only Coordinator can fill..."
+          }
           value={formData.coordinatorComments}
           onChange={handleChange}
           disabled={!isCoordinator}
         />
         {!isCoordinator && (
-          <p style={{ fontSize: "13px", color: "grey" }}>*Only Coordinators are allowed to fill this section.</p>
+          <p style={{ fontSize: "13px", color: "grey" }}>
+            *Only Coordinators are allowed to fill this section.
+          </p>
         )}
 
-        <button type="submit" className="four-week-button">Submit</button>
+        <button type="submit" className="four-week-button">
+          Submit
+        </button>
 
         {message && <p className="form-message">{message}</p>}
       </form>

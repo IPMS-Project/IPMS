@@ -1,10 +1,15 @@
 const CronJob = require("../models/CronJob");
-const { coordinatorReminder, supervisorReminder } = require("./reminderEmail");
+const {
+  coordinatorReminder,
+  supervisorReminder,
+  internshipHourReminder,
+} = require("./reminderEmail");
 
 // Map of job names to their corresponding functions
 const jobFunctions = {
   coordinatorApprovalReminder: coordinatorReminder,
-  supervisorApprovalReminder: supervisorReminder,  
+  supervisorApprovalReminder: supervisorReminder,
+  internshipHourReminder: internshipHourReminder,
   // Add more job functions here as needed
 };
 
