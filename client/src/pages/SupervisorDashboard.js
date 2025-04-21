@@ -12,8 +12,7 @@ const SupervisorDashboard = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/submissions/pending`);
-
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/form/supervisor/a2forms`);
         setRequests(res.data);
         setLoading(false);
       } catch (err) {
@@ -30,7 +29,7 @@ const SupervisorDashboard = () => {
     if (!confirmed) return;
 
     try {
-      const res =  await axios.post(`${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`, { comment });
+      const res = await axios.patch(`${process.env.REACT_APP_API_URL}/api/form/${action}/${id}`, { comment });
 
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
@@ -43,30 +42,27 @@ const SupervisorDashboard = () => {
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
-
   const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
 
-  const sortedRequests = [...requests].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+  const sortedRequests = [...requests].sort((a, b) => new Date(a.submittedAt) - new Date(b.submittedAt));
 
   let content;
 
   if (loading) {
     content = <p>Loading...</p>;
-  }
-  else if (sortedRequests.length === 0) {
+  } else if (sortedRequests.length === 0) {
     content = (
       <div className="empty-message-container">
         <div className="empty-message">No pending approvals.</div>
       </div>
     );
-  }
-  else {
+  } else {
     content = (
       <table className="dashboard-table">
         <thead>
           <tr>
-            <th>Student Name</th>
             <th>Student ID</th>
+            <th>Student Name</th>
             <th>Form Type</th>
             <th>Date Submitted</th>
             <th>Status</th>
@@ -75,17 +71,17 @@ const SupervisorDashboard = () => {
         <tbody>
           {sortedRequests.map((req) => (
             <tr key={req._id}>
-              <td>{req.name}</td>
               <td>
                 <button className="link-button" onClick={() => openFormView(req)}>
-                  {req.student_id}
+                  {req.student_id || "N/A"}
                 </button>
               </td>
-              <td>{req.form_type}</td>
-              <td>{formatDate(req.createdAt)}</td>
+              <td>{req.name || "Unknown"}</td>
+              <td>{req.form_type || "A2"}</td>
+              <td>{formatDate(req.submittedAt)}</td>
               <td>
-                <span className={`status-badge ${req.supervisor_status}`}>
-                  {req.supervisor_status}
+                <span className={`status-badge ${req.supervisor_status || "pending"}`}>
+                  {req.supervisor_status || "pending"}
                 </span>
               </td>
             </tr>

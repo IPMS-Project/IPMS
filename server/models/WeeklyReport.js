@@ -1,12 +1,6 @@
 const mongoose = require("mongoose");
 
 const weeklyReportSchema = new mongoose.Schema({
-  // studentId: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: "User",
-  //   required: true,
-  // },
-
   week: {
     type: String,
     required: true,
@@ -30,6 +24,21 @@ const weeklyReportSchema = new mongoose.Schema({
   supervisorComments: {
     type: String,
     default: "",
+  },
+
+  supervisor_status: {
+    type: String,
+    default: "pending", // ✅ This will allow updates
+  },
+
+  coordinator_status: {
+    type: String,
+    default: "not_required", // ✅ Used when form is approved
+  },
+
+  form_type: {
+    type: String,
+    default: "A2", // ✅ So GET filters can work
   },
 
   submittedAt: {

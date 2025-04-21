@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import "../styles/SupervisorDashboard.css";
 
 const ViewFormModal = ({ formData, onClose, onAction }) => {
-  const form = typeof formData.details === "string" ? JSON.parse(formData.details) : formData.details;
+  const form = typeof formData.details === "string"
+    ? JSON.parse(formData.details)
+    : formData.details || formData;
+
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
 
@@ -11,32 +14,74 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
       setError("Comment is required before taking action.");
       return;
     }
-    setError("");  // clear error
+    setError("");
     onAction(formData._id, action, comment);
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-box">
-        <h2>Form: {formData.form_type}</h2>
-        <p><strong>Student:</strong> {formData.name}</p>
+        <h2>A.2 - Weekly Progress Report</h2>
 
-        {form.tasks && (
-          <div>
-            <strong>Tasks:</strong>
-            <ul>{form.tasks.map((task, i) => <li key={i}>{task}</li>)}</ul>
-          </div>
-        )}
+        <div>
+          <label><strong>Student Name:</strong></label>
+          <input
+            type="text"
+            value={formData.name || "N/A"}
+            readOnly
+            className="readonly-input"
+          />
+        </div>
 
-        {form.outcomes && (
-          <div>
-            <strong>Outcomes:</strong>
-            <ul>{form.outcomes.map((o, i) => <li key={i}>{o}</li>)}</ul>
-          </div>
-        )}
+        <div style={{ marginTop: "10px" }}>
+          <label><strong>Student ID:</strong></label>
+          <input
+            type="text"
+            value={formData.student_id || "N/A"}
+            readOnly
+            className="readonly-input"
+          />
+        </div>
 
-        {form.week && <p><strong>Week:</strong> {form.week}</p>}
-        {form.lessonsLearned && <p><strong>Lessons Learned:</strong> {form.lessonsLearned}</p>}
+        <div style={{ marginTop: "10px" }}>
+          <label><strong>Week:</strong></label>
+          <input
+            type="text"
+            value={form.week || ""}
+            readOnly
+            className="readonly-input"
+          />
+        </div>
+
+        <div>
+          <label><strong>Hours:</strong></label>
+          <input
+            type="text"
+            value={form.hours || ""}
+            readOnly
+            className="readonly-input"
+          />
+        </div>
+
+        <div>
+          <label><strong>Tasks Performed:</strong></label>
+          <textarea
+            value={form.tasks || ""}
+            readOnly
+            className="readonly-input"
+            rows={3}
+          />
+        </div>
+
+        <div>
+          <label><strong>Lessons Learned:</strong></label>
+          <textarea
+            value={form.lessons || form.lessonsLearned || ""}
+            readOnly
+            className="readonly-input"
+            rows={3}
+          />
+        </div>
 
         <div>
           <label><strong>Comment:</strong></label>
