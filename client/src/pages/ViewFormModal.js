@@ -17,10 +17,40 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
   const renderA1 = () => (
     <>
       <h2>A1 – Internship Request Form</h2>
-      <p><strong>Name:</strong> {formData.studentName}</p>
-      <p><strong>Email:</strong> {formData.studentEmail}</p>
-      <p><strong>Sooner ID:</strong> {formData.soonerId}</p>
-      <p><strong>Workplace:</strong> {formData.workplace?.name}</p>
+     <table className="modal-details-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Student Name:</strong> {formData.student?.userName || formData.student?.name || "N/A"}</td>
+              <td><strong>Student ID:</strong> {formData.student?._id || "N/A"}</td>
+            </tr>
+            <tr>
+              <td><strong>Email:</strong> {formData.student?.email || "N/A"}</td>
+              <td><strong>Phone:</strong> {formData.workplace?.phone || "N/A"}</td>
+            </tr>
+            <tr>
+              <td><strong>Workplace Name:</strong> {formData.workplace?.name || "N/A"}</td>
+              <td><strong>Website:</strong> {formData.workplace?.website || "N/A"}</td>
+            </tr>
+            <tr>
+              <td><strong>Advisor Name:</strong> {formData.internshipAdvisor?.name || "N/A"}</td>
+              <td><strong>Advisor Email:</strong> {formData.internshipAdvisor?.email || "N/A"}</td>
+            </tr>
+            <tr>
+              <td><strong>Credit Hours:</strong> {formData.creditHours}</td>
+              <td>
+                <strong>Start Date:</strong> {new Date(formData.startDate).toLocaleDateString()}
+                <br />
+                <strong>End Date:</strong> {new Date(formData.endDate).toLocaleDateString()}
+              </td>
+            </tr>
+          </tbody>
+        </table>
     </>
   );
 

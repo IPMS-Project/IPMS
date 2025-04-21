@@ -1,65 +1,65 @@
 const express = require("express");
 const router = express.Router();
-const InternshipRequest = require('../models/InternshipRequest');
-const Evaluation = require('../models/Evaluation');
-const emailService = require("../services/emailService");
+const InternshipRequest = require("../models/InternshipRequest");
+const { insertFormData } = require("../services/insertData");
 
-// ==========================
-// A1: InternshipRequest Form
-// ==========================
-
-// Submit A1 form
-router.post("/submit", async (req, res) => {
+// GET route to fetch internship requests pending supervisor action
+router.get("/internshiprequests", async (req, res) => {
   try {
-    const form = new InternshipRequest({
-      ...req.body,
-      supervisor_status: "pending" // ✅ Required for dashboard visibility
-    });
+    const requests = await InternshipRequest.find({
+      status: "submitted",
+      // approvals: "advisor", // advisor has approved
+      supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
+    }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
 
-    await form.save();
-    res.status(201).json({ message: "A1 form submitted successfully!" });
-  } catch (error) {
-    console.error("A1 Validation Errors:", error.errors);
-    res.status(400).json({ message: error.message, errors: error.errors });
+    res.status(200).json(requests);
+  } catch (err) {
+    console.error("Error fetching internship requests:", err);
+    res.status(500).json({ message: "Server error while fetching internship requests" });
   }
 });
 
-// Get all A1 forms for supervisor (if still used anywhere)
-router.get('/a1forms', async (req, res) => {
-  try {
-    const forms = await InternshipRequest.find({
-      $or: [
-        { supervisor_comment: { $exists: false } },
-        { supervisor_comment: "" }
-      ]
-    }).sort({ createdAt: -1 });
+// Validate and submit form
+function validateFormData(formData) {
+  const requiredFields = [
+    "workplaceName",
+    "website",
+    "phone",
+    "advisorName",
+    "advisorJobTitle",
+    "advisorEmail",
+    "creditHours",
+    "startDate",
+    "endDate",
+    "tasks"
+  ];
 
-    res.status(200).json(forms);
-  } catch (error) {
-    console.error('Error fetching A.1 forms:', error);
-    res.status(500).json({ message: 'Failed to fetch forms' });
-  }
-});
-
-// Get a specific A1 form by Sooner ID
-router.get('/a1forms/:soonerId', async (req, res) => {
-  try {
-    const form = await InternshipRequest.findOne({
-      soonerId: req.params.soonerId,
-      $or: [
-        { supervisor_comment: { $exists: false } },
-        { supervisor_comment: "" }
-      ]
-    });
-
-    if (!form) {
-      return res.status(404).json({ message: "Form not found" });
+  for (const field of requiredFields) {
+    if (!formData[field] || formData[field] === "") {
+      return `Missing or empty required field: ${field}`;
     }
+  }
+});
 
-    res.status(200).json(form);
-  } catch (error) {
-    console.error('Error fetching form:', error);
-    res.status(500).json({ message: 'Error fetching form' });
+
+  if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
+    return "Tasks must be a non-empty array";
+  }
+
+  const outcomes = new Set();
+  formData.tasks.forEach((task) => {
+    task.outcomes?.forEach(o => outcomes.add(o));
+  });
+
+  formData.status = outcomes.size < 3 ? "pending manual review" : "submitted";
+  return null;
+}
+
+router.post("/submit", async (req, res) => {
+  const formData = req.body;
+
+  if (!formData.studentId) {
+    return res.status(400).json({ message: "Missing studentId in form data" });
   }
 });
 
@@ -70,17 +70,12 @@ router.get('/a1forms/:soonerId', async (req, res) => {
 // Submit A3 form
 router.post("/submit-a3", async (req, res) => {
   try {
-    const form = new Evaluation({
-      ...req.body,
-      supervisor_status: "pending" // ✅ Required for dashboard visibility
-    });
-
-    await form.save();
-    res.status(201).json({ message: "A3 form submitted successfully!" });
-  } catch (err) {
-    console.error("A3 submission error:", err);
-    res.status(500).json({ message: "Failed to submit A3 form" });
+    await insertFormData(formData);  // pass studentId through
+    res.status(200).json({ message: "Form received and stored." });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
+
 
 module.exports = router;
