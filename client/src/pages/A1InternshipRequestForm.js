@@ -247,7 +247,8 @@ const A1InternshipRequestForm = () => {
       console.error("Error:", error);
     }
   };
-  
+
+  const taskDescriptionsKey = formData.tasks.map((t) => t.description).join(",");
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -272,7 +273,7 @@ const A1InternshipRequestForm = () => {
     }, 500); // debounce for 0.5 sec
   
     return () => clearTimeout(timeout);
-  }, [formData.tasks.map((t) => t.description).join(",")]);
+  }, [taskDescriptionsKey]);
 
 
   const renderOutcomeCell = (task, outcome, key) => {
