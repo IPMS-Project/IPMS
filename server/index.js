@@ -94,21 +94,67 @@ app.post("/api/createUser", async (req, res) => {
 
 //Form A.3
 
-app.post("/api/evaluation", async (req, res) => {
-  try {
-    const { formData, ratings, comments } = req.body;
+// app.post("/api/evaluation", async (req, res) => {
+//   console.log("BODY:", req.body);
+//   try {
+//     const { formData, ratings, comments } = req.body;
 
-    const evaluations = Object.keys(ratings).map((category) => ({
+//     const evaluations = Object.keys(ratings).map((category) => ({
+//       category,
+//       rating: ratings[category],
+//       comment: comments[category] || "",
+//     }));
+
+//     const newEvaluation = new Evaluation({
+//       advisorSignature: formData.advisorSignature,
+//       advisorAgreement: formData.advisorAgreement,
+//       coordinatorSignature: formData.coordinatorSignature,
+//       coordinatorAgreement: formData.coordinatorAgreement,
+//       evaluations,
+//     });
+
+//     await newEvaluation.save();
+//     res.status(201).json({ message: "Evaluation saved successfully!" });
+//   } catch (error) {
+//     console.error("Error saving evaluation:", error);
+//     res.status(500).json({ error: "Failed to save evaluation" });
+//   }
+// });
+
+
+app.post("/api/evaluation", async (req, res) => {
+  console.log("BODY:", req.body);
+  try {
+    const {
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
+      ratings,
+      comments
+    } = req.body;
+
+    if (!advisorSignature || !ratings ) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const evaluations = Object.keys(ratings).map(category => ({
       category,
       rating: ratings[category],
-      comment: comments[category] || "",
+      comment: comments[category] || ""
     }));
 
     const newEvaluation = new Evaluation({
-      advisorSignature: formData.advisorSignature,
-      advisorAgreement: formData.advisorAgreement,
-      coordinatorSignature: formData.coordinatorSignature,
-      coordinatorAgreement: formData.coordinatorAgreement,
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
       evaluations,
     });
 
@@ -119,7 +165,6 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
-
 
 
 

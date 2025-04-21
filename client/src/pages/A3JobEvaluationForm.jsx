@@ -125,7 +125,7 @@ export default function A3JobEvaluationForm() {
     } else {
       const canvas = sigCanvasRef.current;
       if (!canvas || canvas.isEmpty()) { alert("Draw your signature."); return; }
-      const url = canvas.getTrimmedCanvas?.().toDataURL() || canvas.getCanvas().toDataURL();
+      const url = canvas.getCanvas?.().toDataURL() || canvas.getCanvas().toDataURL();
       setFormData(f => ({ ...f, [fld]: { type: "draw", value: url } }));
     }
     setShowModal(false);
