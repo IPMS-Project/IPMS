@@ -21,60 +21,51 @@ const Task = new mongoose.Schema({
   }]
   
 });
-const formA1 = new mongoose.Schema(
-  {
+const formA1 = new mongoose.Schema({
     ...formMetadata,
-    student: {
-      // get student's name, email, id from User
-      type: ObjectId,
-      required: true,
-      ref: "User",
+    student: { 
+        type: ObjectId,
+        required: true,
+        ref: 'UserTokenRequest'
     },
     workplace: {
-      name: {
-        type: String,
-        required: true,
-      },
-      website: String,
-      phone: String, // TODO how to validate this?
+        name: {
+            type: String,
+            required: true,
+        },
+        website: String,
+        phone: String, // TODO how to validate this?
     },
     internshipAdvisor: {
-      name: String,
-      jobTitle: String,
-      email: {
-        type: String,
-        required: true,
-      },
+        name: String,
+        jobTitle: String,
+        email: {
+            type: String,
+            required: true
+        }
     },
     creditHours: {
-      type: Number,
-      required: true,
-      enum: [1, 2, 3],
+        type: Number,
+        required: true,
+        enum: [1, 2, 3]
     },
     startDate: {
-      type: Date,
-      required: true,
+        type: Date,
+        required: true
     },
-    endDate: {
-      // TODO how to make sure endDate is later than startDate?
-      type: Date,
-      required: true,
+    endDate: { // TODO how to make sure endDate is later than startDate?
+        type: Date,
+        required: true
     },
     tasks: {
-      type: [Task],
-      required: true,
+        type: [Task],
+        required: true
     },
-    status: {
-      type: String,
-      required: true,
-      enum: ["draft", "submitted", "pending manual review", "approved"],
-    },
-    supervisor_status: {
-      type: String,
-    },
-    supervisor_comment: {
-      type: String,
-    },
+    // status: {
+    //     type: String,
+    //     required: true,
+    //     enum: ['draft', 'submitted','pending manual review' ,'approved']
+    // },
     approvals: {
       type: [String],
       enum: ["advisor", "coordinator"],
@@ -82,12 +73,10 @@ const formA1 = new mongoose.Schema(
     reminders: [Date],
     // requiredHours is an easily derived attribute
     // TODO needs to be a virtual getter that checks this student's WeeklyReports
-    completedHours: Number,
-  },
-  { timestamps: true }
-);
-formA1.virtual("requiredHours").get(function () {
-  return this.creditHours * 60;
-});
+    completedHours: Number
+}, { timestamps: true });
+formA1.virtual("requiredHours").get(function() {
+    return this.creditHours * 60;
+})
 
 module.exports = mongoose.model("InternshipRequest", formA1);

@@ -45,10 +45,6 @@ const SupervisorDashboard = () => {
         if (!confirmed) return false;
   
         try {
-            const url = `${process.env.REACT_APP_API_URL}/api/supervisor/form/${formType}/${id}/${action}`;
-
-            console.log(url)
-            
             const res = await axios.post(
                 `${process.env.REACT_APP_API_URL}/api/supervisor/form/${formType}/${id}/${action}`,
                 { comment },
@@ -72,15 +68,13 @@ const SupervisorDashboard = () => {
     const closeFormView = () => setSelectedForm(null);
     const formatDate = (date) => new Date(date).toLocaleDateString();
 
-    const all_requests = requests
-
   return (
     <div className="dashboard-container">
       <h2>Supervisor Dashboard</h2>
       {message && <p className="status-msg">{message}</p>}
       {loading ? (
         <p>Loading...</p>
-      ) : all_requests.length === 0 ? (
+      ) : requests.length === 0 ? (
         <div className="empty-message-container">
           <div className="empty-message">No pending approvals.</div>
         </div>
@@ -97,7 +91,7 @@ const SupervisorDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {all_requests.map((req) => (
+            {requests.map((req) => (
               <tr key={req._id}>
                 <td>{req.interneeName || req.studentName}</td>
                 <td>
