@@ -20,6 +20,11 @@ const evaluationItemSchema = new mongoose.Schema({
 }, { _id: false });
 
 const evaluationSchema = new mongoose.Schema({
+
+  interneeName:  { type: String, required: true },      
+  interneeID:    { type: String, required: true },      
+  interneeEmail: { type: String, required: true }, 
+  
   interneeId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   internshipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Internship', required: false },
 
