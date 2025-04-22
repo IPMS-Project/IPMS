@@ -146,7 +146,6 @@ describe("supervisorReminder escalation", () => {
     });
 });
 
-const Evaluation = require("../models/Evaluation");
 
 describe("evaluationReminder", () => {
   beforeEach(() => {
