@@ -1,14 +1,15 @@
 const mongoose = require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
+const formMetadata = require("./FormMetadata");
 
 const Task = new mongoose.Schema({
   _id: false,
   description: {
     type: String,
-    required: true
+    required: true,
   },
-  outcomes: {
-    type: [String],
+  outcomes: [{
+    type: String,
     enum: [
       "problemSolving",
       "solutionDevelopment",
@@ -17,9 +18,11 @@ const Task = new mongoose.Schema({
       "collaboration",
       "application"
     ]
-  }
+  }]
+  
 });
 const formA1 = new mongoose.Schema({
+    ...formMetadata,
     student: { 
         type: ObjectId,
         required: true,
@@ -66,32 +69,15 @@ const formA1 = new mongoose.Schema({
     // },
     approvals: {
       type: [String],
-      enum: ["advisor", "coordinator"]
+      enum: ["advisor", "coordinator"],
     },
     reminders: [Date],
     // requiredHours is an easily derived attribute
     // TODO needs to be a virtual getter that checks this student's WeeklyReports
-    completedHours: Number,
-
-    supervisor_status: {
-        type: String,
-        default: "pending"
-      },
-      coordinator_status: {
-        type: String,
-        default: "pending"
-      }
+    completedHours: Number
 }, { timestamps: true });
 formA1.virtual("requiredHours").get(function() {
     return this.creditHours * 60;
 })
 
-// ✅ Virtual field for requiredHours (creditHours × 60)
-formA1.virtual("requiredHours").get(function () {
-  return this.creditHours * 60;
-});
-
-// ✅ Prevent OverwriteModelError (hot reload fix)
-module.exports =
-  mongoose.models.InternshipRequest ||
-  mongoose.model("InternshipRequest", formA1);
+module.exports = mongoose.model("InternshipRequest", formA1);

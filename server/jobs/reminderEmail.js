@@ -5,6 +5,8 @@ const User = require("../models/User");
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
 const InternshipRequest = require("../models/InternshipRequest");
+const UserTokenRequest = require("../models/TokenRequest");
+const logger = require("../utils/logger");
 const dayjs = require("dayjs");
 
 // Coordinator reminder: weekly report reviewed by supervisor but not yet commented by coordinator
@@ -23,15 +25,12 @@ const coordinatorReminder = async () => {
 
       if (!allCoordinatorCommentsMissing) continue;
 
-      // Fetch coordinator email from the first report (they're all the same)
       const coordinatorEmail = reports[0]?.coordinatorEmail;
       const studentEmail = reports[0]?.email;
 
-      // Skip if end date has passed
       const internship = await InternshipRequest.findOne({ email: studentEmail });
       if (!internship || dayjs().isAfter(dayjs(internship.endDate))) continue;
 
-      // Send reminder email
       await emailService.sendEmail({
         to: coordinatorEmail,
         subject: `Reminder: Coordinator Review Pending (Weeks ${weeks.join(", ")})`,
@@ -40,22 +39,44 @@ const coordinatorReminder = async () => {
         text: `Reminder to review weeks ${weeks.join(", ")} as coordinator.`
       });
 
-      console.log(`[Reminder Sent] Coordinator: "${coordinatorEmail}" for weeks: ${weeks.join(", ")}`);
+      logger.info(`[Reminder Sent] Coordinator: "${coordinatorEmail}" for weeks: ${weeks.join(", ")}`);
     }
   } catch (err) {
-    console.error("[CoordinatorReminder Error]:", err.message || err);
+    logger.error("[CoordinatorReminder Error]:", err.message || err);
   }
 };
 
-// Main logic to remind supervisors if pending for > 5 days
+// Utility to get all forms of type A1, A2, A3
+const getAllForms = async (filter = {}) => {
+  const models = {
+    A1: require("../models/InternshipRequest"),
+    A2: require("../models/WeeklyReport"),
+    A3: require("../models/Evaluation"),
+  };
+
+  const formPromises = Object.entries(models).map(async ([form_type, Model]) => {
+    const results = await Model.find(filter);
+    return results;
+  });
+
+  const allResults = await Promise.all(formPromises);
+  return allResults.flat();
+};
+
+// Supervisor reminder: weekly progress reports pending review
 const supervisorReminder = async () => {
   const now = dayjs();
-  const fiveWorkingDaysAgo = now.subtract(7, "day").toDate(); // Approx 5 working days
+  const fiveWorkingDaysAgo = now.subtract(7, "day").toDate();
 
   try {
     const pendingSubs = await Submission.find({
       supervisor_status: "pending",
       createdAt: { $lt: fiveWorkingDaysAgo },
+    });
+
+    const supervisors = await UserTokenRequest.find({
+      role: "supervisor",
+      isActivated: true,
     });
 
     for (const submission of pendingSubs) {
@@ -70,14 +91,11 @@ const supervisorReminder = async () => {
       const shouldRemindAgain = now.isAfter(nextReminderDue);
 
       if (reminderCount >= 2 && shouldRemindAgain) {
-        // 🔁 Escalate to student
         await emailService.sendEmail({
           to: student.email,
           subject: `Supervisor Not Responding for "${submission.name}"`,
-          html: `
-            <p>Your submission "<strong>${submission.name}</strong>" has not been reviewed by your supervisor after multiple reminders.</p>
-            <p>Please consider resending or deleting the request.</p>
-          `,
+          html: `<p>Your submission "<strong>${submission.name}</strong>" has not been reviewed by your supervisor after multiple reminders.</p>
+                 <p>Please consider resending or deleting the request.</p>`,
           text: `Your submission "${submission.name}" is still awaiting supervisor review.`,
         });
 
@@ -88,25 +106,31 @@ const supervisorReminder = async () => {
           message: `Student notified about supervisor inaction for "${submission.name}".`,
         });
 
-        console.log(`[Escalated] Student notified for: "${submission.name}"`);
+        logger.info(`[Escalated] Student notified for: "${submission.name}"`);
       } else if (shouldRemindAgain) {
-        // 📨 Reminder to supervisor
-        await emailService.sendEmail({
-          to: supervisor.email,
-          subject: `Reminder: Please Review Submission "${submission.name}"`,
-          html: `<p>This is a reminder to review the submission by ${submission.student_name}.</p>`,
-          text: `Reminder to review submission "${submission.name}".`,
-        });
+        for (const sup of supervisors) {
+          await emailService.sendEmail({
+            to: sup.ouEmail,
+            subject: `Reminder: Please Review Submission "${submission._id}"`,
+            html: `<p>This is a reminder to review the submission by ${student.email}.</p>`,
+            text: `Reminder to review submission "${submission._id}".`,
+          });
+        }
 
         submission.supervisor_reminder_count = reminderCount + 1;
         submission.last_supervisor_reminder_at = new Date();
-        await submission.save();
 
-        console.log(`[Reminder Sent] Supervisor: "${supervisor.email}" for "${submission.name}"`);
+        try {
+          await submission.save();
+        } catch (err) {
+          logger.error(`Failed to save submission: ${err.message}`);
+        }
+
+        logger.info(`[Reminder Sent] Supervisor: "${supervisor.email}" for "${submission.name}"`);
       }
     }
   } catch (err) {
-    console.error("[SupervisorReminder Error]:", err.message || err);
+    logger.error("[SupervisorReminder Error]:", err.message || err);
   }
 };
 

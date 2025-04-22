@@ -2,14 +2,9 @@ const express = require("express");
 const router = express.Router();
 const InternshipRequest = require("../models/InternshipRequest");
 const { insertFormData } = require("../services/insertData");
-const {
-  getPendingSubmissions,
-  approveSubmission,
-  rejectSubmission
-} = require("../controllers/approvalController");
 
-router.post("/internshiprequests/:id/approve", approveSubmission);
-router.post("/internshiprequests/:id/reject", rejectSubmission);
+// router.post("/internshiprequests/:id/approve", approveSubmission);
+// router.post("/internshiprequests/:id/reject", rejectSubmission);
 
 // UPDATED: GET route to fetch internship requests pending supervisor action
 router.get("/internshiprequests", async (req, res) => {

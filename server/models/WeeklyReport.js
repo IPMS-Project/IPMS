@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const formMetadata = require("./FormMetadata");
 
 const weeklyReportSchema = new mongoose.Schema({
   studentId: {
