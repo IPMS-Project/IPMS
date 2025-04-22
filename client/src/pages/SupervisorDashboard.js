@@ -5,10 +5,8 @@ import "../styles/SupervisorDashboard.css";
 import ViewFormModal from "./ViewFormModal";
 
 const SupervisorDashboard = () => {
-  const navigate = useNavigate();
-
   const [requests, setRequests] = useState([]);
-  const [cumulativeReports, setCumulativeReports] = useState([]);
+  // const [cumulativeReports, setCumulativeReports] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
