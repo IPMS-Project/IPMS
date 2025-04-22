@@ -3,7 +3,7 @@ const dayjs = require("dayjs");
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const UserTokenRequest = require("../models/TokenRequest");
-const Submission = require("../models/Submission");
+const Submission = require("../models/InternshipRequest");
 const logger = require("../utils/logger");
 
 const coordinatorReminder = async () => {
