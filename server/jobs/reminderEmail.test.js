@@ -5,6 +5,7 @@ const InternshipRequest = require("../models/InternshipRequest");
 const WeeklyReport = require("../models/WeeklyReport");
 const Evaluation = require("../models/Evaluation");
 const NotificationLog = require("../models/NotifLog");
+const User = require("../models/User");
 const UserTokenRequest = require("../models/TokenRequest");
 const mongoose = require("mongoose");
 
@@ -35,12 +36,12 @@ describe("reminderEmail", () => {
 
     mockingoose(InternshipRequest).toReturn([doc], "find");
 
-    jest.spyOn(UserTokenRequest, "findById").mockImplementation((id) => {
+    jest.spyOn(User, "findById").mockImplementation((id) => {
       if (id.equals(studentId)) {
-        return Promise.resolve({ _id: studentId, ouEmail: "student@example.com" });
+        return Promise.resolve({ _id: studentId, email: "student@example.com" });
       }
       if (id.equals(coordinatorId)) {
-        return Promise.resolve({ _id: coordinatorId, ouEmail: "coordinator@example.com" });
+        return Promise.resolve({ _id: coordinatorId, email: "coordinator@example.com" });
       }
       return Promise.resolve(null);
     });
