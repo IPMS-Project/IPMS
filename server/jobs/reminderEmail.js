@@ -1,5 +1,5 @@
 const emailService = require("../services/emailService");
-const Submission = require("../models/Submission");
+const Submission = require("../models/InternshipRequest");
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const WeeklyReport = require("../models/WeeklyReport");
@@ -17,7 +17,10 @@ const coordinatorReminder = async () => {
 
     for (const review of supervisorReviews) {
       const { studentId, weeks } = review;
-      const reports = await WeeklyReport.find({ studentId, week: { $in: weeks } });
+      const reports = await WeeklyReport.find({
+        studentId,
+        week: { $in: weeks },
+      });
 
       const allCoordinatorCommentsMissing = reports.every(
         (r) => !r.coordinatorComments || r.coordinatorComments.trim() === ""
@@ -28,18 +31,28 @@ const coordinatorReminder = async () => {
       const coordinatorEmail = reports[0]?.coordinatorEmail;
       const studentEmail = reports[0]?.email;
 
-      const internship = await InternshipRequest.findOne({ email: studentEmail });
+      const internship = await InternshipRequest.findOne({
+        email: studentEmail,
+      });
       if (!internship || dayjs().isAfter(dayjs(internship.endDate))) continue;
 
       await emailService.sendEmail({
         to: coordinatorEmail,
-        subject: `Reminder: Coordinator Review Pending (Weeks ${weeks.join(", ")})`,
-        html: `<p>Supervisor has reviewed weeks <strong>${weeks.join(", ")}</strong>.</p>
+        subject: `Reminder: Coordinator Review Pending (Weeks ${weeks.join(
+          ", "
+        )})`,
+        html: `<p>Supervisor has reviewed weeks <strong>${weeks.join(
+          ", "
+        )}</strong>.</p>
                <p>Please add your coordinator comments in IPMS dashboard before the internship ends.</p>`,
-        text: `Reminder to review weeks ${weeks.join(", ")} as coordinator.`
+        text: `Reminder to review weeks ${weeks.join(", ")} as coordinator.`,
       });
 
-      logger.info(`[Reminder Sent] Coordinator: "${coordinatorEmail}" for weeks: ${weeks.join(", ")}`);
+      logger.info(
+        `[Reminder Sent] Coordinator: "${coordinatorEmail}" for weeks: ${weeks.join(
+          ", "
+        )}`
+      );
     }
   } catch (err) {
     logger.error("[CoordinatorReminder Error]:", err.message || err);
@@ -54,10 +67,12 @@ const getAllForms = async (filter = {}) => {
     A3: require("../models/Evaluation"),
   };
 
-  const formPromises = Object.entries(models).map(async ([form_type, Model]) => {
-    const results = await Model.find(filter);
-    return results;
-  });
+  const formPromises = Object.entries(models).map(
+    async ([form_type, Model]) => {
+      const results = await Model.find(filter);
+      return results;
+    }
+  );
 
   const allResults = await Promise.all(formPromises);
   return allResults.flat();
@@ -86,7 +101,8 @@ const supervisorReminder = async () => {
       if (!student || !supervisor) continue;
 
       const reminderCount = submission.supervisor_reminder_count || 0;
-      const lastReminded = submission.last_supervisor_reminder_at || submission.createdAt;
+      const lastReminded =
+        submission.last_supervisor_reminder_at || submission.createdAt;
       const nextReminderDue = dayjs(lastReminded).add(5, "day");
       const shouldRemindAgain = now.isAfter(nextReminderDue);
 
@@ -126,7 +142,9 @@ const supervisorReminder = async () => {
           logger.error(`Failed to save submission: ${err.message}`);
         }
 
-        logger.info(`[Reminder Sent] Supervisor: "${supervisor.email}" for "${submission.name}"`);
+        logger.info(
+          `[Reminder Sent] Supervisor: "${supervisor.email}" for "${submission.name}"`
+        );
       }
     }
   } catch (err) {
