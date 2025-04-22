@@ -28,9 +28,9 @@ describe("reminderEmail", () => {
       coordinator_id: coordinatorId,
       createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
       coordinator_status: "pending",
-      coordinator_reminder_count: 0,
-      last_coordinator_reminder_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      save: jest.fn(),
+      coordinator_reminder_count: 1,
+      last_coordinator_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+      studentNotified: false
     };
 
     mockingoose(InternshipRequest).toReturn([fakeSubmission], "find");
@@ -44,6 +44,7 @@ describe("reminderEmail", () => {
       return Promise.resolve(null);
     });
     mockingoose(NotificationLog).toReturn({}, "save");
+    const saveSpy = jest.spyOn(InternshipRequest.prototype, "save").mockResolvedValue(true);
 
     await coordinatorReminder();
 
@@ -54,7 +55,7 @@ describe("reminderEmail", () => {
       })
     );
 
-    expect(fakeSubmission.save).toHaveBeenCalled();
+    expect(saveSpy).toHaveBeenCalled();
   });
 });
 
@@ -77,7 +78,6 @@ describe("supervisorReminder", () => {
       supervisor_reminder_count: 0,
       last_supervisor_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
       createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
-      save: jest.fn(),
     };
 
     mockingoose(InternshipRequest).toReturn([fakeInternshipRequest], "find");
@@ -96,6 +96,7 @@ describe("supervisorReminder", () => {
       return Promise.resolve(null);
     });
     mockingoose(NotificationLog).toReturn({}, "save");
+    const saveSpy = jest.spyOn(InternshipRequest.prototype, "save").mockResolvedValue(true);
 
     await supervisorReminder();
 
@@ -106,6 +107,6 @@ describe("supervisorReminder", () => {
       })
     );
 
-    expect(fakeInternshipRequest.save).toHaveBeenCalled();
+    expect(saveSpy).toHaveBeenCalled();
   });
 });
