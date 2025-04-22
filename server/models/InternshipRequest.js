@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose"); // why are we commonjs
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const formMetadata = require("./FormMetadata");
 
@@ -29,38 +29,37 @@ const formA1 = new mongoose.Schema({
         ref: 'UserTokenRequest'
     },
     workplace: {
-      name: {
-        type: String,
-        required: true
-      },
-      website: String,
-      phone: String // TODO: Add validation if needed
+        name: {
+            type: String,
+            required: true,
+        },
+        website: String,
+        phone: String, // TODO how to validate this?
     },
     internshipAdvisor: {
-      name: String,
-      jobTitle: String,
-      email: {
-        type: String,
-        required: true
-      }
+        name: String,
+        jobTitle: String,
+        email: {
+            type: String,
+            required: true
+        }
     },
     creditHours: {
-      type: Number,
-      required: true,
-      enum: [1, 2, 3]
+        type: Number,
+        required: true,
+        enum: [1, 2, 3]
     },
     startDate: {
-      type: Date,
-      required: true
+        type: Date,
+        required: true
     },
-    endDate: {
-      type: Date,
-      required: true
-      // TODO: Add custom validator to ensure endDate > startDate
+    endDate: { // TODO how to make sure endDate is later than startDate?
+        type: Date,
+        required: true
     },
     tasks: {
-      type: [Task],
-      required: true
+        type: [Task],
+        required: true
     },
     // status: {
     //     type: String,
@@ -80,4 +79,4 @@ formA1.virtual("requiredHours").get(function() {
     return this.creditHours * 60;
 })
 
-module.exports = mongoose.model("InternshipRequest", formA1);
+module.exports = mongoose.models.InternshipRequest || mongoose.model("InternshipRequest", formA1);
