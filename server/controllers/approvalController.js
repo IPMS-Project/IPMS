@@ -1,55 +1,118 @@
-const Submission = require("../models/Submission");
 const InternshipRequest = require("../models/InternshipRequest");
+const WeeklyReport = require("../models/WeeklyReport");
+const Evaluation = require("../models/Evaluation");
 const EmailService = require("../services/emailService");
+const UserTokenRequest = require("../models/TokenRequest");
 
-// 🔹 Supervisor Routes
-const getPendingSubmissions = async (req, res) => {
+// =========================================== //
+//           Managing Supervisor Forms         //
+// =========================================== //
+
+exports.getSupervisorForms = async (req, res, filter) => {
   try {
-    const submissions = await Submission.find({ supervisor_status: "pending" });
-    res.json(submissions);
+    const requests = await InternshipRequest.find(filter)
+      .populate("student", "fullName ouEmail soonerId");
+
+    const typedRequests = requests.map((req) => ({
+      ...req.toObject(),
+      form_type: "A1",
+    }));
+
+    const reports = await WeeklyReport.find(filter)
+      .populate("student_id", "fullName ouEmail soonerId");
+
+    const typedReports = reports.map((report) => ({
+      ...report.toObject(),
+      form_type: "A2",
+    }));
+
+    const evaluations = await Evaluation.find(filter)
+      .populate("student_id", "fullName ouEmail soonerId");
+
+    const typedEvaluations = evaluations.map((evaluation) => ({
+      ...evaluation.toObject(),
+      form_type: "A3",
+    }));
+
+    const allRequests = [
+      ...typedRequests,
+      ...typedReports,
+      ...typedEvaluations,
+    ];
+
+    allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.status(200).json(allRequests);
   } catch (err) {
     res.status(500).json({
-      message: "Failed to fetch pending submissions",
+      message: "Failed to fetch internship requests",
       error: err.message,
     });
   }
 };
 
-const approveSubmission = async (req, res) => {
-  const { id } = req.params;
-  const { comment } = req.body;
+exports.handleSupervisorFormAction = async (req, res, action) => {
   try {
-    const submission = await Submission.findByIdAndUpdate(
-      id,
-      { supervisor_status: "Approved", supervisor_comment: comment || "" },
-      { new: true }
-    );
-    if (!submission)
-      return res.status(404).json({ message: "Submission not found" });
-    res.json({ message: "Submission Approved", updatedSubmission: submission });
+    const form_type = req.params.type;
+    const formId = req.params.id;
+    const { comment = "", signature = "" } = req.body;
+
+    const models = {
+      A1: require("../models/InternshipRequest"),
+      A2: require("../models/WeeklyReport"),
+      A3: require("../models/Evaluation"),
+    };
+
+    const FormModel = models[form_type];
+    if (!FormModel) {
+      return res.status(400).json({ message: "Invalid form type" });
+    }
+
+    if (!["approve", "reject"].includes(action)) {
+      return res.status(400).json({ message: "Invalid action" });
+    }
+
+    const update = {
+      supervisor_status: action === "approve" ? "approved" : "rejected",
+      supervisor_comment: comment,
+    };
+
+    const form = await FormModel.findByIdAndUpdate(formId, update, { new: true })
+      .populate("student_id", "userName email");
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    const studentEmail = form.student_id?.email || form.interneeEmail || form.studentEmail || null;
+    let emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+    let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
+    if (comment) {
+      emailBody += `<p>Comment: ${comment}</p>`;
+    }
+
+    const student_id = form.student_id || form.internee_id || form.student;
+    const student = await UserTokenRequest.findById(student_id);
+    const student_mail = student?.ouEmail || form?.interneeEmail;
+
+    try {
+      await EmailService.sendEmail({
+        to: student_mail,
+        subject: emailSubject,
+        html: emailBody,
+      });
+    } catch (err) {
+      console.error("Email sending error:", err);
+    }
+
+    console.log("Email sent to:", student_mail);
+    res.status(200).json({ message: `Form ${action}ed successfully`, updatedForm: form });
+
   } catch (err) {
-    res.status(500).json({ message: "Approval Failed", error: err });
+    console.error("SupervisorFormAction error:", err);
+    res.status(500).json({ message: "Error processing form", error: err.message });
   }
 };
 
-const rejectSubmission = async (req, res) => {
-  const { id } = req.params;
-  const { comment } = req.body;
-  try {
-    const submission = await Submission.findByIdAndUpdate(
-      id,
-      { supervisor_status: "Rejected", supervisor_comment: comment || "" },
-      { new: true }
-    );
-    if (!submission)
-      return res.status(404).json({ message: "Submission not found" });
-    res.json({ message: "Submission Rejected", updatedSubmission: submission });
-  } catch (err) {
-    res.status(500).json({ message: "Rejection Failed", error: err });
-  }
-};
-
-// 🔹 Coordinator Routes
 const getCoordinatorRequests = async (req, res) => {
   try {
 
@@ -65,15 +128,17 @@ const getCoordinatorRequests = async (req, res) => {
 
 const getCoordinatorRequestDetails = async (req, res) => {
   try {
-
     const requestData = await InternshipRequest.findById(req.params.id)
       .populate("student", "userName email")
       .lean();
 
-
-    if (!requestData)
+    if (!requestData) {
       return res.status(404).json({ message: "Request not found" });
-    res.status(200).json({ requestData, supervisorStatus: "Not Submitted" });
+    }
+
+    const supervisorStatus = requestData.supervisor_status || "Not Submitted";
+
+    res.status(200).json({ requestData, supervisorStatus });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch details" });
   }
@@ -83,12 +148,17 @@ const coordinatorApproveRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { coordinator_status: "approved" },
+      { status: "approved" },
       { new: true }
     ).populate("student", "userName email");
 
-    if (!request)
+    if (!request) {
       return res.status(404).json({ message: "Request not found" });
+    }
+
+    request.coordinator_status = "Approved";
+    request.coordinator_comment = "Approved by Coordinator";
+    await request.save();
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -98,7 +168,7 @@ const coordinatorApproveRequest = async (req, res) => {
 
     res.json({ message: "Request Approved Successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Approval failed" });
+    res.status(500).json({ message: "Approval failed", error: err.message });
   }
 };
 
@@ -109,14 +179,17 @@ const coordinatorRejectRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { coordinator_status: "rejected" },
+      { status: "rejected" },
       { new: true }
     ).populate("student", "userName email");
 
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
 
-    if (!request) return res.status(404).json({ message: "Request not found" });
-    console.log("Sending email to:", request.student.email);
-
+    request.coordinator_status = "Rejected";
+    request.coordinator_comment = reason;
+    await request.save();
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -126,48 +199,25 @@ const coordinatorRejectRequest = async (req, res) => {
 
     res.json({ message: "Request Rejected Successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Rejection failed" });
+    res.status(500).json({ message: "Rejection failed", error: err.message });
   }
 };
 
 const coordinatorResendRequest = async (req, res) => {
   try {
-    const submission = await Submission.findById(req.params.id);
-
+    const submission = await InternshipRequest.findById(req.params.id);
     if (!submission)
       return res.status(404).json({ message: "Submission not found" });
 
     submission.coordinator_reminder_count = 0;
     submission.last_coordinator_reminder_at = new Date();
     submission.coordinator_status = "pending";
-
     await submission.save();
 
-    return res.status(200).json({ message: "Coordinator review has been reset. Reminder cycle restarted." });
+    return res.status(200).json({ message: "Reminder cycle restarted." });
   } catch (error) {
     console.error("Error in coordinatorResendRequest:", error);
     return res.status(500).json({ message: "Server error while resending request." });
-  }
-};
-
-const deleteStalledSubmission = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const submission = await Submission.findById(id);
-    if (!submission)
-      return res.status(404).json({ message: "Submission not found." });
-
-    if (submission.coordinator_status !== "pending") {
-      return res.status(400).json({ message: "Cannot delete a submission that has already been reviewed." });
-    }
-
-    await Submission.findByIdAndDelete(id);
-
-    return res.status(200).json({ message: "Submission deleted successfully." });
-  } catch (error) {
-    console.error("Error deleting submission:", error);
-    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -176,11 +226,11 @@ const deleteStudentSubmission = async (req, res) => {
     const { id } = req.params;
     const studentId = req.user._id;
 
-    const submission = await Submission.findById(id);
+    const submission = await InternshipRequest.findById(id);
     if (!submission)
       return res.status(404).json({ message: "Submission not found." });
 
-    if (submission.student_id.toString() !== studentId.toString()) {
+    if (submission.student.toString() !== studentId.toString()) {
       return res.status(403).json({ message: "You are not authorized to delete this submission." });
     }
 
@@ -188,8 +238,7 @@ const deleteStudentSubmission = async (req, res) => {
       return res.status(400).json({ message: "Submission already reviewed. Cannot delete." });
     }
 
-    await Submission.findByIdAndDelete(id);
-
+    await InternshipRequest.findByIdAndDelete(id);
     return res.status(200).json({ message: "Submission successfully deleted by student." });
   } catch (err) {
     console.error("Error deleting student submission:", err);
@@ -200,7 +249,7 @@ const deleteStudentSubmission = async (req, res) => {
 const getStudentSubmissions = async (req, res) => {
   try {
     const studentId = req.user._id;
-    const submissions = await Submission.find({ student_id: studentId }).sort({ createdAt: -1 });
+    const submissions = await InternshipRequest.find({ student: studentId }).sort({ createdAt: -1 });
     res.status(200).json(submissions);
   } catch (error) {
     console.error("Error fetching student submissions:", error);
@@ -208,19 +257,14 @@ const getStudentSubmissions = async (req, res) => {
   }
 };
 
-console.log("DEBUG check - getStudentSubmissions:", typeof getStudentSubmissions);
-
-
 module.exports = {
-  getPendingSubmissions,
-  approveSubmission,
-  rejectSubmission,
   getCoordinatorRequests,
   getCoordinatorRequestDetails,
   coordinatorApproveRequest,
   coordinatorRejectRequest,
   coordinatorResendRequest,
-  deleteStalledSubmission,
   deleteStudentSubmission,
   getStudentSubmissions,
+  getSupervisorForms,
+  handleSupervisorFormAction,
 };
