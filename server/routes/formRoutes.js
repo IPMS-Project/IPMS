@@ -3,11 +3,14 @@ const router = express.Router();
 const InternshipRequest = require("../models/InternshipRequest");
 const { insertFormData } = require("../services/insertData");
 
-// GET route to fetch internship requests pending supervisor action
+// router.post("/internshiprequests/:id/approve", approveSubmission);
+// router.post("/internshiprequests/:id/reject", rejectSubmission);
+
+// UPDATED: GET route to fetch internship requests pending supervisor action
 router.get("/internshiprequests", async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
-      status: "submitted",
+      supervisor_status: "pending",
       // approvals: "advisor", // advisor has approved
       supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
     }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
@@ -19,54 +22,74 @@ router.get("/internshiprequests", async (req, res) => {
   }
 });
 
-// Validate and submit form
+// Validate required fields
 function validateFormData(formData) {
   const requiredFields = [
-    "workplaceName",
-    "website",
-    "phone",
-    "advisorName",
-    "advisorJobTitle",
-    "advisorEmail",
-    "creditHours",
-    "startDate",
-    "endDate",
-    "tasks"
+    'soonerId',
+    'workplaceName',
+    'website',
+    'phone',
+    'advisorName',
+    'advisorJobTitle',
+    'advisorEmail',
+    'creditHours',
+    'startDate',
+    'endDate',
+    'tasks'
   ];
 
   for (const field of requiredFields) {
-    if (!formData[field] || formData[field] === "") {
+    if (!formData[field] || formData[field] === '') {
       return `Missing or empty required field: ${field}`;
     }
   }
 
+  if (!/^[0-9]{9}$/.test(formData.soonerId))
+    return `Sooner ID must be a 9-digit number, not ${formData.soonerId}`;
+
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
-    return "Tasks must be a non-empty array";
+    return 'Tasks must be a non-empty array';
   }
+  // for (const [index, task] of formData.tasks.entries()) {
+  //   if (!task.description || !task.outcomes) {
+  //     return `Task at index ${index} is missing description or outcomes`;
+  //   }
+  // }
 
-  const outcomes = new Set();
-  formData.tasks.forEach((task) => {
-    task.outcomes?.forEach(o => outcomes.add(o));
+  // uncomment below if student has to fill in task outcomes
+  // const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
+  // if (filledTasks.length < 3)
+  //   return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`;
+
+  const tasks = formData.tasks;
+  console.log(tasks);
+  if (tasks.filter((task) => task.description && task.description.trim() !== '').length < 3)
+    return 'At least 3 tasks must be provided';
+  const uniqueOutcomes = new Set();
+  tasks.forEach((task) => {
+    if (Array.isArray(task.outcomes)) {
+      task.outcomes.forEach(outcome => uniqueOutcomes.add(outcome));
+    } 
   });
-
-  formData.status = outcomes.size < 3 ? "pending manual review" : "submitted";
+  formData.status = uniqueOutcomes.size < 3 ? 'pending manual review' : 'submitted';
   return null;
 }
 
-router.post("/submit", async (req, res) => {
-  const formData = req.body;
 
-  if (!formData.studentId) {
-    return res.status(400).json({ message: "Missing studentId in form data" });
+router.post('/submit', async (req, res) => {
+  const formData = req.body;
+  const validationError = validateFormData(formData);
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
   }
 
   try {
-    await insertFormData(formData);  // pass studentId through
-    res.status(200).json({ message: "Form received and stored." });
+    await insertFormData(formData);
+    res.status(200).json({ message: 'Form received and handled!', manual: formData.status !== 'submitted'});
   } catch (error) {
-    res.status(500).json({ message: "Something went wrong" });
+    console.error('Error handling form data:', error);
+    res.status(500).json({ message: 'Something went wrong' });
   }
 });
-
 
 module.exports = router;
