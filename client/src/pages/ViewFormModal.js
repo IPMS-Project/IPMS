@@ -12,6 +12,28 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
     onAction(formData._id, action, comment.trim(), signature.trim());
   };
 
+  function calculateWeeksBetween(startDate, endDate) {
+    // Convert the start and end dates to Date objects
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+  
+    // Calculate the difference in milliseconds
+    const differenceInMilliseconds = end - start;
+  
+    // Convert milliseconds to days
+    const differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
+  
+    // Convert days to weeks
+    const differenceInWeeks = differenceInDays / 7;
+  
+    // Return the number of weeks, rounded down to the nearest whole number
+    return Math.floor(differenceInWeeks);
+  }
+  
+  // Example usage:
+  const weeks = calculateWeeksBetween(formData.startDate, formData.endDate);
+  
+
   // ✅ Inserted rendering helpers
   const renderA1 = () => (
     <>
@@ -46,7 +68,7 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
                 <strong>Start:</strong> {new Date(formData.startDate).toLocaleDateString()}<br />
                 <strong>End:</strong> {new Date(formData.endDate).toLocaleDateString()}
               </td>
-              <td></td>
+              <td><strong>Number of Weeks:</strong><p>{weeks}</p></td>
             </tr>
           </tbody>
         </table>
