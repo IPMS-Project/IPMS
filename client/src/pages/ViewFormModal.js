@@ -27,7 +27,6 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
           <tbody>
             <tr>
               <td><strong>Student Name:</strong> {formData.interneeName || "N/A"}</td>
-              <td><strong>Student ID:</strong> {formData.soonerId || "N/A"}</td>
               <td><strong>Email:</strong> {formData.interneeEmail || "N/A"}</td>
             </tr>
             <tr>
@@ -70,7 +69,6 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
         <h2>A3 – Final Job Performance Evaluation</h2>
         <p><strong>Name:</strong> {formData.interneeName}</p>
         <p><strong>Email:</strong> {formData.interneeEmail}</p>
-        <p><strong>Sooner ID:</strong> {formData.interneeID}</p>
 
         <h3>Evaluation Items</h3>
         <table className="dashboard-table">
