@@ -9,9 +9,12 @@ const {
   coordinatorApproveRequest,
   coordinatorRejectRequest,
   getStudentSubmissions,
+  getPendingSubmissions,
   coordinatorResendRequest,
   deleteStalledSubmission,
-  deleteStudentSubmission 
+  deleteStudentSubmission,
+  rejectSubmission,
+  approveSubmission,
 } = require("../controllers/approvalController");
 
 const { isSupervisor, isCoordinator, isStudent } = require("../middleware/authMiddleware");

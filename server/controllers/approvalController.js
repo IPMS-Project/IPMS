@@ -8,49 +8,41 @@ const UserTokenRequest = require("../models/TokenRequest");
 //           Managing Supervisor Forms         //
 // =========================================== //
 
-exports.getSupervisorForms = async (req, res, filter) => {
+const getSupervisorForms = async (req, res, filter) => {
   try {
-    const requests = await InternshipRequest.find(filter)
-      .populate("student", "fullName ouEmail soonerId");
+    const InternshipRequest = require("../models/InternshipRequest");
+    const WeeklyReport = require("../models/WeeklyReport");
+    const Evaluation = require("../models/Evaluation");
 
-    const typedRequests = requests.map((req) => ({
-      ...req.toObject(),
+    const a1Forms = await InternshipRequest.find(filter).populate("student", "fullName ouEmail soonerId");
+    const typedA1 = a1Forms.map((form) => ({
+      ...form.toObject(),
       form_type: "A1",
     }));
 
-    const reports = await WeeklyReport.find(filter)
-      .populate("student_id", "fullName ouEmail soonerId");
-
-    const typedReports = reports.map((report) => ({
-      ...report.toObject(),
+    const a2Forms = await WeeklyReport.find(filter).populate("student_id", "fullName ouEmail soonerId");
+    const typedA2 = a2Forms.map((form) => ({
+      ...form.toObject(),
       form_type: "A2",
     }));
 
-    const evaluations = await Evaluation.find(filter)
-      .populate("student_id", "fullName ouEmail soonerId");
-
-    const typedEvaluations = evaluations.map((evaluation) => ({
-      ...evaluation.toObject(),
+    const a3Forms = await Evaluation.find(filter).populate("student_id", "fullName ouEmail soonerId");
+    const typedA3 = a3Forms.map((form) => ({
+      ...form.toObject(),
       form_type: "A3",
     }));
 
-    const allRequests = [
-      ...typedRequests,
-      ...typedReports,
-      ...typedEvaluations,
-    ];
+    const allForms = [...typedA1, ...typedA2, ...typedA3];
+    allForms.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    res.status(200).json(allRequests);
+    return res.status(200).json(allForms);
   } catch (err) {
-    res.status(500).json({
-      message: "Failed to fetch internship requests",
-      error: err.message,
-    });
+    console.error("Error in getSupervisorForms:", err.message);
+    return res.status(500).json({ message: "Failed to fetch supervisor forms", error: err.message });
   }
 };
 
-exports.handleSupervisorFormAction = async (req, res, action) => {
+const handleSupervisorFormAction = async (req, res, action) => {
   try {
     const form_type = req.params.type;
     const formId = req.params.id;
@@ -106,7 +98,6 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
 
     console.log("Email sent to:", student_mail);
     res.status(200).json({ message: `Form ${action}ed successfully`, updatedForm: form });
-
   } catch (err) {
     console.error("SupervisorFormAction error:", err);
     res.status(500).json({ message: "Error processing form", error: err.message });
@@ -115,7 +106,6 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
 
 const getCoordinatorRequests = async (req, res) => {
   try {
-
     const requests = await InternshipRequest.find({
       coordinator_status: "pending",
     }).populate("student", "userName email");
@@ -257,6 +247,78 @@ const getStudentSubmissions = async (req, res) => {
   }
 };
 
+const getPendingSubmissions = async (req, res) => {
+  try {
+    const pendingRequests = await InternshipRequest.find({
+      supervisor_status: "pending",
+    }).populate("student", "fullName ouEmail");
+
+    res.status(200).json(pendingRequests);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch pending supervisor submissions",
+      error: err.message,
+    });
+  }
+};
+
+const approveSubmission = async (req, res) => {
+  const { id } = req.params;
+  const { comment } = req.body;
+  try {
+    const request = await InternshipRequest.findByIdAndUpdate(
+      id,
+      { supervisor_status: "approved", supervisor_comment: comment || "" },
+      { new: true }
+    );
+    if (!request) return res.status(404).json({ message: "Submission not found" });
+
+    res.json({ message: "Submission approved", updated: request });
+  } catch (err) {
+    res.status(500).json({ message: "Approval failed", error: err.message });
+  }
+};
+
+const rejectSubmission = async (req, res) => {
+  const { id } = req.params;
+  const { comment } = req.body;
+  try {
+    const request = await InternshipRequest.findByIdAndUpdate(
+      id,
+      { supervisor_status: "rejected", supervisor_comment: comment || "" },
+      { new: true }
+    );
+    if (!request) return res.status(404).json({ message: "Submission not found" });
+
+    res.json({ message: "Submission rejected", updated: request });
+  } catch (err) {
+    res.status(500).json({ message: "Rejection failed", error: err.message });
+  }
+};
+
+const deleteStalledSubmission = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const submission = await InternshipRequest.findById(id);
+    if (!submission) {
+      return res.status(404).json({ message: "Submission not found." });
+    }
+
+    if (submission.coordinator_status !== "pending") {
+      return res.status(400).json({ message: "Submission already reviewed. Cannot delete." });
+    }
+
+    await InternshipRequest.findByIdAndDelete(id);
+
+    return res.status(200).json({ message: "Submission deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
 module.exports = {
   getCoordinatorRequests,
   getCoordinatorRequestDetails,
@@ -265,6 +327,10 @@ module.exports = {
   coordinatorResendRequest,
   deleteStudentSubmission,
   getStudentSubmissions,
+  getPendingSubmissions,
   getSupervisorForms,
   handleSupervisorFormAction,
+  approveSubmission,
+  rejectSubmission,
+  deleteStalledSubmission,
 };
