@@ -11,6 +11,35 @@
     color: #333;
   }
 
+  .toggle-button {
+    position: absolute;
+    right: 50px;
+    top: 100px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #cddbea8a;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .toggle-button.collapsed {
+    transform: translateY(-50%) rotate(180deg);
+  }
+  
+  .forms-list {
+    margin-top: 10px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+  
+  .form-item {
+    border-bottom: 1px solid #eee;
+    padding: 5px 0;
+  }
+  
   .clickable-row {
     cursor: pointer;
   }
@@ -22,6 +51,13 @@
   .dashboard-table {
     width: 100%;
     border-collapse: collapse;
+    margin-top: 20px;
+    transition: max-height 0.3s ease;
+  }
+
+  .dashboard-table.collapsed{
+    max-height: 0;
+    overflow: hidden;
   }
   
   .dashboard-table th,
@@ -148,7 +184,7 @@
     border-radius: 10px;
     width: 600px;
     max-width: 95%;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   }
@@ -157,11 +193,6 @@
     margin-top: 0;
     color: hsl(0, 0%, 20%);
   }
-  .modal-box {
-    max-height: 85vh;
-    overflow-y: auto;
-  }
-  
   
   .form-details {
     background: #f4f4f4;

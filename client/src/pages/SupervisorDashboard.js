@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/SupervisorDashboard.css";
@@ -8,12 +9,13 @@ const SupervisorDashboard = () => {
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const token = localStorage.getItem("token") || "";
   
     useEffect(() => {
 
       // Token used for authentication for future
       // Now it will only be empty
-      const token = localStorage.getItem("token") || ""; 
+       
       
       const fetchRequests = async () => {
       try {
@@ -29,7 +31,7 @@ const SupervisorDashboard = () => {
             name: item.student_id?.userName || item.student_id?.name || "N/A",
             student_id: item.student?._id || item._id,
             form_type: item.form_type,
-            createdAt: item.createdAt,
+            createdAt: item.createdAt || item.submittedAt,
             supervisor_status: item.supervisor_status || "pending",
             fullForm: item,
             workplace: {
@@ -54,47 +56,18 @@ const SupervisorDashboard = () => {
         setRequests(formatted);
         setLoading(false);
       } catch (err) {
-        console.error("Error fetching forms:", err);
-        setMessage("Error fetching forms.", err);
+        console.error("Error fetching A1 Internship forms:", err);
+        setMessage("Error fetching A1 Internship forms.", err);
         setLoading(false);
       }
     };
-
-  const fetchRequests = async () => {
-    try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const formatted = res.data.map((item) => ({
-        _id: item._id,
-        name: item.student?.userName || item.student?.name || "N/A",
-        student_id: item.student?._id || item._id,
-        form_type: item.form_type || "A.1",
-        createdAt: item.createdAt,
-        supervisor_status: item.supervisor_status || "pending",
-        fullForm: item,
-      }));
-
-      setRequests(formatted);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching Internship A1 forms:", err);
-      setMessage("Error fetching Internship A1 forms.");
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [token]);
 
-  const handleFormActionComplete = () => {
-    fetchRequests(); // Refresh table after Approve/Reject
-    setSelectedForm(null);
-  };
+  // const handleFormActionComplete = () => {
+  //   fetchRequests(); // Refresh table after Approve/Reject
+  //   setSelectedForm(null);
+  // };
 
   const handleAction = async (id, form_type, action, comment) => {
     const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
@@ -148,7 +121,6 @@ const SupervisorDashboard = () => {
           <thead>
             <tr>
               <th>Student Name</th>
-              <th>Sooner ID</th>
               <th>Student Email</th>
               <th>Form Type</th>
               <th>Submitted</th>
@@ -164,10 +136,9 @@ const SupervisorDashboard = () => {
                   <td>{req.interneeName || "N/A"}</td>
                   <td>
                     <button className="link-button" onClick={() => openFormView(req)}>
-                      {req.soonerId || "N/A"}
+                    {req.interneeEmail || req.ouEmail || "N/A"}
                     </button>
                   </td>
-                  <td>{req.interneeEmail || req.ouEmail || "N/A"}</td>
                   <td>{req.form_type}</td>
                   <td>{formatDate(req.createdAt)}</td>
                   <td>
@@ -199,6 +170,6 @@ const SupervisorDashboard = () => {
         )}
       </div>
     );
-};
+  };
 
 export default SupervisorDashboard;
