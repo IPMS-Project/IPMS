@@ -1,5 +1,4 @@
 import React from "react";
-
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
 
@@ -20,6 +19,7 @@ import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 import TokenRenewal from "./pages/TokenRenewal";
 import StudentDashboard from "./pages/StudentDashboard";
 import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
+import ProtectedSupervisor from "./pages/ProtectedSupervisor";
 
 // Create and export the router configuration
 const router = createBrowserRouter([  
@@ -67,7 +67,11 @@ const router = createBrowserRouter([
       },
       {
         path: "supervisor-dashboard",
-        element: <SupervisorDashboard />,
+        element: (
+          <ProtectedSupervisor>
+            <SupervisorDashboard />
+          </ProtectedSupervisor>
+        ),
       },
       {
         path: "coordinator-dashboard",
