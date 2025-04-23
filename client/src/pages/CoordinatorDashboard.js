@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import "../styles/SupervisorDashboard.css"; 
 const CoordinatorDashboard = () => {
