@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import "../styles/SupervisorDashboard.css";
+import "../styles/A1InternshipRequestForm.css";
 
-const ViewFormModal = ({ formData, onClose, onAction }) => {
+const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
   const [comment, setComment] = useState("");
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
-
   const handleDecision = (action) => {
     if (!comment.trim()) return setError("Comment is required.");
     if (!signature.trim()) return setError("Signature is required.");
@@ -41,9 +40,8 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
             <tr>
               <td><strong>Credit Hours:</strong> {formData.creditHours}</td>
               <td>
-                <strong>Start Date:</strong> {new Date(formData.startDate).toLocaleDateString()}
-                <br />
-                <strong>End Date:</strong> {new Date(formData.endDate).toLocaleDateString()}
+                <strong>Start:</strong> {new Date(formData.startDate).toLocaleDateString()}<br />
+                <strong>End:</strong> {new Date(formData.endDate).toLocaleDateString()}
               </td>
             </tr>
           </tbody>
