@@ -69,14 +69,14 @@ const SupervisorDashboard = () => {
   //   setSelectedForm(null);
   // };
 
-  const handleAction = async (id, form_type, action, comment) => {
+  const handleAction = async (id, form_type, action, comment, signature) => {
     const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
     if (!confirmed) return;
 
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
-        { comment },
+        { comment, signature },
         {
           headers: {
             Authorization: `Bearer ${token}`,

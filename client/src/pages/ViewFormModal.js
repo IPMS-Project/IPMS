@@ -13,20 +13,11 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
   };
 
   function calculateWeeksBetween(startDate, endDate) {
-    // Convert the start and end dates to Date objects
     const start = new Date(startDate);
     const end = new Date(endDate);
-  
-    // Calculate the difference in milliseconds
     const differenceInMilliseconds = end - start;
-  
-    // Convert milliseconds to days
     const differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
-  
-    // Convert days to weeks
     const differenceInWeeks = differenceInDays / 7;
-  
-    // Return the number of weeks, rounded down to the nearest whole number
     return Math.floor(differenceInWeeks);
   }
   
@@ -49,8 +40,9 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
           <tbody>
             <tr>
               <td><strong>Student Name:</strong> <p>{formData.interneeName || "N/A"}</p></td>
-              <td><strong>Email:</strong> <p>{formData.interneeEmail || "N/A"}</p></td>
               <td></td>
+              <td><strong>Email:</strong> <p>{formData.interneeEmail || "N/A"}</p></td>
+              
             </tr>
             <tr>
               <td><strong>Workplace Name:</strong> {formData.workplace?.name || "N/A"}</td>
@@ -59,8 +51,9 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
             </tr>
             <tr>
               <td><strong>Advisor Name:</strong> {formData.internshipAdvisor?.name || "N/A"}</td>
-              <td><strong>Advisor Email:</strong> {formData.internshipAdvisor?.email || "N/A"}</td>
               <td></td>
+              <td><strong>Advisor Email:</strong> {formData.internshipAdvisor?.email || "N/A"}</td>
+              
             </tr>
             <tr>
               <td><strong>Credit Hours:</strong> {formData.creditHours}</td>
@@ -96,15 +89,18 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
             <tr>
               <th></th>
               <th></th>
+              <th></th>
             </tr>
           </thead>
         <tbody>
           <tr>
             <td><strong>Name:</strong> <p>{formData.interneeName || "N/A"}</p></td>
+            <td></td>
             <td><strong>Email:</strong> <p>{formData.interneeEmail || "N/A"}</p></td>
           </tr>
           <tr>
-            <td><strong>Week:</strong> <p>{formData.week || "N/A"}</p></td>
+            <td><strong>Current Week:</strong> <p>{formData.week / weeks || "N/A"}</p></td>
+            <td><strong>Total Weeks:</strong><p>{weeks}</p></td>
             <td><strong>Hours:</strong> <p>{formData.hours|| "N/A"}</p></td>
           </tr>
         </tbody>
