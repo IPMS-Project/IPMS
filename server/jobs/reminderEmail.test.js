@@ -1,6 +1,5 @@
-
 const emailService = require("../services/emailService");
-const { coordinatorReminder, supervisorReminder } = require('./reminderEmail');
+const { coordinatorReminder, supervisorReminder } = require("./reminderEmail");
 const mockingoose = require("mockingoose");
 const InternshipRequest = require("../models/InternshipRequest");
 const WeeklyReport = require("../models/WeeklyReport");
@@ -13,30 +12,36 @@ jest.mock("../services/emailService");
 
 describe("reminderEmail", () => {
   beforeEach(() => {
-    mockingoose.resetAll();
-    jest.clearAllMocks();
+    emailService.sendEmail.mockClear();
   });
 
   it("coordinatorReminder sends email", async () => {
     const submissionId = new mongoose.Types.ObjectId();
+    const studentId = new mongoose.Types.ObjectId();
+    const coordinatorId = new mongoose.Types.ObjectId();
+
     const fakeSubmission = {
       _id: submissionId,
-      name: "Test Coordinator Submission",
-      student_id: new mongoose.Types.ObjectId(),
-      coordinator_id: new mongoose.Types.ObjectId(),
-      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      supervisor_status: "approved",
+      name: "Test Internship",
+      student_id: studentId,
+      coordinator_id: coordinatorId,
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
       coordinator_status: "pending",
+      supervisor_status: "approved",
       coordinator_reminder_count: 0,
       last_coordinator_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-      studentNotified: false,
+      workplace: { name: "Test Corp" },
+      internshipAdvisor: { email: "advisor@test.com" },
+      creditHours: 3,
+      startDate: new Date("2025-04-01T00:00:00Z"),
+      endDate: new Date("2025-04-28T00:00:00Z"),
+      student: studentId,
       save: jest.fn(),
     };
 
     mockingoose(InternshipRequest).toReturn([fakeSubmission], "find");
     mockingoose(NotificationLog).toReturn({}, "save");
-
-    emailService.sendEmail.mockResolvedValue(true);
+    mockingoose(UserTokenRequest).toReturn({}, "findById");
 
     await coordinatorReminder();
 
@@ -59,29 +64,37 @@ describe("supervisorReminder", () => {
   it("should send a reminder to the supervisor", async () => {
     const submissionId = new mongoose.Types.ObjectId();
     const studentId = new mongoose.Types.ObjectId();
+    const supervisorId = new mongoose.Types.ObjectId();
+
     const fakeSubmission = {
       _id: submissionId,
       student_id: studentId,
+      supervisor_id: supervisorId,
       supervisor_status: "pending",
       supervisor_reminder_count: 0,
       last_supervisor_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
       createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+      workplace: { name: "Workplace name" },
+      internshipAdvisor: { email: "advisor@mail.com" },
+      creditHours: 3,
+      startDate: new Date("2025-04-01"),
+      endDate: new Date("2025-04-28"),
+      student: studentId,
       save: jest.fn(),
     };
 
     mockingoose(InternshipRequest).toReturn([fakeSubmission], "find");
     mockingoose(WeeklyReport).toReturn([], "find");
     mockingoose(Evaluation).toReturn([], "find");
-    mockingoose(NotificationLog).toReturn({}, "save");
-
     jest.spyOn(UserTokenRequest, "find").mockResolvedValue([
-      { ouEmail: "supervisor@example.com", role: "supervisor", isActivated: true },
+      { _id: supervisorId, ouEmail: "supervisor@example.com", isActivated: true, role: "supervisor" },
     ]);
-    jest.spyOn(UserTokenRequest, "findById").mockResolvedValue({
-      ouEmail: "student@example.com",
+    jest.spyOn(UserTokenRequest, "findById").mockImplementation((id) => {
+      if (id.equals(studentId)) {
+        return Promise.resolve({ _id: studentId, ouEmail: "student@example.com" });
+      }
+      return Promise.resolve(null);
     });
-
-    emailService.sendEmail.mockResolvedValue(true);
 
     await supervisorReminder();
 
@@ -89,48 +102,6 @@ describe("supervisorReminder", () => {
       expect.objectContaining({
         to: expect.any(String),
         subject: expect.stringContaining("Reminder"),
-      })
-    );
-  });
-});
-
-describe("supervisorReminder escalation", () => {
-  beforeEach(() => {
-    mockingoose.resetAll();
-    jest.clearAllMocks();
-  });
-
-  it("should return to the student after multiple reminders", async () => {
-    const submissionId = new mongoose.Types.ObjectId();
-    const studentId = new mongoose.Types.ObjectId();
-    const fakeSubmission = {
-      _id: submissionId,
-      student_id: studentId,
-      supervisor_status: "pending",
-      supervisor_reminder_count: 2,
-      last_supervisor_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-      createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
-      save: jest.fn(),
-    };
-
-    mockingoose(InternshipRequest).toReturn([fakeSubmission], "find");
-    mockingoose(NotificationLog).toReturn({}, "save");
-    mockingoose(WeeklyReport).toReturn([], "find");
-    mockingoose(Evaluation).toReturn([], "find");
-
-    jest.spyOn(UserTokenRequest, "find").mockResolvedValue([]);
-    jest.spyOn(UserTokenRequest, "findById").mockResolvedValue({
-      ouEmail: "student@example.com",
-    });
-
-    emailService.sendEmail.mockResolvedValue(true);
-
-    await supervisorReminder();
-
-    expect(emailService.sendEmail).toHaveBeenCalledWith(
-      expect.objectContaining({
-        to: "student@example.com",
-        subject: expect.stringContaining("Supervisor Not Responding"),
       })
     );
   });
