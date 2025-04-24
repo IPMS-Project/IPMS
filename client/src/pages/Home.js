@@ -67,7 +67,9 @@ function Home() {
         const limitedUserInfo = {
           fullName: user.fullName,
           id: user._id,
-          email:user.ouEmail
+          email:user.ouEmail,
+          academicAdvisor: user.academicAdvisor,
+          semester:user.semester
         };
         
         localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
