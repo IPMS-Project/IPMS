@@ -11,10 +11,11 @@ import Swal from "sweetalert2";
 function SignUp() {
   const navigate = useNavigate();
   const [role, setRole] = useState("-");
-  
+
   const [step, setStep] = useState(1);
   const [fullName, setFullName] = useState("");
   const [ouEmail, setOuEmail] = useState("");
+  const [soonerId, setSoonerId] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -61,12 +62,22 @@ function SignUp() {
       return;
     }
 
+    if (role === "student" && !/^\d{9}$/.test(soonerId)) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Sooner ID",
+        text: "Sooner ID must be a 9-digit number.",
+      });
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/token/request`,
         {
           fullName,
           ouEmail,
+          soonerId: role === "student" ? soonerId : "",
           password,
           semester,
           academicAdvisor: role === "student" ? academicAdvisor : "",
@@ -88,6 +99,7 @@ function SignUp() {
       // Clear form
       setFullName("");
       setOuEmail("");
+      setSoonerId("");
       setPassword("");
       setConfirmPassword("");
       setSemester("");
@@ -100,13 +112,24 @@ function SignUp() {
     } catch (error) {
       console.error("Error creating user:", error);
 
-      if (error.response && error.response.status === 400) {
+      if (error.response && error.response.status === 401) {
         Swal.fire({
           icon: "error",
           title: "Email Already Exists",
           text: "The provided email ID is already registered. Try logging in.",
         });
+      } else if (
+        role === "student" &&
+        error.response &&
+        error.response.status === 402
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Sooner ID Already Exists",
+          text: "The provided Sooner ID is already registered.",
+        });
       } else {
+        console.log("Error response:", error.response);
         Swal.fire({
           icon: "error",
           title: "Something went wrong",
@@ -118,7 +141,6 @@ function SignUp() {
 
   return (
     <div className="signup-container">
-      
       <form onSubmit={createUser} className="signup-form">
         {step === 1 && (
           <div className="role-selection">
@@ -255,6 +277,21 @@ function SignUp() {
                 required
               />
             </div>
+
+            {role === "student" && (
+              <div className="form-group">
+                <label htmlFor="soonerId">Sooner ID</label>
+                <input
+                  type="text"
+                  id="soonerId"
+                  value={soonerId}
+                  onChange={(e) => setSoonerId(e.target.value)}
+                  placeholder="Enter your 9-digit Sooner ID"
+                  required
+                />
+              </div>
+            )}
+
             <div className="password-row">
               <div className="form-group password-col">
                 <label htmlFor="password">New password</label>
@@ -358,7 +395,7 @@ function SignUp() {
               >
                 <input
                   type="checkbox"
-                  style={{ appearance: "none" }}
+                  // style={{ appearance: "none" }}
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
                   required

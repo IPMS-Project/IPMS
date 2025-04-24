@@ -188,6 +188,32 @@
   /* Asterisk */
   .required-asterisk {
     color: red;
-    margin-left: 2px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgb(255, 255, 255) ;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* border-radius: 20%; */
   }
   
+  .modal-content {
+    background: white !important;
+    border-radius: 24%;
+    padding: 30px;
+    max-height: 90vh;
+    overflow-y: auto;
+    width: 90%;
+    max-width: 1200px;
+    border-radius: 12px;
+  }

@@ -1,9 +1,11 @@
 const emailService = require("../services/emailService");
 const { coordinatorReminder, supervisorReminder } = require('./reminderEmail');
 const mockingoose = require("mockingoose");
-const Submission = require("../models/Submission");
+const InternshipRequest = require("../models/InternshipRequest");
+const WeeklyReport = require("../models/WeeklyReport");
+const Evaluation = require("../models/Evaluation");
 const NotificationLog = require("../models/NotifLog");
-const User = require("../models/User");
+const UserTokenRequest = require("../models/TokenRequest");
 const mongoose = require("mongoose");
 
 jest.mock("../services/emailService");
@@ -40,31 +42,48 @@ describe("supervisorReminder", () => {
 	const supervisorId = new mongoose.Types.ObjectId();
 	const supervisorMail = "supervisor@example.com"
 	
-	const fakeSubmission = {
-	    _id: submissionId,
-	    name: "Test Submission",
-	    student_id: studentId,
-	    supervisor_id: supervisorId,
-	    createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
-	    supervisor_status: "pending",
-	    supervisor_reminder_count: 0,
-	    last_supervisor_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-	    save: jest.fn(),
-	};
-
-	// Mocking the Submission model
-	mockingoose(Submission).toReturn([fakeSubmission], "find");
-	jest.spyOn(User, "findById").mockImplementation((id) => {
+        const fakeInternshipRequest = {
+            _id: submissionId,
+            student_id: studentId,
+            supervisor_id: supervisorId,
+            supervisor_status: "pending",
+            supervisor_reminder_count: 0,
+            last_supervisor_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+            createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+            topic: "AI Research",
+            description: "Exploring generative AI models",
+            status: "submitted",
+            endDate: new Date("2025-04-28T00:00:00Z"),
+            startDate: new Date("2025-04-01T00:00:00Z"),
+            creditHours: 3,
+            internshipAdvisor: {
+                email: "advisor.mail@ou.edu"
+            },
+            workplace: {
+                name: "Workplace name"
+            },
+            student: studentId,
+            save: jest.fn(),
+        }
+        
+	// Mocking the InternshipRequest model
+	mockingoose(InternshipRequest).toReturn([fakeInternshipRequest], "find");
+        mockingoose(WeeklyReport).toReturn([], "find");
+        mockingoose(Evaluation).toReturn([], "find");
+        jest.spyOn(UserTokenRequest, "find").mockResolvedValue([
+            { _id: supervisorId, ouEmail: supervisorMail, role: "supervisor", isActivated: true }
+        ]);
+	jest.spyOn(UserTokenRequest, "findById").mockImplementation((id) => {
 	    if (id.equals(studentId)) {
-		return Promise.resolve({ _id: studentId, email: studentMail });
+		return Promise.resolve({ _id: studentId, ouEmail: studentMail });
 	    }
 	    if (id.equals(supervisorId)) {
-		return Promise.resolve({ _id: supervisorId, email: supervisorMail });
+		return Promise.resolve({ _id: supervisorId, ouEmail: supervisorMail });
 	    }
 	    return Promise.resolve(null);
 	});
 	mockingoose(NotificationLog).toReturn({}, "save");
-	jest.spyOn(Submission.prototype, "save").mockResolvedValue(true);
+	jest.spyOn(InternshipRequest.prototype, "save").mockResolvedValue(true);
 
 	// Function to be tested
 	await supervisorReminder();
@@ -77,7 +96,7 @@ describe("supervisorReminder", () => {
 	    })
 	);
 	
-	expect(Submission.prototype.save).toHaveBeenCalled();
+	expect(InternshipRequest.prototype.save).toHaveBeenCalled();
     });
 });
 
@@ -95,30 +114,47 @@ describe("supervisorReminder escalation", () => {
 	const supervisorId = new mongoose.Types.ObjectId();
 	const supervisorMail = "supervisor@example.com"
 
-	const fakeSubmissionData = {
-	    _id: submissionId,
-	    name: "Escalation Case",
-	    student_id: studentId,
-	    supervisor_id: supervisorId,
-	    createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000), // 12 days ago
-	    supervisor_status: "pending",
-	    supervisor_reminder_count: 2, // trigger escalation
-	    last_supervisor_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // older than 5 days
-	};
+	const fakeInternshipRequestData = {
+            _id: submissionId,
+            student_id: studentId,
+            supervisor_id: supervisorId,
+            supervisor_status: "pending",
+            supervisor_reminder_count: 2,
+            last_supervisor_reminder_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+            createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+            topic: "AI Research",
+            description: "Exploring generative AI models",
+            status: "submitted",
+            endDate: new Date("2025-04-28T00:00:00Z"),
+            startDate: new Date("2025-04-01T00:00:00Z"),
+            creditHours: 3,
+            internshipAdvisor: {
+                email: "advisor.mail@ou.edu"
+            },
+            workplace: {
+                name: "Workplace name"
+            },
+            student: studentId,
+            save: jest.fn(),
+        }
 
-	mockingoose(Submission).toReturn([fakeSubmissionData], "find");
-
-	jest.spyOn(User, "findById").mockImplementation((id) => {
+	mockingoose(InternshipRequest).toReturn([fakeInternshipRequestData], "find");
+        mockingoose(WeeklyReport).toReturn([], "find");
+        mockingoose(Evaluation).toReturn([], "find");
+        jest.spyOn(UserTokenRequest, "find").mockResolvedValue([
+            { _id: supervisorId, ouEmail: supervisorMail, role: "supervisor", isActivated: true }
+        ]);
+	jest.spyOn(UserTokenRequest, "findById").mockImplementation((id) => {
 	    if (id.equals(studentId)) {
-		return Promise.resolve({ _id: studentId, email: studentMail });
+		return Promise.resolve({ _id: studentId, ouEmail: studentMail });
 	    }
 	    if (id.equals(supervisorId)) {
-		return Promise.resolve({ _id: supervisorId, email: supervisorMail });
+		return Promise.resolve({ _id: supervisorId, ouEmail: supervisorMail });
 	    }
 	    return Promise.resolve(null);
 	});
 
-	const saveSpy = jest.spyOn(Submission.prototype, "save").mockResolvedValue(true);
+	const saveSpy = jest.spyOn(InternshipRequest.prototype, "save").mockResolvedValue(true);
 	const notifLogSpy = jest.spyOn(NotificationLog, "create").mockResolvedValue(true);
 	mockingoose(NotificationLog).toReturn({}, "save");
 
@@ -135,9 +171,9 @@ describe("supervisorReminder escalation", () => {
 	// Confirm student escalation notification was logged
 	expect(notifLogSpy).toHaveBeenCalledWith(
 	    expect.objectContaining({
-		submissionId: submissionId,
+		submission_id: submissionId,
 		type: "studentEscalation",
-		recipientEmail: studentMail,
+		recipient_email: studentMail,
 	    })
 	);
 

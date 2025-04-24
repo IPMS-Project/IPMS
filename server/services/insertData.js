@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const InternshipRequest = require("../models/InternshipRequest");
-const Submission =  require("../models/Submission")
 
 async function insertFormData(formData) {
   try {
