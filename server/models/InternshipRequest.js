@@ -37,6 +37,7 @@ const formA1 = new mongoose.Schema({
             type: String,
             required:true,
         },
+    },
     ...formMetadata,
     // student: { 
     //     type: ObjectId,
