@@ -18,6 +18,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  soonerId: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -25,4 +28,3 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", userSchema);
-

@@ -36,6 +36,28 @@ const StudentDashboard = () => {
   }, [ouEmail]);
   console.log(approvalStatus);
 
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This cannot be undone."
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/student/account/${user.id}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) throw new Error("Delete failed");
+      localStorage.clear();
+      navigate("/");
+    } catch (err) {
+      console.error("Account deletion error:", err);
+      alert("Sorry, we couldn’t delete your account. Please try again.");
+    }
+  };
+
   return (
     <div className="student-dashboard">
       <div className="dashboard-card">
@@ -187,6 +209,7 @@ const StudentDashboard = () => {
           <button
             type="button"
             className="btn btn-outline-danger w-100"
+            onClick={handleDeleteAccount}
             style={{
               borderWidth: "3px",
               borderRadius: "8px",
@@ -196,7 +219,7 @@ const StudentDashboard = () => {
               gap: "12px",
               padding: "0.5rem 0",
               maxWidth: "100%",
-              cursor:"pointer"
+              cursor: "pointer",
             }}
           >
             {/* Trash SVG icon */}
