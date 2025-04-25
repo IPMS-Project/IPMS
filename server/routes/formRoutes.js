@@ -92,4 +92,71 @@ router.post('/submit', async (req, res) => {
   }
 });
 
+router.get('/pending-requests', async (req, res) => {
+  try {
+    const pending = await InternshipRequest.find({ status: { $in: ['submitted', 'pending manual review'] } });
+    res.json(pending);
+  } catch (err) {
+    console.error("Error fetching pending submissions:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/requests/:id/resend", async (req, res) => {
+  try {
+    const request = await InternshipRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ message: "Request not found" });
+
+    // Reset reminders
+    request.reminders = [new Date()];
+    request.coordinatorResponded = false;
+    request.studentNotified = false;
+    await request.save();
+
+    // Send email to coordinator
+    await emailService.sendEmail({
+      to: [
+        request.internshipAdvisor.email,
+        request.student.email,
+        "coordinator@ipms.edu"
+      ],
+      subject: "Internship Request Resent",
+      html: `
+        <p>Hello,</p>
+        <p>The student <strong>${request.student.userName}</strong> has resent their internship approval request due to inactivity.</p>
+        <p>Please review and take necessary action.</p>
+      `
+    });
+
+    res.json({ message: "Request resent successfully" });
+  } catch (err) {
+    console.error("Resend error:", err);
+    res.status(500).json({ message: "Failed to resend request" });
+  }
+});
+router.delete("/requests/:id", async (req, res) => {
+  try {
+    const deleted = await InternshipRequest.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: "Request not found" });
+    res.json({ message: "Request deleted successfully" });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ message: "Failed to delete request" });
+  }
+});
+router.post("/student", async (req, res) => {
+  const { ouEmail } = req.body;
+  if (!ouEmail) return res.status(400).json({ message: "Missing email" });
+
+  try {
+    const request = await InternshipRequest.findOne({ "student.email": ouEmail });
+    if (!request) return res.json({ approvalStatus: "not_submitted" });
+
+    return res.json({ approvalStatus: request.status || "draft" });
+  } catch (err) {
+    console.error("Student route error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
