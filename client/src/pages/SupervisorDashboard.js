@@ -6,6 +6,7 @@ import ViewFormModal from "./ViewFormModal";
 
 const SupervisorDashboard = () => {
   const [requests, setRequests] = useState([]);
+  // const [cumulativeReports, setCumulativeReports] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -19,7 +20,8 @@ const SupervisorDashboard = () => {
       
       const fetchRequests = async () => {
       try {
-          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -28,8 +30,8 @@ const SupervisorDashboard = () => {
 
           const formatted = res.data.map(item => ({
             _id: item._id,
-            name: item.student_id?.userName || item.student_id?.name || "N/A",
-            student_id: item.student?._id || item._id,
+            interneeName: item.interneeName || item.student_id?.userName || "N/A",
+            interneeEmail: item.interneeEmail || item.student_id?.email || "N/A",
             form_type: item.form_type,
             createdAt: item.createdAt || item.submittedAt,
             supervisor_status: item.supervisor_status || "pending",
@@ -51,10 +53,8 @@ const SupervisorDashboard = () => {
             status: item.status || "pending",
             supervisor_comment: item.supervisor_comment || "N/A"
         }));
-        
 
         setRequests(formatted);
-        setLoading(false);
       } catch (err) {
         console.error("Error fetching A1 Internship forms:", err);
         setMessage("Error fetching A1 Internship forms.", err);
@@ -63,7 +63,6 @@ const SupervisorDashboard = () => {
     };
     fetchRequests();
   }, [token]);
-
   // const handleFormActionComplete = () => {
   //   fetchRequests(); // Refresh table after Approve/Reject
   //   setSelectedForm(null);
@@ -85,15 +84,14 @@ const SupervisorDashboard = () => {
       );
 
       setMessage(res.data.message || `${action} successful`);
-      setRequests(prev => prev.filter(req => req._id !== id)); // remove from table
+      setRequests((prev) => prev.filter((req) => req._id !== id));
       return true;
     } catch (err) {
-      console.error(`Failed to ${action} request:`, err);
+      console.error(err);
       setMessage(`Failed to ${action} request.`);
       return false;
     }
   };
-  
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);

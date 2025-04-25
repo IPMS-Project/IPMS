@@ -10,20 +10,22 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
-const studentRoutes = require("./routes/studentRoutes")
+const studentRoutes = require("./routes/studentRoutes");
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
 // Import cron job manager and register jobs
-const cronJobManager = require("./utils/cronUtils");
+const cronJobManager = require("./utils/cronUtils").cronJobManager;
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
+const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
+const path = require("path");
 
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use("/api/form", formRoutes); // register route as /api/form/submit
+app.use("/api/form", formRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
@@ -40,9 +42,8 @@ mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
   .then(async () => {
     console.log("Connected to Local MongoDB");
-    // Initialize cron jobs after database connection is established
     try {
-      await registerAllJobs(); // Register cronjobs
+      await registerAllJobs();
       console.log("Cron jobs initialized successfully");
     } catch (error) {
       console.error("Failed to initialize cron jobs:", error);
@@ -80,7 +81,9 @@ app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
 
 app.use("/api/reports", weeklyReportRoutes);
-app.use("/api/student",studentRoutes)
+app.use("/api/student", studentRoutes);
+app.use("/api/fourWeekReports", fourWeekReportRoutes);
+
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -96,9 +99,20 @@ app.post("/api/createUser", async (req, res) => {
       .json({ message: "Failed to create user", error: error.message });
   }
 });
+
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
+    const {
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
+      ratings,
+      comments,
+    } = req.body;
 
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
@@ -126,13 +140,12 @@ app.post("/api/evaluation", async (req, res) => {
 });
 
 
-//Form A.4
 
+
+//Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
 
-
-// Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();

@@ -1,205 +1,229 @@
 .dashboard-container {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dashboard-container h2 {
-    font-size: 20px;
-    margin-bottom: 20px;
-    color: #333;
-  }
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: auto;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-  .toggle-button {
-    position: absolute;
-    right: 50px;
-    top: 100px;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid #cddbea8a;
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-  
-  .toggle-button.collapsed {
-    transform: translateY(-50%) rotate(180deg);
-  }
-  
-  .forms-list {
-    margin-top: 10px;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-  
-  .form-item {
-    border-bottom: 1px solid #eee;
-    padding: 5px 0;
-  }
-  
-  .clickable-row {
-    cursor: pointer;
-  }
-  
-  .clickable-row:hover {
-    background-color: #f5f5f5;
-  }
-  
-  .dashboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    transition: max-height 0.3s ease;
-  }
+.dashboard-container h2 {
+  color: #263238;
+  margin-bottom: 30px;
+}
 
-  .dashboard-table.collapsed{
-    max-height: 0;
-    overflow: hidden;
-  }
-  
-  .dashboard-table th,
-  .dashboard-table td {
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .dashboard-table th {
-    background-color: #861f1f;
-    color: white;
-    font-weight: bold;
-  }
-  
-  .link-button {
-    background: none;
-    border: none;
-    color: #333;
-    cursor: pointer;
-    font-size: 15px;
-    padding: 0;
-    text-align: left;
-  }
-  
-  .link-button:hover {
-    background: none !important; /* Prevents red background */
-    color: #007bff; /* Optional: subtle hover color, or use 'inherit' */
-    text-decoration: underline;
-  }
-  
-  
-  /* Action buttons */
-  .action-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .approve {
-    background-color: #28a745;
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 5px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  
-  .reject {
-    background-color: #dc3545;
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 5px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  
-  .approve:hover {
-    background-color: #218838;
-  }
-  
-  .reject:hover {
-    background-color: #c82333;
-  }
-  
-  .status-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: capitalize;
-    display: inline-block;
-  }
-  
-  .status-badge.pending {
-    background-color: #fff3cd;
-    color: #856404;
-  }
-  
-  .status-badge.approved {
-    background-color: #d4edda;
-    color: #155724;
-  }
-  
-  .status-badge.rejected {
-    background-color: #f8d7da;
-    color: #721c24;
-  }
-  
-  /* Empty state */
-  .empty-message-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 20vh;
-  }
-  
-  .empty-message {
-    font-size: 28px;
-    color: #000000;
-    text-align: center;
-    margin: 20px 0;
-    font-weight: bold;
-  }
-  
-  /* Modal override styles (if needed) */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100vw;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-  }
-  
-  .modal-box {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: 600px;
-    max-width: 95%;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .modal-box h3 {
-    margin-top: 0;
-    color: hsl(0, 0%, 20%);
-  }
-  
-  .form-details {
-    background: #f4f4f4;
-    padding: 15px;
-    border-radius: 5px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    margin-bottom: 15px;
-  }
-  
+.section-heading {
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+  margin-top: 40px;
+  margin-bottom: 25px;
+}
+
+.status-msg {
+  margin-bottom: 20px;
+  padding: 12px 18px;
+  background: #e8f5e9;
+  border-left: 5px solid #4caf50;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 40px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #ddd;
+}
+
+.dashboard-table th {
+  background-color: #263238;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #1565c0;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.cumulative-report-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  margin: 25px 0;
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
+  border-left: 5px solid #007bff;
+  transition: 0.3s ease all;
+}
+
+.cumulative-report-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(0, 123, 255, 0.3);
+}
+
+.weeks-covered {
+  font-size: 16px;
+  color: #222;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.week-report-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.week-report-item {
+  background: #f1f8ff;
+  border: 1px solid #dfefff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.week-report-item:hover {
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.25);
+  transform: translateY(-2px);
+  background: #e3f2fd;
+}
+
+.week-report-item span {
+  font-size: 14px;
+  color: #555;
+}
+
+.week-report-item strong {
+  font-size: 15px;
+  color: #212121;
+}
+
+/* Change the color of the "Review & Comment" button to match the top bar red */
+.review-button.red-btn {
+  background: #9b111e; /* Red color */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease all;
+}
+
+/* Shine effect when hovering over the "Review & Comment" button */
+.review-button.red-btn:hover {
+  background: #b71c1c; /* Darker red for hover effect */
+  box-shadow: 0 0 10px rgba(211, 47, 47, 0.6); /* Glow effect */
+  transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+/* Change the side color (weeks section) to the same red as the button */
+.cumulative-report-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 25px;
+  margin: 25px 0;
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
+  border-left: 5px solid #9b111e; /* Red color for border */
+  transition: 0.3s ease all;
+}
+
+/* Shine effect when hovering over the week blocks */
+.cumulative-report-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(155, 17, 30, 0.3); /* Glow effect */
+}
+
+/* Update the hover effect for the week report items (individual weeks) */
+.week-report-item {
+  background: #f1f8ff;
+  border: 1px solid #dfefff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 0 5px rgba(155, 17, 30, 0.08); /* Red shadow */
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Shine and glow effect when hovering over individual weeks */
+.week-report-item:hover {
+  box-shadow: 0 0 15px rgba(155, 17, 30, 0.25); /* Glow effect */
+  transform: translateY(-2px); /* Lift the item slightly */
+  background: #e3f2fd;
+}
+
+.week-report-item span {
+  font-size: 14px;
+  color: #555;
+}
+
+.week-report-item strong {
+  font-size: 15px;
+  color: #212121;
+}
+.tab-toggle button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+}
+.tab-toggle .active {
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+}
+.report-group-card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin: 20px 0;
+  border-radius: 12px;
+}

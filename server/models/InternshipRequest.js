@@ -79,4 +79,4 @@ formA1.virtual("requiredHours").get(function() {
     return this.creditHours * 60;
 })
 
-module.exports = mongoose.model("InternshipRequest", formA1);
+module.exports = mongoose.models.InternshipRequest || mongoose.model("InternshipRequest", formA1);
