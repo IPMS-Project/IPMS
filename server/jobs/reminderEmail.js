@@ -1,24 +1,21 @@
 const emailService = require("../services/emailService");
-const Submission = require("../models/InternshipRequest");
+// const Submission = require("../models/InternshipRequest"); // ❌ Remove this
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const UserTokenRequest = require("../models/TokenRequest");
-const Submission = require("../models/InternshipRequest");
 const logger = require("../utils/logger");
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
 const InternshipRequest = require("../models/InternshipRequest");
-const UserTokenRequest = require("../models/TokenRequest");
-const logger = require("../utils/logger");
 const dayjs = require("dayjs");
 
-// Coordinator reminder: weekly report reviewed by supervisor but not yet commented by coordinator
+// ================= Coordinator Reminder =================
 const coordinatorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDays = now.subtract(7, "day").toDate();
 
   try {
-    const pendingSubs = await Submission.find({
+    const pendingSubs = await InternshipRequest.find({
       coordinator_status: "pending",
       supervisor_status: "approved",
       createdAt: { $lt: fiveWorkingDays },
@@ -73,7 +70,7 @@ const coordinatorReminder = async () => {
   }
 };
 
-
+// ================= Supervisor Reminder =================
 const getAllForms = async (filter = {}) => {
   const models = {
     A1: require("../models/InternshipRequest"),
@@ -89,7 +86,6 @@ const getAllForms = async (filter = {}) => {
   return allResults.flat();
 };
 
-// Supervisor reminder: weekly progress reports pending review
 const supervisorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDays = now.subtract(7, "day").toDate();
@@ -155,7 +151,6 @@ const supervisorReminder = async () => {
     logger.error("Error in supervisorReminder:", err.message);
   }
 };
-
 
 module.exports = {
   coordinatorReminder,
