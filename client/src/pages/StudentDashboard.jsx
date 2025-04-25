@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/StudentDashboard.css";
+import Swal from "sweetalert2";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -83,6 +84,47 @@ const StudentDashboard = () => {
       alert("Failed to delete request.");
     }
   };
+
+  const handleAccountDelete = async () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Your account will be permanently deleted. This cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e45858",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete my account"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Make API call to delete account
+          const res = await fetch(`${backendUrl}/api/token/delete`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ouEmail }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+           
+            Swal.fire("Deleted!", data.message || "Your account has been deleted.", "success")
+              .then(() => {
+                // Redirect to login page
+                navigate("/", { replace: true });
+                // Optionally, force reload to clear history stack
+                window.location.reload();
+              });
+          } else {
+            Swal.fire("Error", data.error || "Account deletion failed.", "error");
+          }
+        } catch (err) {
+          Swal.fire("Error", "Account deletion failed.", "error");
+        }
+      }
+    });
+  };
+  
 
   return (
     <div className="student-dashboard">
@@ -213,6 +255,7 @@ const StudentDashboard = () => {
               maxWidth: "100%",
               cursor:"pointer"
             }}
+            onClick={handleAccountDelete}
           >
             {/* Trash SVG icon */}
             <svg
