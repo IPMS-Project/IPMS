@@ -1,34 +1,43 @@
 import React from "react";
 import "../styles/Contact.css";
 import MansoorImage from "../img/mansoor.jpg";
-import ContactIcon from "../Icons/ContactIcon";
+import ContactIcon, { IconComponent } from "../Icons/ContactIcon";
 
 const teamMembers = [
   {
     name: "Gladis Menachery Sunny",
-    email: "gladis.menachery.sunny-1@ou.edu",
-  },
-  {
-    name: "Naveena Suddapalli",
-    email: "naveena.suddapalli-1@ou.edu",
+    email: "Gladis.Menachery.Sunny-1@ou.edu",
+    role: "Token Generation and Login"
   },
   {
     name: "Ravichandra Reddy",
-    email: "ravichandra.reddy-1@ou.edu",
+    email: "Ravichandra.Reddy.Mulagondla-1@ou.edu",
+    role: "A.1 Form"
   },
   {
-    name: "Narayana Phani",
-    email: "narayana.phani-1@ou.edu",
-  },
-  {
-    name: "Rahul Juluru",
-    email: "rahul.juluru-1@ou.edu",
+    name: "Naveena Suddapalli",
+    email: "Naveena.Suddapalli-1@ou.edu",
+    role: "A.2 Weekly Report"
   },
   {
     name: "Saketh Reddy Aredla",
-    email: "saketh.reddy.aredla-1@ou.edu",
+    email: "Saketh.Reddy.Aredla-1@ou.edu",
+    role: "A.3 Form"
+  },
+  {
+    name: "Rahul Juluru",
+    email: "Rahul.Juluru-1@ou.edu",
+    role: "Supervisor approval workflow"
+  },
+  {
+    name: "Narayana Phani Charan Nimmagadda",
+    email: "Narayana.Phani.Charan.Nimmagadda-1@ou.edu",
+    role: "Coordinator Approval workflow"
   },
 ];
+
+const MansoorEmail = "Mansoor.A.Abdulhak-1@ou.edu";
+const AssistantEmail = "Oluwasijibomi.Ajisegiri@ou.edu";
 
 const Contact = () => {
   return (
@@ -41,7 +50,7 @@ const Contact = () => {
         <div className="contact-info">
           <h2>Dr. Mansoor Abdulhak</h2>
           <p>Assistant Professor, University of Oklahoma</p>
-          <p>📧 <a href="mailto=Mansoor.A.Abdulhak-1@ou.edu">Mansoor.A.Abdulhak-1@ou.edu</a></p>
+          <p>📧 <a href={`mailto=${MansoorEmail}`}>{MansoorEmail}</a></p>
           <p>📞 (405) 325-5408</p>
           <p>🏢 Devon Energy Hall, 234</p>
         </div>
@@ -49,11 +58,11 @@ const Contact = () => {
 
       {/* Teaching Assistant */}
       <div className="contact-card">
-        <ContactIcon className="icon-large" />
+        <ContactIcon IconComponent={() => <IconComponent className="team-icon" />} />
         <div className="contact-info">
-          <h2>SJ Ajisegiri</h2>
+          <h4>SJ Ajisegiri</h4>
           <p>Teaching Assistant</p>
-          <p>📧 <a href="mailto:oluwasijibomi.ajisegiri@ou.edu">oluwasijibomi.ajisegiri@ou.edu</a></p>
+          <p>📧 <a href={`mailto:${AssistantEmail}`}>{AssistantEmail}</a></p>
         </div>
       </div>
 
@@ -61,11 +70,12 @@ const Contact = () => {
       <div className="tech-support-card">
         <h2>Technical Support – Team G</h2>
         <div className="team-grid">
-          {teamMembers.map(({ name, email }) => (
+          {teamMembers.map(({ name, email, role }) => (
             <div key={email} className="team-member">
-              <ContactIcon className="icon-large" />
+              <ContactIcon IconComponent={() => <IconComponent className="team-icon" />} />
               <div>
-                <p className="team-name">{name}</p>
+                <h6>{name}</h6>
+                <p>{role}</p>
                 <p>
                   📧 <a href={`mailto:${email}`}>{email}</a>
                 </p>
