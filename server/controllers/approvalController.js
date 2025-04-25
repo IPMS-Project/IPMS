@@ -13,36 +13,36 @@ const getSupervisorForms = async (req, res, filter) => {
     const WeeklyReport = require("../models/WeeklyReport");
     const Evaluation = require("../models/Evaluation");
 
-        // ----------------------------
-        //      Fetching A1 Form
-        // ----------------------------
+    // ----------------------------
+    //      Fetching A1 Form
+    // ----------------------------
     const a1Forms = await InternshipRequest.find(filter).populate("student", "fullName ouEmail soonerId");
     const typedA1 = a1Forms.map((form) => ({
       ...form.toObject(),
       form_type: "A1",
     }));
 
-        // ----------------------------
-        //      Fetching A2 Form
-        // ----------------------------
+    // ----------------------------
+    //      Fetching A2 Form
+    // ----------------------------
     const a2Forms = await WeeklyReport.find(filter).populate("student_id", "fullName ouEmail soonerId");
     const typedA2 = a2Forms.map((form) => ({
       ...form.toObject(),
       form_type: "A2",
     }));
 
-        // ----------------------------
-        //      Fetching A3 Form
-        // ----------------------------
+    // ----------------------------
+    //      Fetching A3 Form
+    // ----------------------------
     const a3Forms = await Evaluation.find(filter).populate("student_id", "fullName ouEmail soonerId");
     const typedA3 = a3Forms.map((form) => ({
       ...form.toObject(),
       form_type: "A3",
     }));
 
-        // ----------------------------
-        //      Combine forms
-        // ----------------------------
+    // ----------------------------
+    //      Combine forms
+    // ----------------------------
     const allForms = [...typedA1, ...typedA2, ...typedA3];
     //Sort by createdAt date
     allForms.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));

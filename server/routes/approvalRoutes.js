@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const { isSupervisor, isCoordinator } = require("../middleware/authMiddleware");
 const { isSupervisor, isCoordinator, isStudent } = require("../middleware/authMiddleware");
 const {
   getSupervisorForms,

@@ -279,7 +279,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
-        body: JSON.stringify(submissionPayload),
+        },
+        body: JSON.stringify(payload),
       });
       
       if (!response.ok) {
