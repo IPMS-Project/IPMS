@@ -279,14 +279,12 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(submissionPayload),
       });
-  
+      
       if (!response.ok) {
-        throw new Error("Failed to submit form", { cause: response });
+        throw new Error("Failed to submit form", {cause: response});
       }
-  
       const data = await response.json();
       return data;
     } catch (error) {
