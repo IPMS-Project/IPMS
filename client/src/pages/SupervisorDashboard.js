@@ -59,37 +59,7 @@ const SupervisorDashboard = () => {
         setLoading(false);
       }
     };
-
-  const fetchRequests = async () => {
-    try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const formatted = res.data.map((item) => ({
-        _id: item._id,
-        name: item.student?.userName || item.student?.name || "N/A",
-        student_id: item.student?._id || item._id,
-        form_type: item.form_type || "A.1",
-        createdAt: item.createdAt,
-        supervisor_status: item.supervisor_status || "pending",
-        fullForm: item,
-      }));
-
-      setRequests(formatted);
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching Internship A1 forms:", err);
-      setMessage("Error fetching Internship A1 forms.");
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
     fetchRequests();
-  }, []);
 
   const handleFormActionComplete = () => {
     fetchRequests(); // Refresh table after Approve/Reject
@@ -199,6 +169,7 @@ const SupervisorDashboard = () => {
         )}
       </div>
     );
+});
 };
 
 export default SupervisorDashboard;
