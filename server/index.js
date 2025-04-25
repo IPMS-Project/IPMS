@@ -146,21 +146,11 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
-//Form A.4
-=======
-
->>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
-
-
 //Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
 
-<<<<<<< HEAD
 // Graceful shutdown (async Mongoose support)
-=======
->>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
@@ -172,6 +162,7 @@ process.on("SIGINT", async () => {
     process.exit(1);
   }
 });
+
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
