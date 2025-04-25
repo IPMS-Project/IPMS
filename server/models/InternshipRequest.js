@@ -49,20 +49,6 @@ const formA1 = new mongoose.Schema({
         required: true,
         enum: [1, 2, 3]
     },
-
-    requestedAt: {
-        type: Date,
-        default: Date.now,
-      },
-      coordinatorResponded: {
-        type: Boolean,
-        default: false,
-      },
-      studentNotified: {
-        type: Boolean,
-        default: false,
-      },
-      
     startDate: {
         type: Date,
         required: true
@@ -93,6 +79,4 @@ formA1.virtual("requiredHours").get(function() {
     return this.creditHours * 60;
 })
 
-module.exports =
-  mongoose.models.InternshipRequest ||
-  mongoose.model("InternshipRequest", formA1);
+module.exports = mongoose.models.InternshipRequest || mongoose.model("InternshipRequest", formA1);
