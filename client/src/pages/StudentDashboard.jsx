@@ -5,16 +5,13 @@ import Swal from "sweetalert2";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("ipmsUser"));
-  const backendUrl = process.env.REACT_APP_API_URL;
-  const ouEmail = user?.email;
 
+  const user = JSON.parse(localStorage.getItem("ipmsUser"));
+  const ouEmail = user?.email;
   const [approvalStatus, setApprovalStatus] = useState("not_submitted");
-  const [submissions, setSubmissions] = useState([]);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchStatus = async () => {
+    const fetchData = async () => {
       try {
         const res = await fetch(
           `${process.env.REACT_APP_API_URL}/api/student`,
@@ -30,27 +27,7 @@ const StudentDashboard = () => {
         const data = await res.json();
         setApprovalStatus(data.approvalStatus);
       } catch (err) {
-        console.error("Error fetching approval status", err);
-      }
-    };
-
-    if (ouEmail) fetchStatus();
-  }, [ouEmail, backendUrl]);
-
-  useEffect(() => {
-    const fetchSubmissions = async () => {
-      try {
-        const res = await fetch(`${backendUrl}/api/form/pending-requests`);
-        const data = await res.json();
-        const studentSubmissions = data.filter(
-          (req) =>
-            req?.student?.email?.toLowerCase().trim() ===
-            user.email.toLowerCase().trim()
-        );
-        setSubmissions(studentSubmissions);
-      } catch (err) {
-        console.error("Error fetching submissions", err);
-        setError("Unable to load your submissions right now.");
+        console.error("Error fetching internship data", err);
       }
     };
 
@@ -184,56 +161,89 @@ const StudentDashboard = () => {
           <div className="card-content">
             <h3>Request Internship (FORM A1)</h3>
             <p>Track your internship journey</p>
+
             {approvalStatus === "not_submitted" && (
-              <p className="info-msg">You have not submitted the form yet</p>
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                You have not submitted the form yet
+              </p>
             )}
+
             {(approvalStatus === "submitted" ||
               approvalStatus === "pending manual review") && (
-              <p className="info-msg">Your form is under review</p>
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Your form is submitted and under review
+              </p>
             )}
+
             {approvalStatus === "approved" && (
-              <p className="success-msg">Approved</p>
+              <p style={{ fontSize: "0.85rem", color: "green" }}>Approved</p>
             )}
           </div>
+
           <button
             className="card-button"
-            onClick={() =>
-              ["draft", "not_submitted"].includes(approvalStatus) &&
-              navigate("/a1-form")
-            }
+            onClick={() => {
+              if (
+                approvalStatus === "draft" ||
+                approvalStatus === "not_submitted"
+              ) {
+                navigate("/a1-form");
+              }
+            }}
             disabled={
-              !["draft", "not_submitted"].includes(approvalStatus)
+              approvalStatus !== "draft" && approvalStatus !== "not_submitted"
             }
             style={{
-              backgroundColor: ["draft", "not_submitted"].includes(
-                approvalStatus
-              )
-                ? ""
-                : "#ccc",
-              cursor: ["draft", "not_submitted"].includes(approvalStatus)
-                ? "pointer"
-                : "not-allowed",
+              backgroundColor:
+                approvalStatus !== "draft" && approvalStatus !== "not_submitted"
+                  ? "#ccc"
+                  : "",
+              cursor:
+                approvalStatus !== "draft" && approvalStatus !== "not_submitted"
+                  ? "not-allowed"
+                  : "pointer",
             }}
           >
             {approvalStatus === "approved" ? "Track" : "Request Internship"}
           </button>
         </div>
 
-        {/* FORM A2 */}
+        {/* ------ FORM A2 Card ------ */}
         <div className="card-section">
           <div className="card-content">
-            <h3>Weekly Report (FORM A2)</h3>
-            {approvalStatus !== "approved" && (
-              <p className="info-msg">Finish Form A1 & get approved first</p>
+            <h3>Weekly Report (Form A2)</h3>
+
+            {approvalStatus === "not_submitted" && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Please fill your Form A1 first
+              </p>
+            )}
+
+            {approvalStatus === "draft" && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Finish your Form A1 first
+              </p>
+            )}
+
+            {(approvalStatus === "submitted" ||
+              approvalStatus === "pending manual review") && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Wait for your Form A1 to be approved
+              </p>
             )}
           </div>
+
           <button
             className="card-button"
             disabled={approvalStatus !== "approved"}
-            onClick={() => approvalStatus === "approved" && navigate("/weekly-report")}
+            onClick={() => {
+              if (approvalStatus === "approved") {
+                navigate("/weekly-report");
+              }
+            }}
             style={{
-              backgroundColor: approvalStatus === "approved" ? "" : "#ccc",
-              cursor: approvalStatus === "approved" ? "pointer" : "not-allowed",
+              backgroundColor: approvalStatus !== "approved" ? "#ccc" : "",
+              cursor: approvalStatus !== "approved" ? "not-allowed" : "pointer",
             }}
           >
             Request
