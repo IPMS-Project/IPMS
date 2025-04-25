@@ -6,7 +6,6 @@ const UserTokenRequest = require("../models/TokenRequest");
 const logger = require("../utils/logger");
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
-const InternshipRequest = require("../models/InternshipRequest");
 const dayjs = require("dayjs");
 
 // ================= Coordinator Reminder =================
