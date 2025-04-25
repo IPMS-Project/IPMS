@@ -14,7 +14,7 @@ exports.getSupervisorForms = async (req, res, filter) => {
         //      Fetching A1 Form
         // ----------------------------
         const requests = await InternshipRequest.find(filter)
-                                                .populate("_id", "fullName ouEmail soonerId");
+                                                .populate("_id", "fullName ouEmail");
 
         const typedRequests = requests.map(req => ({
             ...req.toObject(), // convert Mongoose doc to plain JS object
@@ -25,7 +25,7 @@ exports.getSupervisorForms = async (req, res, filter) => {
         //      Fetching A2 Form
         // ----------------------------
         const reports = await WeeklyReport.find(filter)
-                                          .populate("student_id", "fullName ouEmail soonerId");
+                                          .populate("student_id", "fullName ouEmail");
 
         // Adding custom type to A2 Form
         const typedReports = reports.map(report => ({
@@ -37,7 +37,7 @@ exports.getSupervisorForms = async (req, res, filter) => {
         //      Fetching A3 Form
         // ----------------------------
         const evaluations = await Evaluation.find(filter)
-                                            .populate("student_id", "fullName ouEmail soonerId");
+                                            .populate("student_id", "fullName ouEmail");
 
         // Adding custom type to A3 Form
         const typedEvaluations = evaluations.map(evaluation => ({

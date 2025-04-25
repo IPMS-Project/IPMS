@@ -13,11 +13,8 @@ const SupervisorDashboard = () => {
   const token = localStorage.getItem("token") || "";
   
     useEffect(() => {
-
       // Token used for authentication for future
       // Now it will only be empty
-       
-      
       const fetchRequests = async () => {
       try {
         const res = await axios.get(
@@ -30,8 +27,8 @@ const SupervisorDashboard = () => {
 
           const formatted = res.data.map(item => ({
             _id: item._id,
-            interneeName: item.interneeName || item.student_id?.userName || "N/A",
-            interneeEmail: item.interneeEmail || item.student_id?.email || "N/A",
+            interneeName: item.interneeName || "N/A",
+            interneeEmail: item.interneeEmail || "N/A",
             form_type: item.form_type,
             createdAt: item.createdAt || item.submittedAt,
             supervisor_status: item.supervisor_status || "pending",
@@ -103,9 +100,9 @@ const SupervisorDashboard = () => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   
     let content;
-    if (loading) {
+    /*if (loading) {
       content = <p>Loading...</p>;
-    } else if (sortedRequests.length === 0) {
+    } else */if (sortedRequests.length === 0) {
       content = (
         <div className="empty-message-container">
           <div className="empty-message">No pending approvals.</div>
