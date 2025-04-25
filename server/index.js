@@ -5,19 +5,26 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User");
+
 const formRoutes = require("./routes/formRoutes");
 
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 const studentRoutes = require("./routes/studentRoutes");
-
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
+
+
 // Import cron job manager and register jobs
-const cronJobManager = require("./utils/cronUtils");
+const cronJobManager = require("./utils/cronUtils").cronJobManager;
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
+const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
+const path = require("path");
+
+
+const cronJobRoutes = require("./routes/cronJobRoutes");
 
 // Author Subhash Chandra: Form A3 Reminder Job Logic
 const { registerReminderA3Job } = require("./utils/reminderA3Utils");
@@ -25,7 +32,7 @@ const { registerReminderA3Job } = require("./utils/reminderA3Utils");
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use("/api/form", formRoutes); // register route as /api/form/submit
+app.use("/api/form", formRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
@@ -42,9 +49,8 @@ mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
   .then(async () => {
     console.log("Connected to Local MongoDB");
-    // Initialize cron jobs after database connection is established
     try {
-      await registerAllJobs(); // Register cronjobs
+      await registerAllJobs();
       console.log("Cron jobs initialized successfully");
     } catch (error) {
       console.error("Failed to initialize cron jobs:", error);
@@ -83,6 +89,7 @@ app.use("/api", approvalRoutes);
 
 app.use("/api/reports", weeklyReportRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/fourWeekReports", fourWeekReportRoutes);
 
 app.post("/api/createUser", async (req, res) => {
   try {
@@ -138,6 +145,7 @@ app.post("/api/evaluation", async (req, res) => {
 });
 
 // Form A.4
+//Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
 
@@ -153,6 +161,7 @@ process.on("SIGINT", async () => {
     process.exit(1);
   }
 });
+
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

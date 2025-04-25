@@ -1,0 +1,63 @@
+/* CoordinatorCumulativeReviewForm.css */
+
+.coordinator-review-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .coordinator-review-container h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .coordinator-review-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+  }
+  
+  .coordinator-review-table th,
+  .coordinator-review-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  textarea.coordinator-comment-box {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    font-size: 1rem;
+    border: 2px solid #aa1e2e;
+    border-radius: 4px;
+    resize: vertical;
+    margin-bottom: 1rem;
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .button-group button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .button-group .cancel-btn {
+    background: #e0e0e0;
+  }
+  
+  .button-group .submit-btn {
+    background: #aa1e2e;
+    color: white;
+  }
+  
