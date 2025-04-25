@@ -1,0 +1,184 @@
+.cumulative-review-container {
+    padding: 30px 20px;
+    max-width: 900px;
+    margin: auto;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    animation: fadeSlideIn 0.6s ease;
+  }
+  
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .cumulative-review-container h2 {
+    color: #263238;
+    margin-bottom: 25px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.8rem;
+  }
+  
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
+  }
+  
+  .report-table th,
+  .report-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  
+  .report-table th {
+    background-color: #9b111e;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+    border-left: 2px solid #fff;
+  }
+  
+  .report-table tr:hover {
+    background-color: #fef2f2;
+    box-shadow: 0 0 15px rgba(155, 17, 30, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  textarea {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 25px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    resize: vertical;
+  }
+  
+  textarea:hover {
+    border-color: #9b111e;
+    box-shadow: 0 0 10px rgba(155, 17, 30, 0.15);
+    transform: scale(1.01);
+  }
+  
+  textarea:focus {
+    border-color: #9b111e;
+    outline: none;
+    box-shadow: 0 0 12px rgba(155, 17, 30, 0.3);
+    transform: scale(1.015);
+  }
+  
+  .actions {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  
+  .actions button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+  }
+  
+  /* Cancel Button */
+  .actions button.cancel-btn {
+    background-color: #e0e0e0;
+    color: #333;
+  }
+  
+  .actions button.cancel-btn:hover {
+    background-color: #bdbdbd;
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  }
+  
+  /* Submit Button */
+  .actions button.submit-btn {
+    background-color: #9b111e;
+    color: white;
+  }
+  
+  .actions button.submit-btn:hover {
+    background-color: #b71c1c;
+    transform: scale(1.1);
+    box-shadow: 0 0 14px rgba(155, 17, 30, 0.4);
+  }
+  
+  .clickable-row {
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .clickable-row:hover {
+    background-color: #fff0f0;
+    box-shadow: 0 0 10px rgba(155, 17, 30, 0.2);
+    transform: scale(1.01);
+  }
+  
+  @media (max-width: 600px) {
+    .cumulative-review-container {
+      padding: 20px 15px;
+    }
+  
+    .actions button {
+      width: 100%;
+    }
+  }
+  .comment-box {
+    width: 100%;
+    height: 100px;
+    margin-top: 1rem;
+    padding: 10px;
+    border: 1px solid #900c3f;
+    border-radius: 8px;
+    resize: vertical;
+  }
+  
+  .button-group {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  
+  .cancel-button,
+  .submit-button {
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .cancel-button {
+    background: #ccc;
+    color: black;
+    border: none;
+  }
+  
+  .submit-button {
+    background: #900c3f;
+    color: white;
+    border: none;
+  }
+  
