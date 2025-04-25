@@ -24,6 +24,7 @@ import SubmittedReports from "./pages/SubmittedReports";
 import CumulativeReviewForm from "./pages/CumulativeReviewForm";
 import CoordinatorReviewForm from "./pages/CoordinatorReviewForm";
 import CoordinatorCumulativeReviewForm from "./pages/CoordinatorCumulativeReviewForm";
+import ProtectedSupervisor from "./pages/ProtectedSupervisor";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -70,7 +71,11 @@ const router = createBrowserRouter([
       },
       {
         path: "supervisor-dashboard",
-        element: <SupervisorDashboard />,
+        element: (
+          <ProtectedSupervisor>
+            <SupervisorDashboard />
+          </ProtectedSupervisor>
+        ),
       },
       {
         path: "coordinator-dashboard",

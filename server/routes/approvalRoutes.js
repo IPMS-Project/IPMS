@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const {isSupervisor}=require("../middleware/authMiddleware")
 
 const {
   getSupervisorForms,
@@ -17,6 +18,9 @@ const { isSupervisor, isCoordinator } = require("../middleware/authMiddleware");
 // =========================================== //
 
 // Supervisor APIs
+router.get("/supervisor-dashboard", isSupervisor, (req,res)=>{
+  res.render("supervisorDashboard");
+})
 router.get("/supervisor/forms", isSupervisor, (req, res) => {
     // const supervisorId = req.user._id,
     return getSupervisorForms(req, res, {
