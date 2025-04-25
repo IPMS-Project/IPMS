@@ -1,0 +1,75 @@
+  .contact-container {
+    max-width: 900px;
+    margin: auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f9f9fb;
+  }
+  
+  .contact-heading {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .contact-card {
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .contact-image {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+  }  
+  
+  .contact-info {
+    flex: 1;
+  }
+  
+  .contact-info h2 {
+    margin-bottom: 0.25rem;
+    color: #222;
+  }
+  
+  .contact-info a {
+    color: #9d2235;
+    text-decoration: none;
+  }
+  
+  .tech-support-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.2rem;
+    margin-top: 1rem;
+  }
+  
+  .team-member {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+  }
+  
+  .team-name {
+    font-weight: 600;
+  }
+
+  .icon-large svg {
+    width: 64px;
+    height: 64px;
+  }
+  

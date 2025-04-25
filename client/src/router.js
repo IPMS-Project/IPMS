@@ -20,6 +20,8 @@ import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 import TokenRenewal from "./pages/TokenRenewal";
 import StudentDashboard from "./pages/StudentDashboard";
 import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 // Create and export the router configuration
 const router = createBrowserRouter([  
@@ -80,6 +82,14 @@ const router = createBrowserRouter([
       {
         path: "renew-token/:token",
         element: <TokenRenewal />,
+      },
+      {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
       },
     ],
   },
