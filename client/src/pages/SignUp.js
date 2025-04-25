@@ -11,7 +11,7 @@ import Swal from "sweetalert2";
 function SignUp() {
   const navigate = useNavigate();
   const [role, setRole] = useState("-");
-  
+
   const [step, setStep] = useState(1);
   const [fullName, setFullName] = useState("");
   const [ouEmail, setOuEmail] = useState("");
@@ -62,7 +62,11 @@ function SignUp() {
       return;
     }
 
+<<<<<<< HEAD
     if (role=== "student" && !/^\d{9}$/.test(soonerId)) {
+=======
+    if (role === "student" && !/^\d{9}$/.test(soonerId)) {
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
       Swal.fire({
         icon: "error",
         title: "Invalid Sooner ID",
@@ -77,7 +81,11 @@ function SignUp() {
         {
           fullName,
           ouEmail,
+<<<<<<< HEAD
           soonerId : role === "student" ? soonerId : "",
+=======
+          soonerId: role === "student" ? soonerId : "",
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
           password,
           semester,
           academicAdvisor: role === "student" ? academicAdvisor : "",
@@ -118,15 +126,27 @@ function SignUp() {
           title: "Email Already Exists",
           text: "The provided email ID is already registered. Try logging in.",
         });
+<<<<<<< HEAD
       } 
       else if(role=== "student" && error.response && error.response.status === 402){
+=======
+      } else if (
+        role === "student" &&
+        error.response &&
+        error.response.status === 402
+      ) {
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
         Swal.fire({
           icon: "error",
           title: "Sooner ID Already Exists",
           text: "The provided Sooner ID is already registered.",
         });
+<<<<<<< HEAD
       }
       else {
+=======
+      } else {
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
         console.log("Error response:", error.response);
         Swal.fire({
           icon: "error",
@@ -139,7 +159,6 @@ function SignUp() {
 
   return (
     <div className="signup-container">
-      
       <form onSubmit={createUser} className="signup-form">
         {step === 1 && (
           <div className="role-selection">
@@ -277,6 +296,7 @@ function SignUp() {
               />
             </div>
 
+<<<<<<< HEAD
             {role === "student" && <div className="form-group">
               <label htmlFor="soonerId">Sooner ID</label>
               <input
@@ -288,6 +308,21 @@ function SignUp() {
                 required
               />
             </div>}
+=======
+            {role === "student" && (
+              <div className="form-group">
+                <label htmlFor="soonerId">Sooner ID</label>
+                <input
+                  type="text"
+                  id="soonerId"
+                  value={soonerId}
+                  onChange={(e) => setSoonerId(e.target.value)}
+                  placeholder="Enter your 9-digit Sooner ID"
+                  required
+                />
+              </div>
+            )}
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
 
             <div className="password-row">
               <div className="form-group password-col">
@@ -392,7 +427,7 @@ function SignUp() {
               >
                 <input
                   type="checkbox"
-                  style={{ appearance: "none" }}
+                  // style={{ appearance: "none" }}
                   checked={agreed}
                   onChange={(e) => setAgreed(e.target.checked)}
                   required

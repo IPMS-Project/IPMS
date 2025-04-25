@@ -44,7 +44,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
           console.error("Failed to load report", err);
         });
     }
-  }, [readOnly, reportId]);
+  }, [readOnly, reportId]);   
 
   // Auto-fill A1 data
   useEffect(() => {
@@ -82,7 +82,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     };
 
     if (!readOnly) fetchA1Data();
-  }, []);
+  }, [readOnly]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

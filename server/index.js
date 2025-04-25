@@ -10,25 +10,35 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
+<<<<<<< HEAD
 const studentRoutes = require("./routes/studentRoutes")
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
 const path = require("path");
 const Evaluation = require("./models/Evaluation");
+=======
+const studentRoutes = require("./routes/studentRoutes");
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
 
-const { cronJobManager } = require("./utils/cronUtils");
+const outcomeRoutes = require("./routes/outcomeRoutes");
+
+// Import cron job manager and register jobs
+const cronJobManager = require("./utils/cronUtils").cronJobManager;
 const { registerAllJobs } = require("./jobs/registerCronJobs");
+const Evaluation = require("./models/Evaluation");
+const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
+const path = require("path");
+
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use("/api/form", formRoutes); // register route as /api/form/submit
+app.use("/api/form", formRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
 
-// MongoDB Config
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
   autoIndex: true,
@@ -37,26 +47,35 @@ const mongoConfig = {
   family: 4,
 };
 
-// MongoDB Connect
-mongoose.connect(process.env.MONGO_URI, mongoConfig)
+mongoose
+  .connect(process.env.MONGO_URI, mongoConfig)
   .then(async () => {
     console.log("Connected to Local MongoDB");
-    await registerAllJobs();
-    console.log("✅ Cron jobs initialized successfully");
+    try {
+      await registerAllJobs();
+      console.log("Cron jobs initialized successfully");
+    } catch (error) {
+      console.error("Failed to initialize cron jobs:", error);
+    }
   })
   .catch((err) => {
     console.error("MongoDB Connection Error:", err);
     process.exit(1);
   });
 
-// Routes
-app.use("/api/form", formRoutes);
-app.use("/api/email", emailRoutes);
-app.use("/api/token", tokenRoutes);
-app.use("/api", approvalRoutes);
-app.use("/api", outcomeRoutes);
-app.use("/api/reports", weeklyReportRoutes);
-app.use("/api/fourWeekReports", fourWeekReportRoutes);
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB error after initial connection:", err);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.log("Lost MongoDB connection...");
+  if (!mongoose.connection.readyState) {
+    mongoose
+      .connect(process.env.MONGO_URI, mongoConfig)
+      .then(() => console.log("Reconnected to MongoDB"))
+      .catch((err) => console.error("Error reconnecting to MongoDB:", err));
+  }
+});
 
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
@@ -71,23 +90,43 @@ app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
 
 app.use("/api/reports", weeklyReportRoutes);
+<<<<<<< HEAD
 // API for creating user
 app.use("/api/student",studentRoutes)
+=======
+app.use("/api/student", studentRoutes);
+app.use("/api/fourWeekReports", fourWeekReportRoutes);
+
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
     const user = new User({ userName, email, password, role });
+
     await user.save();
+    console.log("New user created:", JSON.stringify(user));
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
-    res.status(500).json({ message: "Failed to create user", error: error.message });
+    console.error("Error creating user:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to create user", error: error.message });
   }
 });
 
-// API for Evaluation form
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
+    const {
+      interneeName,
+      interneeID,
+      interneeEmail,
+      advisorSignature,
+      advisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
+      ratings,
+      comments,
+    } = req.body;
 
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
@@ -109,16 +148,19 @@ app.post("/api/evaluation", async (req, res) => {
     await newEvaluation.save();
     res.status(201).json({ message: "Evaluation saved successfully!" });
   } catch (error) {
+    console.error("Error saving evaluation:", error);
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
 
 
-//Form A.4
 
+
+//Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
 
+<<<<<<< HEAD
 
 // Graceful shutdown (async Mongoose support)
 // Serve frontend static files
@@ -130,11 +172,13 @@ app.use("/api/presentation", presentationRoutes);
 // });
 
 // Graceful Shutdown
+=======
+>>>>>>> 93e35288ab1e47c5ea3fa173cbceccbef36defc0
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
     await mongoose.connection.close();
-    console.log("✅ MongoDB connection closed gracefully");
+    console.log("✅ MongoDB connection closed through app termination");
     process.exit(0);
   } catch (err) {
     console.error("❌ Error during shutdown:", err);

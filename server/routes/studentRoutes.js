@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const InternshipRequest = require("../models/internshiprequest");
+const InternshipRequest = require("../models/InternshipRequest");
 const User = require("../models/User");
 const TokenRequest = require("../models/TokenRequest");
 
