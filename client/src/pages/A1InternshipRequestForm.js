@@ -252,10 +252,11 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   const submitFormData = async () => {
     try {
-      const submissionPayload = {
-        studentName: formData.interneeName,
-        soonerId: formData.soonerId,
-        studentEmail: formData.interneeEmail,
+      // Fetch logged-in student ID from localStorage or context
+      const studentId = localStorage.getItem("studentId"); // You must store this during login
+  
+      const payload = {
+        student: studentId,
         workplace: {
           name: formData.workplaceName,
           website: formData.website,
@@ -271,15 +272,13 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
         endDate: formData.endDate,
         tasks: formData.tasks,
         status: "submitted",
+        approvals: ["advisor"]
       };
-      console.log("Submitting payload:", submissionPayload);
-
-      
+  
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/form/submit`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
-        },
         body: JSON.stringify(submissionPayload),
       });
       
@@ -293,6 +292,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
       throw error;
     }
   };
+  
 
   const sendTaskDescriptions = async (descriptions) => {
     try {
