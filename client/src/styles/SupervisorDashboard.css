@@ -209,3 +209,21 @@
   font-size: 15px;
   color: #212121;
 }
+.tab-toggle button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  border: none;
+  background: #ddd;
+  cursor: pointer;
+}
+.tab-toggle .active {
+  background: #007bff;
+  color: white;
+  font-weight: bold;
+}
+.report-group-card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  margin: 20px 0;
+  border-radius: 12px;
+}

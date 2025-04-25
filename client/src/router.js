@@ -17,12 +17,21 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import SubmittedReports from "./pages/SubmittedReports";
 import CoordinatorCumulativeReviewForm from "./pages/CoordinatorCumulativeReviewForm";
+import TokenRenewal from "./pages/TokenRenewal";
+import StudentDashboard from "./pages/StudentDashboard";
+import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
 
 
 // Layout
 import Layout from "./components/Layout";
 
-const router = createBrowserRouter([
+//const router = createBrowserRouter([
+// import TokenRenewal from "./pages/TokenRenewal";
+// import StudentDashboard from "./pages/StudentDashboard";
+// import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
+
+// Create and export the router configuration
+const router = createBrowserRouter([  
   {
     path: "/",
     element: <Layout />,
@@ -45,6 +54,15 @@ const router = createBrowserRouter([
       // Weekly review form for a specific week
       {
         path: "weekly-report/:groupIndex/week-:weekNumber/:studentName",
+        index: true,
+        element: <Home />,
+      },
+      {
+        path: "signup",
+        element: <SignUp />,
+      },  
+      {
+        path: "weekly-report",
         element: <WeeklyProgressReportForm />,
       },
 
@@ -67,6 +85,47 @@ const router = createBrowserRouter([
         element: <CoordinatorCumulativeReviewForm />,
       },
       
+      {
+        path: "/student-dashboard",
+        element: (
+          <ProtectedRouteStudent>
+            <StudentDashboard />
+          </ProtectedRouteStudent>
+        )
+      },
+      
+      {
+        path: "a1-form",
+        element: <A1InternshipRequestForm />,
+      },
+      {
+        path: "evaluation",
+        element: <A3JobEvaluationForm />,
+      },
+      {
+        path: "activate/:token",
+        element: <ActivateAccount />,
+      },
+      {
+        path: "presentation",
+        element: <A4PresentationEvaluationForm />,
+      },
+      {
+        path: "supervisor-dashboard",
+        element: <SupervisorDashboard />,
+      },
+      {
+        path: "coordinator-dashboard",
+        element: <CoordinatorDashboard />,
+      },
+      {
+        path: "coordinator/request/:id",
+        element: <CoordinatorRequestDetailView />,
+      },
+      {
+        path: "renew-token/:token",
+        element: <TokenRenewal />,
+      },
     ],
   },
 ]);

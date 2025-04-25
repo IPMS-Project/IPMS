@@ -18,25 +18,43 @@ const SupervisorDashboard = () => {
     const fetchData = async () => {
       try {
         const [res1, res2] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API_URL}/api/submissions/pending`),
+          axios.get(`${process.env.REACT_APP_API_URL}/api/form/internshiprequests`),
           axios.get(`${process.env.REACT_APP_API_URL}/api/reports/cumulative/reports`)
         ]);
-        setRequests(res1.data || []);
+
+        const formattedRequests = res1.data
+          .map(item => ({
+            _id: item._id,
+            name: item.student?.userName || item.student?.name || "N/A",
+            student_id: item.student?._id || item._id,
+            form_type: "A1",
+            createdAt: item.createdAt,
+            supervisor_status: item.supervisor_status || "pending",
+            fullForm: item
+          }))
+          .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+        setRequests(formattedRequests);
         setCumulativeReports(res2.data?.cumulativeReports || []);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching dashboard data:", err);
         setMessage("Failed to load data.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
   const handleAction = async (id, action, comment) => {
     if (!window.confirm(`Are you sure you want to ${action} this request?`)) return;
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/submissions/${id}/${action}`, { comment });
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/form/internshiprequests/${id}/${action}`,
+        { comment }
+      );
+
       setMessage(res.data.message || `${action} successful`);
       setRequests(prev => prev.filter(req => req._id !== id));
       setSelectedForm(null);
@@ -46,7 +64,9 @@ const SupervisorDashboard = () => {
     }
   };
 
-  const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString();
+  const openFormView = (form) => setSelectedForm(form);
+  const closeFormView = () => setSelectedForm(null);
+  const formatDate = (date) => new Date(date).toLocaleDateString();
 
   return (
     <div className="dashboard-container">
@@ -58,7 +78,7 @@ const SupervisorDashboard = () => {
         <p>Loading...</p>
       ) : (
         <>
-          {/* Pending Approvals */}
+          {/* Pending Internship A1 Approvals */}
           <h3 className="section-heading">Pending Approvals</h3>
           {requests.length === 0 ? (
             <div className="empty-message-container">
@@ -79,10 +99,18 @@ const SupervisorDashboard = () => {
                 {requests.map((req) => (
                   <tr key={req._id}>
                     <td>{req.name}</td>
-                    <td><button className="link-button" onClick={() => setSelectedForm(req)}>{req.student_id}</button></td>
+                    <td>
+                      <button className="link-button" onClick={() => openFormView(req.fullForm)}>
+                        {req.student_id}
+                      </button>
+                    </td>
                     <td>{req.form_type}</td>
                     <td>{formatDate(req.createdAt)}</td>
-                    <td><span className={`status-badge ${req.supervisor_status}`}>{req.supervisor_status}</span></td>
+                    <td>
+                      <span className={`status-badge ${req.supervisor_status}`}>
+                        {req.supervisor_status}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -96,7 +124,9 @@ const SupervisorDashboard = () => {
           ) : (
             cumulativeReports.map((group, index) => (
               <div key={index} className="cumulative-report-card">
-                <h4 className="weeks-covered">Weeks Covered: {group.weeks?.map(week => week.replace("Week ", "")).join(", ")}</h4>
+                <h4 className="weeks-covered">
+                  Weeks Covered: {group.weeks?.map(week => week.replace("Week ", "")).join(", ")}
+                </h4>
                 <ul className="week-report-grid">
                   {group.reports.map((rep, idx) => (
                     <li key={idx} className="week-report-item">
@@ -106,7 +136,12 @@ const SupervisorDashboard = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="review-button red-btn" onClick={() => navigate(`/review-cumulative/${group.groupIndex}`)}>Review & Comment</button>
+                <button
+                  className="review-button red-btn"
+                  onClick={() => navigate(`/review-cumulative/${group.groupIndex}`)}
+                >
+                  Review & Comment
+                </button>
               </div>
             ))
           )}
@@ -116,7 +151,7 @@ const SupervisorDashboard = () => {
       {selectedForm && (
         <ViewFormModal
           formData={selectedForm}
-          onClose={() => setSelectedForm(null)}
+          onClose={closeFormView}
           onAction={handleAction}
         />
       )}

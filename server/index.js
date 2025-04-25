@@ -10,6 +10,7 @@ const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
+const studentRoutes = require("./routes/studentRoutes")
 
 const outcomeRoutes = require("./routes/outcomeRoutes");
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
@@ -71,6 +72,7 @@ app.use("/api", approvalRoutes);
 
 app.use("/api/reports", weeklyReportRoutes);
 // API for creating user
+app.use("/api/student",studentRoutes)
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -120,12 +122,12 @@ app.use("/api/presentation", presentationRoutes);
 
 // Graceful shutdown (async Mongoose support)
 // Serve frontend static files
-app.use(express.static(path.join(__dirname, "../client/build")));
+// app.use(express.static(path.join(__dirname, "../client/build")));
 
-// All other routes to React app
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build/index.html"));
-});
+// // All other routes to React app
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname, "../client/build/index.html"));
+// });
 
 // Graceful Shutdown
 process.on("SIGINT", async () => {
