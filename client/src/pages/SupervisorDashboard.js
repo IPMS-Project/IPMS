@@ -59,7 +59,7 @@ const SupervisorDashboard = () => {
       }
     };
     fetchRequests();
-  }, [token]);
+  }, [token, setLoading]);
   // const handleFormActionComplete = () => {
   //   fetchRequests(); // Refresh table after Approve/Reject
   //   setSelectedForm(null);
