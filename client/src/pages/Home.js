@@ -56,15 +56,17 @@ function Home() {
         const user = data.user;
         if(role === "student"){
            // Store only required fields
-          const limitedUserInfo = {
-            fullName: user.fullName,
-            id: user._id,
-            email:user.ouEmail
-          };
-
-          localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
-          navigate("/student-dashboard");
-        } else if(role === "supervisor"){
+        const limitedUserInfo = {
+          fullName: user.fullName,
+          id: user._id,
+          email:user.ouEmail,
+          academicAdvisor: user.academicAdvisor,
+          semester:user.semester
+        };
+        
+        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+        navigate("/student-dashboard");
+        }else if(role === "supervisor"){
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",

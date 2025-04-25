@@ -15,13 +15,17 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const res = await fetch(`${backendUrl}/api/student`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ouEmail }),
-        });
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/student`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ouEmail }),
+          }
+        );
+
         const data = await res.json();
         setApprovalStatus(data.approvalStatus);
       } catch (err) {
@@ -82,12 +86,58 @@ const StudentDashboard = () => {
 
   return (
     <div className="student-dashboard">
-      <div className="dashboard-header">
-        <h2>Welcome, {user.fullName}</h2>
-      </div>
-
       <div className="dashboard-card">
-        {/* FORM A1 */}
+        <div
+          className="container-fluid p-4 mb-4"
+          style={{
+            background: "#842020",
+            borderRadius: "15px",
+            marginTop: "20px",
+          }}
+        >
+          <div className="d-flex align-items-center">
+            {/* Avatar Icon */}
+            <div
+              className="rounded-circle bg-light d-flex align-items-center justify-content-center"
+              style={{ width: 250, height: 250, marginRight: 50 }}
+            >
+              {/* Bootstrap "person" icon, can use font-awesome as well */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="140"
+                height="140"
+                fill="#90313A"
+                className="bi bi-person"
+                viewBox="0 0 16 16"
+              >
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm4-3a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm2 8c0 1-1 2-6 2s-6-1-6-2 1-2 6-2 6 1 6 2zm-1.995-.15c-.977-.211-2.488-.35-4.005-.35-1.517 0-3.028.139-4.005.35C2.523 12.368 4.033 13 8 13s5.477-.632 5.995-1.15z" />
+              </svg>
+            </div>
+            {/* Student Info */}
+            <div>
+              <h1 className="text-white fw-bold" style={{ fontSize: "3rem" }}>
+                {user.fullName}
+              </h1>
+              <div className="mt-3">
+                <span
+                  className="badge rounded-pill px-4 py-2"
+                  style={{ background: "#712622", fontSize: "1.7rem" }}
+                >
+                  Advisor: [{user.academicAdvisor}]
+                </span>
+              </div>
+              <div className="mt-3">
+                <span
+                  className="badge rounded-pill px-4 py-2"
+                  style={{ background: "#712622", fontSize: "1.7rem" }}
+                >
+                  Semester: [{user.semester}]
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* ------ FORM A1 Card ------ */}
         <div className="card-section">
           <div className="card-content">
             <h3>Request Internship (FORM A1)</h3>
@@ -147,51 +197,46 @@ const StudentDashboard = () => {
             Request
           </button>
         </div>
-      </div>
 
-      {/* Submissions Table */}
-      <div className="dashboard-table">
-        <h2>Your Internship Submissions</h2>
-        {error && <div className="error-message">{error}</div>}
-        <table className="submission-table">
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Status</th>
-              <th>Submitted On</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {submissions.map((req) => (
-              <tr key={req._id}>
-                <td>{req.workplace.name}</td>
-                <td>{req.status}</td>
-                <td>{new Date(req.createdAt).toLocaleDateString()}</td>
-                <td>
-                  {req.reminders?.length === 2 && !req.coordinatorResponded ? (
-                    <>
-                      <button
-                        className="btn-warning"
-                        onClick={() => handleResend(req._id)}
-                      >
-                        Resend
-                      </button>
-                      <button
-                        className="btn-danger"
-                        onClick={() => handleDelete(req._id)}
-                      >
-                        Delete
-                      </button>
-                    </>
-                  ) : (
-                    <span>Waiting</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="d-flex justify-content-center mt-4">
+          <button
+            type="button"
+            className="btn btn-outline-danger w-100"
+            style={{
+              borderWidth: "3px",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+              padding: "0.5rem 0",
+              maxWidth: "100%",
+              cursor:"pointer"
+            }}
+          >
+            {/* Trash SVG icon */}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="#e45858"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ marginRight: "10px" }}
+            >
+              <path
+                d="M3 6h18M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"
+                stroke="#e45858"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
+            <span style={{ color: "#e45858", fontWeight: 500 }}>
+              Delete My Account
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
