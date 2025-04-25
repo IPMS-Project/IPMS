@@ -1,5 +1,4 @@
 import React from "react";
-
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
 
@@ -20,9 +19,14 @@ import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 import TokenRenewal from "./pages/TokenRenewal";
 import StudentDashboard from "./pages/StudentDashboard";
 import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
+import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
+import SubmittedReports from "./pages/SubmittedReports";
+import CumulativeReviewForm from "./pages/CumulativeReviewForm";
+import CoordinatorReviewForm from "./pages/CoordinatorReviewForm";
+import CoordinatorCumulativeReviewForm from "./pages/CoordinatorCumulativeReviewForm";
 
 // Create and export the router configuration
-const router = createBrowserRouter([  
+const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
@@ -35,20 +39,19 @@ const router = createBrowserRouter([
       {
         path: "signup",
         element: <SignUp />,
-      },  
+      },
       {
         path: "weekly-report",
         element: <WeeklyProgressReportForm />,
       },
       {
-        path: "/student-dashboard",
+        path: "student-dashboard",
         element: (
           <ProtectedRouteStudent>
             <StudentDashboard />
           </ProtectedRouteStudent>
-        )
+        ),
       },
-      
       {
         path: "a1-form",
         element: <A1InternshipRequestForm />,
@@ -80,6 +83,34 @@ const router = createBrowserRouter([
       {
         path: "renew-token/:token",
         element: <TokenRenewal />,
+      },
+      {
+        path: "four-week-report",
+        element: <WeeklyFourWeekReportForm />,
+      },
+      {
+        path: "submitted-reports",
+        element: <SubmittedReports />,
+      },
+      {
+        path: "submitted-reports/view/:reportId",
+        element: <WeeklyProgressReportForm readOnly={true} />,
+      },
+      {
+        path: "review-cumulative/:groupIndex",
+        element: <CumulativeReviewForm />,
+      },
+      {
+        path: "coordinator-review/:groupIndex",
+        element: <CoordinatorReviewForm />,
+      },
+      {
+        path: "review-cumulative/:groupIndex/coordinator",
+        element: <CoordinatorCumulativeReviewForm />,
+      },
+      {
+        path: "weekly-report/:groupIndex/week-:weekNumber/:studentName",
+        element: <Home />,
       },
     ],
   },

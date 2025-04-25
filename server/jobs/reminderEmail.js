@@ -1,11 +1,18 @@
 const emailService = require("../services/emailService");
-const dayjs = require("dayjs");
+const Submission = require("../models/InternshipRequest");
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const UserTokenRequest = require("../models/TokenRequest");
 const Submission = require("../models/InternshipRequest");
 const logger = require("../utils/logger");
+const WeeklyReport = require("../models/WeeklyReport");
+const SupervisorReview = require("../models/SupervisorReview");
+const InternshipRequest = require("../models/InternshipRequest");
+const UserTokenRequest = require("../models/TokenRequest");
+const logger = require("../utils/logger");
+const dayjs = require("dayjs");
 
+// Coordinator reminder: weekly report reviewed by supervisor but not yet commented by coordinator
 const coordinatorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDays = now.subtract(7, "day").toDate();
@@ -82,7 +89,7 @@ const getAllForms = async (filter = {}) => {
   return allResults.flat();
 };
 
-
+// Supervisor reminder: weekly progress reports pending review
 const supervisorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDays = now.subtract(7, "day").toDate();
