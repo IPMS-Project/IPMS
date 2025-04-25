@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {isSupervisor}=require("../middleware/authMiddleware")
+const { isSupervisor, isCoordinator } = require("../middleware/authMiddleware");
 
 const {
   getSupervisorForms,
@@ -11,7 +11,7 @@ const {
   coordinatorRejectRequest,
 } = require("../controllers/approvalController");
 
-const { isSupervisor, isCoordinator } = require("../middleware/authMiddleware");
+
 
 // =========================================== //
 //          Supervisor Approval Routes         //

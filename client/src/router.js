@@ -72,9 +72,9 @@ const router = createBrowserRouter([
       {
         path: "supervisor-dashboard",
         element: (
-          <ProtectedSupervisor>
+          //<ProtectedSupervisor>
             <SupervisorDashboard />
-          </ProtectedSupervisor>
+          //</ProtectedSupervisor>
         ),
       },
       {

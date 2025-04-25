@@ -103,8 +103,6 @@ const SupervisorDashboard = () => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   
     let content;
-
-
     if (loading) {
       content = <p>Loading...</p>;
     } else if (sortedRequests.length === 0) {
