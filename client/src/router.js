@@ -93,6 +93,8 @@ const router = createBrowserRouter([
       {
         path: "contact",
         element: <Contact />,
+      },
+      {
         path: "four-week-report",
         element: <WeeklyFourWeekReportForm />,
       },
