@@ -16,9 +16,11 @@ const hashToken = (token) => {
 };
 
 // ---------------------------------- TOKEN REQUEST ----------------------------------
+// ---------------------------------- TOKEN REQUEST ----------------------------------
 router.post("/request", async (req, res) => {
   try {
     const { fullName, ouEmail, soonerId, password, semester, academicAdvisor, role } = req.body;
+
     if (!fullName || !ouEmail || !password || !semester || !role) {
       return res.status(400).json({ error: "All fields are required." });
     }
@@ -29,6 +31,10 @@ router.post("/request", async (req, res) => {
     }
 
     if (role.toLowerCase() === "student") {
+      if (!soonerId) {
+        return res.status(400).json({ error: "Sooner ID is required for students." });
+      }
+
       const existingSoonerId = await TokenRequest.findOne({ soonerId });
       if (existingSoonerId) {
         return res.status(402).json({ error: "Token request already exists for this Sooner ID." });
@@ -44,8 +50,6 @@ router.post("/request", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const requestedAt = new Date();
-    const expiresAt = new Date(requestedAt.getTime() + 5 * 24 * 60 * 60 * 1000);
 
     const request = new TokenRequest({
       fullName,
@@ -57,8 +61,6 @@ router.post("/request", async (req, res) => {
       academicAdvisor: role.toLowerCase() === "student" ? academicAdvisor : undefined,
       isStudent: role.toLowerCase() === "student",
       token: hashedToken,
-      requestedAt,
-      expiresAt,
       activationLinkSentAt: role.toLowerCase() === "student" ? new Date() : undefined,
     });
 
@@ -84,7 +86,6 @@ router.post("/request", async (req, res) => {
       res.status(201).json({
         message: "Token requested and email sent.",
         token: plainToken,
-        expiresAt,
       });
     } else {
       console.log(`Email not sent - user is not a student: ${ouEmail}`);
@@ -245,6 +246,7 @@ router.delete("/deactivate", async (req, res) => {
 });
 
 // ---------------------------------- TOKEN RENEWAL ----------------------------------
+// ---------------------------------- TOKEN RENEWAL ----------------------------------
 router.post("/renew", async (req, res) => {
   try {
     const { token } = req.body;
@@ -253,7 +255,8 @@ router.post("/renew", async (req, res) => {
       return res.status(400).json({ message: "Token is required." });
     }
 
-    const user = await TokenRequest.findOne({ token });
+    const hashedToken = hashToken(token);
+    const user = await TokenRequest.findOne({ token: hashedToken });
 
     if (!user) {
       return res.status(404).json({ message: "Token not found." });

@@ -81,7 +81,7 @@ const userTokenRequestSchema = new mongoose.Schema(
       required: function () {
         return this.isStudent;
       },
-      unique: true,
+      // Note: unique index will be handled separately below
     },
     isActivated: {
       type: Boolean,
@@ -124,11 +124,21 @@ userTokenRequestSchema.pre('save', function (next) {
   next();
 });
 
+// Auto-expire unactivated requests after 5 days
 userTokenRequestSchema.index(
   { requestedAt: 1 },
   {
-    expireAfterSeconds: 432000,
+    expireAfterSeconds: 432000, // 5 days
     partialFilterExpression: { isActivated: false },
+  }
+);
+
+// ✅ NEW: Make token unique only if token exists (Partial Unique Index)
+userTokenRequestSchema.index(
+  { token: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { token: { $exists: true, $ne: null } },
   }
 );
 
