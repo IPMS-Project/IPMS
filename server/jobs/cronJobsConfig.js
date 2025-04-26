@@ -3,10 +3,11 @@ const { coordinatorReminder, supervisorReminder } = require("./reminderEmail");
 const { checkAndSendReminders } = require("./tokenExpiryCheck");
 const autoDeactivateCronjobs = require("./autoDeactivateCronjobs");
 
-// Map of job names to their corresponding functions
+// Map of job names to actual handler functions
 const jobFunctions = {
   coordinatorApprovalReminder: coordinatorReminder,
-  supervisorApprovalReminder: supervisorReminder,  
+  supervisorApprovalReminder: supervisorReminder,
+  // Add future cron jobs here
   tokenExpiryReminder: checkAndSendReminders,
   autoDeactivateCronjobs: autoDeactivateCronjobs,
   // Add more job functions here as needed
@@ -16,31 +17,33 @@ async function getCronJobs() {
   try {
     const jobs = await CronJob.find({ isActive: true });
 
-    // Transform database records into the expected format
     return jobs.reduce((acc, job) => {
-      if (jobFunctions[job.name]) {
+      const jobFn = jobFunctions[job.name];
+
+      if (jobFn) {
         acc[job.name] = {
           schedule: job.schedule,
           job: async () => {
             try {
-              // Update last run time
+              // Update last execution time
               await CronJob.findByIdAndUpdate(job._id, {
                 lastRun: new Date(),
               });
 
-              // Execute the job
-              await jobFunctions[job.name]();
+              await jobFn(); // Execute job function
+              console.log(`[CronJob] ${job.name} executed at ${new Date().toISOString()}`);
             } catch (error) {
-              console.error(`Error executing job ${job.name}:`, error);
+              console.error(`[CronJob Error] ${job.name}:`, error.message || error);
             }
           },
-          options: job.options,
+          options: job.options || {},
         };
       }
+
       return acc;
     }, {});
   } catch (error) {
-    console.error("Error fetching cron jobs:", error);
+    console.error("[CronJob Setup Error]:", error);
     return {};
   }
 }

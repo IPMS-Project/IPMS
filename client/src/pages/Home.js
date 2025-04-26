@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/App.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -13,28 +13,20 @@ function Home() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-
     role: "student",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [role] = useState("student");
-
-  // Sync role into formData.role
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, role }));
-  }, [role]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { email: ouEmail, password, role } = formData;
 
 
@@ -55,7 +47,7 @@ function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ouEmail, password, role }),
-        },
+        }
       );
 
       const data = await response.json();
@@ -64,22 +56,31 @@ function Home() {
         const user = data.user;
         if(role === "student"){
            // Store only required fields
-        const limitedUserInfo = {
-          fullName: user.fullName,
-          id: user._id,
-          email:user.ouEmail
-        };
-        
-        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
-        navigate("/student-dashboard");
-        }else if(role === "supervisor"){
+          const limitedUserInfo = {
+            fullName: user.fullName,
+            id: user._id,
+            email:user.ouEmail
+          };
+
+          localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+          navigate("/student-dashboard");
+        } else if(role === "supervisor"){
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",
             text: `Welcome back, ${role}!`,
           });
+          const token = data.user.token;
+          localStorage.setItem("token", token);
           navigate("/supervisor-dashboard");
-        }else{
+        } else if (role === "coordinator") {
+          Swal.fire({
+            icon: "success",
+            title: "Login Successful 🌟",
+            text: `Welcome back, ${role}!`,
+          });
+          navigate("/coordinator-dashboard");
+        } else{
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",
@@ -101,6 +102,7 @@ function Home() {
         Swal.fire({
           icon: "error",
           title: "Login Failed",
+          text: data.message || "Something went wrong",
           html: data.message + " " + 
         (data.renewalLink 
          ? `Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.` 
@@ -125,9 +127,7 @@ function Home() {
         </div>
 
         <div className="login-options">
-          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>
-            Welcome back
-          </h2>
+          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>Welcome back</h2>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -146,10 +146,7 @@ function Home() {
                       formData.role === r ? "selected" : ""
                     }`}
                     onClick={() =>
-                      setFormData({
-                        ...formData,
-                        role: r,
-                      })
+                      setFormData((prev) => ({ ...prev, role: r }))
                     }
                 
                   >
@@ -157,6 +154,16 @@ function Home() {
                     <p className="role-label">
                       {r.charAt(0).toUpperCase() + r.slice(1)}
                     </p>
+                    <span
+                      className="info-icon"
+                      title={
+                        r === "student"
+                          ? "Students request internships and submit weekly reports."
+                          : r === "supervisor"
+                          ? "Supervisors review and approve student progress."
+                          : "Coordinators manage the internship workflow and approvals."
+                      }
+                    ></span>
                   </div>
                 ))}
               </div>
@@ -164,9 +171,7 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="email">
-                <FaEnvelope
-                  style={{ marginRight: "6px", verticalAlign: "middle" }}
-                />
+                <FaEnvelope style={{ marginRight: "6px", verticalAlign: "middle" }} />
                 Email
               </label>
               <input
@@ -182,9 +187,7 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="password">
-                <FaLock
-                  style={{ marginRight: "6px", verticalAlign: "middle" }}
-                />
+                <FaLock style={{ marginRight: "6px", verticalAlign: "middle" }} />
                 Password
               </label>
               <div className="password-wrapper">
@@ -206,15 +209,7 @@ function Home() {
               </div>
             </div>
 
-            <div
-              className="form-subtext"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "0.9rem",
-                marginBottom: "1rem",
-              }}
-            >
+            <div className="form-subtext">
               <label className="d-flex align-items-center">
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me

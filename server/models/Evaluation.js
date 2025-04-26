@@ -22,8 +22,8 @@ const evaluationItemSchema = new mongoose.Schema({
 
 const evaluationSchema = new mongoose.Schema({
   ...formMetadata,
-  interneeId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
-  internshipId: { type: mongoose.Schema.Types.ObjectId, ref: 'Internship', required: false },
+  interneeId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserTokenRequest', required: false },
+  internshipId: { type: mongoose.Schema.Types.ObjectId, ref: 'InternshipRequest', required: false },
 
   interneeName: {
     type: String,

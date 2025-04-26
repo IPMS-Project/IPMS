@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/SupervisorDashboard.css";
@@ -5,39 +6,37 @@ import ViewFormModal from "./ViewFormModal";
 
 const SupervisorDashboard = () => {
   const [requests, setRequests] = useState([]);
+  // const [cumulativeReports, setCumulativeReports] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const token = localStorage.getItem("token") || "";
   
     useEffect(() => {
-
-      // Token used for authentication for future
-      // Now it will only be empty
-      const token = localStorage.getItem("token") || ""; 
-      
       const fetchRequests = async () => {
       try {
-          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          });
+        });
 
-          const formatted = res.data.map(item => ({
-            _id: item._id,
-            name: item.student_id?.userName || item.student_id?.name || "N/A",
-            student_id: item.student?._id || item._id,
-            form_type: item.form_type,
-            createdAt: item.createdAt,
-            supervisor_status: item.supervisor_status || "pending",
-            fullForm: item,
-            workplace: {
-                name: item.workplace?.name || "N/A",
-                website: item.workplace?.website || "N/A",
-                phone: item.workplace?.phone || "N/A",
-            },
-            internshipAdvisor: {
+          const formatted = response.data.map(item => ({
+              _id: item._id,
+              interneeName: item.student?.fullName || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
+              interneeEmail: item.student?.ouEmail || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
+              form_type: item.form_type,
+              createdAt: item.createdAt || item.submittedAt,
+              supervisor_status: item.supervisor_status || "pending",
+              fullForm: item,
+              workplace: {
+                  name: item.workplace?.name || "N/A",
+                  website: item.workplace?.website || "N/A",
+                  phone: item.workplace?.phone || "N/A",
+              },
+              internshipAdvisor: {
                 name: item.internshipAdvisor?.name || "N/A",
                 jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
                 email: item.internshipAdvisor?.email || "N/A",
@@ -49,31 +48,48 @@ const SupervisorDashboard = () => {
             status: item.status || "pending",
             supervisor_comment: item.supervisor_comment || "N/A"
         }));
-        
 
+        setLoading(false);
         setRequests(formatted);
-        setLoading(false);
+
       } catch (err) {
-        console.error("Error fetching forms:", err);
-        setMessage("Error fetching forms.", err);
-        setLoading(false);
+          if (err.response) {
+              if (err.response.status === 401) {
+                  console.error("Unauthorized access. Redirecting to login...");
+                  setMessage("Unauthorized access. Redirecting to login...");
+                  localStorage.removeItem("token");
+                  window.location.href = "/";
+              }
+              else if (err.response.status === 403) {
+                  console.error("Forbidden access. Redirecting to login...");
+                  setMessage("Forbidden access. Redirecting to login...");
+                  window.location.href = "/";
+              }
+              else if (err.response.status === 500) {
+                  console.error("Server error. Please try again later.");
+                  setMessage("Server error. Please try again later.");
+              }
+              else {
+                  console.error("Unexpected error:", err.message);
+                  setMessage("Unexpected error. Please try again.");
+              }
+          }
+              
+          setLoading(false);
       }
     };
+
     fetchRequests();
+  }, [token, setLoading]);
 
-  const handleFormActionComplete = () => {
-    fetchRequests(); // Refresh table after Approve/Reject
-    setSelectedForm(null);
-  };
-
-  const handleAction = async (id, form_type, action, comment) => {
+  const handleAction = async (id, form_type, action, comment, signature) => {
     const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
     if (!confirmed) return;
 
     try {
       const res = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
-        { comment },
+        { comment, signature },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -82,15 +98,14 @@ const SupervisorDashboard = () => {
       );
 
       setMessage(res.data.message || `${action} successful`);
-      setRequests(prev => prev.filter(req => req._id !== id)); // remove from table
+      setRequests((prev) => prev.filter((req) => req._id !== id));
       return true;
     } catch (err) {
-      console.error(`Failed to ${action} request:`, err);
+      console.error(err);
       setMessage(`Failed to ${action} request.`);
       return false;
     }
   };
-  
 
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
@@ -102,8 +117,6 @@ const SupervisorDashboard = () => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   
     let content;
-
-
     if (loading) {
       content = <p>Loading...</p>;
     } else if (sortedRequests.length === 0) {
@@ -118,7 +131,6 @@ const SupervisorDashboard = () => {
           <thead>
             <tr>
               <th>Student Name</th>
-              <th>Sooner ID</th>
               <th>Student Email</th>
               <th>Form Type</th>
               <th>Submitted</th>
@@ -127,17 +139,14 @@ const SupervisorDashboard = () => {
           </thead>
           <tbody>
             {sortedRequests.map((req) => {
-              console.log(req); // Log the entire request object
-              console.log(req.Name); // Log the student's full name if populated
               return (
                 <tr key={req._id}>
                   <td>{req.interneeName || "N/A"}</td>
                   <td>
                     <button className="link-button" onClick={() => openFormView(req)}>
-                      {req.soonerId || "N/A"}
+                    {req.interneeEmail || "N/A"}
                     </button>
                   </td>
-                  <td>{req.interneeEmail || req.ouEmail || "N/A"}</td>
                   <td>{req.form_type}</td>
                   <td>{formatDate(req.createdAt)}</td>
                   <td>
@@ -163,13 +172,12 @@ const SupervisorDashboard = () => {
             formData={selectedForm}
             onClose={closeFormView}
             onAction={(id, action, comment, signature) =>
-              handleAction(selectedForm.form_type, id, action, comment, signature)
+              handleAction(id, selectedForm.form_type, action, comment, signature)
             }
           />
         )}
       </div>
     );
-});
-};
+  };
 
 export default SupervisorDashboard;

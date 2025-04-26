@@ -1,24 +1,11 @@
 const User = require("../models/User");
 const UserTokenRequest = require("../models/TokenRequest");
 
-exports.isSupervisor = (req, res, next) => {
-  // const supervisor = Sup.find({$id: username})
-
-  req.user = { role: "supervisor" }; // Mocking user role for demo
-  if (req.user.role === "supervisor") {
-    next();
-  } else {
-    res.status(403).json({ message: "Access denied. Not a supervisor." });
-  }
-};
-
-/*
-    // This is token management if we'll use it in the future
-exports.isSupervisor = async (req, res, next) => {
+// Supervisor authentication middleware
+const isSupervisor = async (req, res, next) => {
     try {
         // Token management
-        const raw = req.headers.authorization?.split(" ")[1]; // "Bearer <token>"
-        const token = raw.replace(/^"|"$/g, ""); // removes surrounding quotes
+        const token = req.headers.authorization?.split(" ")[1]; // "Bearer <token>"
 
         if (!token) {
             return res.status(401).json({ message: "No token provided" });
@@ -40,14 +27,31 @@ exports.isSupervisor = async (req, res, next) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
-*/
 
-exports.isCoordinator = (req, res, next) => {
-  req.user = { role: "coordinator" }; // Mocking role for now (or fetch from DB if implemented)
-
-  if (req.user.role === "coordinator") {
+// 🔹 Coordinator Middleware
+const isCoordinator = (req, res, next) => {
+    req.user = { role: "coordinator" }; // Mocking user role for demo
+    if (req.user.role === "coordinator") {
     next();
   } else {
     res.status(403).json({ message: "Access denied. Not a coordinator." });
   }
+};
+
+// 🔹 Student Middleware
+const isStudent = (req, res, next) => {
+  const ipmsUser = JSON.parse(req.headers["ipms-user"] || "{}");
+  if (ipmsUser && ipmsUser.role === "student") {
+    req.user = ipmsUser; // Includes _id
+    next();
+  } else {
+    res.status(403).json({ message: "Student access denied" });
+  }
+};
+
+// Export all properly
+module.exports = {
+  isSupervisor,
+  isCoordinator,
+  isStudent,
 };
