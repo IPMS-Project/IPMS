@@ -19,7 +19,11 @@ async function insertFormData(formData) {
     }
 
     const formattedData = {
-      student: new mongoose.Types.ObjectId(), // TODO: Replace with actual signed-in student ID
+      // student: new mongoose.Types.ObjectId(), // TODO: Replace with actual signed-in student ID
+      student:{
+        name:formData.interneeName,
+        email:formData.interneeEmail
+      },
       workplace: {
         name: formData.workplaceName,
         website: formData.website,
