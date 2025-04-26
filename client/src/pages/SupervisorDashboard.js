@@ -23,22 +23,22 @@ const SupervisorDashboard = () => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          });
+        });
 
           const formatted = res.data.map(item => ({
-            _id: item._id,
-            interneeName: item.interneeName || "N/A",
-            interneeEmail: item.interneeEmail || "N/A",
-            form_type: item.form_type,
-            createdAt: item.createdAt || item.submittedAt,
-            supervisor_status: item.supervisor_status || "pending",
-            fullForm: item,
-            workplace: {
-                name: item.workplace?.name || "N/A",
-                website: item.workplace?.website || "N/A",
-                phone: item.workplace?.phone || "N/A",
-            },
-            internshipAdvisor: {
+              _id: item._id,
+              interneeName: item.student?.fullName || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
+              interneeEmail: item.student?.ouEmail || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
+              form_type: item.form_type,
+              createdAt: item.createdAt || item.submittedAt,
+              supervisor_status: item.supervisor_status || "pending",
+              fullForm: item,
+              workplace: {
+                  name: item.workplace?.name || "N/A",
+                  website: item.workplace?.website || "N/A",
+                  phone: item.workplace?.phone || "N/A",
+              },
+              internshipAdvisor: {
                 name: item.internshipAdvisor?.name || "N/A",
                 jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
                 email: item.internshipAdvisor?.email || "N/A",
@@ -157,7 +157,7 @@ const SupervisorDashboard = () => {
             formData={selectedForm}
             onClose={closeFormView}
             onAction={(id, action, comment, signature) =>
-              handleAction(selectedForm.form_type, id, action, comment, signature)
+              handleAction(id, selectedForm.form_type, action, comment, signature)
             }
           />
         )}

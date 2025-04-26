@@ -9,23 +9,14 @@ const {
   coordinatorApproveRequest,
   coordinatorRejectRequest,
   getStudentSubmissions,
-  getPendingSubmissions,
   coordinatorResendRequest,
   deleteStalledSubmission,
   deleteStudentSubmission,
-  rejectSubmission,
-  approveSubmission,
 } = require("../controllers/approvalController");
 
 // Student API
 router.get("/student/submissions", isStudent, getStudentSubmissions);
 router.delete("/student/request/:id/delete", isStudent, deleteStudentSubmission);
-
-// Supervisor APIs
-router.get("/submissions/pending", isSupervisor, getPendingSubmissions);
-router.post("/submissions/:id/approve", isSupervisor, approveSubmission);
-router.post("/submissions/:id/reject", isSupervisor, rejectSubmission);
-
 
 // =========================================== //
 //          Supervisor Approval Routes         //
@@ -36,11 +27,8 @@ router.get("/supervisor-dashboard", isSupervisor, (req,res)=>{
   res.render("supervisorDashboard");
 })
 router.get("/supervisor/forms", isSupervisor, (req, res) => {
-    // const supervisorId = req.user._id,
-    return getSupervisorForms(req, res, {
-        // supervisor_id: supervisorId,
-        supervisor_status: { $in: ["pending"] },
-    })
+    // req.user supposed exists in the request
+    return getSupervisorForms(req, res)
 });
 // Approve route
 router.post("/supervisor/form/:type/:id/approve", isSupervisor, (req, res) =>
