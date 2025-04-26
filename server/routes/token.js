@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const TokenRequest = require("../models/TokenRequest");
 const emailService = require("../services/emailService");
-const User = require("../models/User")
+const User = require("../models/User");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -15,10 +15,11 @@ const hashToken = (token) => {
   return crypto.createHash("sha256").update(token).digest("hex");
 };
 
+// ---------------------------------- TOKEN REQUEST ----------------------------------
 router.post("/request", async (req, res) => {
   try {
     const { fullName, ouEmail, soonerId, password, semester, academicAdvisor, role } = req.body;
-    if (!fullName || !ouEmail || !password || !semester) {
+    if (!fullName || !ouEmail || !password || !semester || !role) {
       return res.status(400).json({ error: "All fields are required." });
     }
 
@@ -27,71 +28,82 @@ router.post("/request", async (req, res) => {
       return res.status(401).json({ error: "Token request already exists for this email." });
     }
 
-    if(role==="student"){
+    if (role.toLowerCase() === "student") {
       const existingSoonerId = await TokenRequest.findOne({ soonerId });
-      if(existingSoonerId){
+      if (existingSoonerId) {
         return res.status(402).json({ error: "Token request already exists for this Sooner ID." });
       }
     }
 
-    const plainToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
-    const hashedToken = hashToken(plainToken);
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+    let plainToken = null;
+    let hashedToken = null;
 
+    if (role.toLowerCase() === "student") {
+      plainToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
+      hashedToken = hashToken(plainToken);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const requestedAt = new Date();
     const expiresAt = new Date(requestedAt.getTime() + 5 * 24 * 60 * 60 * 1000);
 
     const request = new TokenRequest({
       fullName,
       ouEmail,
-      soonerId: role === "student" ? soonerId : "",
+      soonerId: role.toLowerCase() === "student" ? soonerId : undefined,
       password: hashedPassword,
       semester,
       role,
-      academicAdvisor: role === "student" ? academicAdvisor : "",
-      isStudent: role === "student",
+      academicAdvisor: role.toLowerCase() === "student" ? academicAdvisor : undefined,
+      isStudent: role.toLowerCase() === "student",
       token: hashedToken,
       requestedAt,
       expiresAt,
-      activationLinkSentAt: new Date(),
+      activationLinkSentAt: role.toLowerCase() === "student" ? new Date() : undefined,
     });
-
-    
 
     await request.save();
-   
 
-    const activationLink = `${FRONTEND_URL}/activate/${plainToken}`;
-    const emailBody = `
-      <p>Hi ${fullName},</p>
-      <p>Thank you for requesting access to the Internship Program Management System (IPMS).</p>
-      <p><strong>Your activation link:</strong></p>
-      <p><a href="${activationLink}">${activationLink}</a></p>
-      <p><strong>Note:</strong> This token will expire in <strong>5 days</strong> if not activated.</p>
-      <p>Regards,<br/>IPMS Team</p>
-    `;
+    if (role.toLowerCase() === "student") {
+      const activationLink = `${FRONTEND_URL}/activate/${plainToken}`;
+      const emailBody = `
+        <p>Hi ${fullName},</p>
+        <p>Thank you for requesting access to the Internship Program Management System (IPMS).</p>
+        <p><strong>Your activation link:</strong></p>
+        <p><a href="${activationLink}">${activationLink}</a></p>
+        <p><strong>Note:</strong> This token will expire in <strong>5 days</strong> if not activated.</p>
+        <p>Regards,<br/>IPMS Team</p>
+      `;
 
-    await emailService.sendEmail({
-      to: ouEmail,
-      subject: "Your IPMS Token Activation Link",
-      html: emailBody,
-    });
+      await emailService.sendEmail({
+        to: ouEmail,
+        subject: "Your IPMS Token Activation Link",
+        html: emailBody,
+      });
 
-    res.status(201).json({
-      message: "Token requested and email sent.",
-      token: plainToken,
-      expiresAt,
-    });
+      res.status(201).json({
+        message: "Token requested and email sent.",
+        token: plainToken,
+        expiresAt,
+      });
+    } else {
+      console.log(`Email not sent - user is not a student: ${ouEmail}`);
+      res.status(201).json({ message: "Token is not required for supervisors or coordinators." });
+    }
   } catch (err) {
     console.error("Token Request Error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
+// ---------------------------------- ACTIVATE TOKEN ----------------------------------
 router.post("/activate", async (req, res) => {
   try {
+    console.log(" Activation request received at backend");
+
     const { token } = req.body;
     if (!token) return res.status(400).json({ error: "Token is missing." });
+
     const hashedToken = hashToken(token);
     const user = await TokenRequest.findOne({ token: hashedToken });
 
@@ -109,13 +121,16 @@ router.post("/activate", async (req, res) => {
     user.expiresAt = sixMonthsLater;
 
     await user.save();
+    console.log("Token activated successfully");
 
     res.json({ message: "Token activated successfully." });
   } catch (err) {
+    console.error("Activation error:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
+// ---------------------------------- LOGIN BY TOKEN (Optional) ----------------------------------
 router.post("/login", async (req, res) => {
   try {
     const { token } = req.body;
@@ -133,6 +148,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// ---------------------------------- USER LOGIN (Email/Password) ----------------------------------
 router.post("/user-login", async (req, res) => {
   const { ouEmail, password, role } = req.body;
 
@@ -173,13 +189,13 @@ router.post("/user-login", async (req, res) => {
       const tokenExpiry = new Date(user.expiresAt);
 
       if (tokenExpiry < now || user.status === "deactivated") {
-        if(!user.status === "deactivated"){
+        if (user.status !== "deactivated") {
           user.status = "deactivated";
           await user.save();
         }
         return res.status(403).json({
-          message : "Your account is deactivated due to token expiry.",
-          renewalLink: `${FRONTEND_URL}/renew-token/${user.token}`
+          message: "Your account is deactivated due to token expiry.",
+          renewalLink: `${FRONTEND_URL}/renew-token/${user.token}`,
         });
       }
     }
@@ -191,6 +207,7 @@ router.post("/user-login", async (req, res) => {
   }
 });
 
+// ---------------------------------- DEACTIVATE TOKEN (SOFT DELETE) ----------------------------------
 router.delete("/deactivate", async (req, res) => {
   try {
     const { token, ouEmail } = req.body;
@@ -201,9 +218,6 @@ router.delete("/deactivate", async (req, res) => {
     let filter = {};
 
     if (token) {
-      if (typeof token !== "string") {
-        return res.status(400).json({ error: "Token must be a string." });
-      }
       const hashedToken = hashToken(token);
       filter = { token: hashedToken };
     } else {
@@ -230,6 +244,7 @@ router.delete("/deactivate", async (req, res) => {
   }
 });
 
+// ---------------------------------- TOKEN RENEWAL ----------------------------------
 router.post("/renew", async (req, res) => {
   try {
     const { token } = req.body;
@@ -238,7 +253,7 @@ router.post("/renew", async (req, res) => {
       return res.status(400).json({ message: "Token is required." });
     }
 
-    const user = await TokenRequest.findOne({ token: token });
+    const user = await TokenRequest.findOne({ token });
 
     if (!user) {
       return res.status(404).json({ message: "Token not found." });

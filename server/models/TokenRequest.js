@@ -21,8 +21,7 @@ const mongoose = require('mongoose');
  * - deletedAt: Marks soft deletion if the student cancels.
  * - status: Optional string enum for tracking token state.
  * - activationLinkSentAt: Timestamp when the activation email was sent.
- * - password: Encrypted password for login authentication.
-
+ *
  * Additional Features:
  * - Automatically sets `expiresAt` to 6 months from `requestedAt`.
  * - Uses `timestamps` to auto-generate `createdAt` and `updatedAt`.
@@ -79,10 +78,11 @@ const userTokenRequestSchema = new mongoose.Schema(
     },
     token: {
       type: String,
-      required: [true, 'Token is required'],
+      required: function () {
+        return this.isStudent;
+      },
       unique: true,
     },
-  
     isActivated: {
       type: Boolean,
       default: false,
@@ -105,7 +105,7 @@ const userTokenRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'activated', 'expired', 'deleted','deactivated'],
+      enum: ['pending', 'activated', 'expired', 'deleted', 'deactivated'],
       default: 'pending',
     },
   },
