@@ -75,18 +75,22 @@ const getSupervisorForms = async (req, res) => {
     //      Fetching A3 Forms
     // ----------------------------
       const studentIdsWithA2 = a2Forms.map((form) => form.studentId);
-      const a1FormsId = a1Forms.map((form) => form._id);
 
     const filterA3 = {
         interneeId: { $in: studentIdsWithA2 },
-        internshipId: { $in: a1FormsId },
         supervisor_status: { $in: ["pending"] },
     };
 
       const a3Forms = await Evaluation.find(filterA3)
-                                      .populate("interneeId", "fullName ouEmail");
+                                      .populate({
+                                          path: 'internshipId',      // Link to A3
+                                          match: { 'internshipAdvisor.email': supervisor.ouEmail }, // Filter inside A3
+                                          select: 'internshipAdvisor.email', // Only bring back needed fields
+                                      })
+                                      .populate("interneeId", "fullName ouEmail")
+                                      .then(docs => docs.filter(doc => doc.internshipId));
 
-    const typedA3 = a3Forms.map((form) => ({
+      const typedA3 = a3Forms.map((form) => ({
       ...form.toObject(),
       form_type: "A3",
     }));
