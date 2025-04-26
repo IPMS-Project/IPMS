@@ -13,11 +13,9 @@ const SupervisorDashboard = () => {
   const token = localStorage.getItem("token") || "";
   
     useEffect(() => {
-      // Token used for authentication for future
-      // Now it will only be empty
       const fetchRequests = async () => {
       try {
-        const res = await axios.get(
+        const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
           {
             headers: {
@@ -25,7 +23,7 @@ const SupervisorDashboard = () => {
             },
         });
 
-          const formatted = res.data.map(item => ({
+          const formatted = response.data.map(item => ({
               _id: item._id,
               interneeName: item.student?.fullName || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
               interneeEmail: item.student?.ouEmail || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
@@ -51,19 +49,38 @@ const SupervisorDashboard = () => {
             supervisor_comment: item.supervisor_comment || "N/A"
         }));
 
-        setRequests(formatted);
-      } catch (err) {
-        console.error("Error fetching A1 Internship forms:", err);
-        setMessage("Error fetching A1 Internship forms.", err);
         setLoading(false);
+        setRequests(formatted);
+
+      } catch (err) {
+          if (err.response) {
+              if (err.response.status === 401) {
+                  console.error("Unauthorized access. Redirecting to login...");
+                  setMessage("Unauthorized access. Redirecting to login...");
+                  localStorage.removeItem("token");
+                  window.location.href = "/";
+              }
+              else if (err.response.status === 403) {
+                  console.error("Forbidden access. Redirecting to login...");
+                  setMessage("Forbidden access. Redirecting to login...");
+                  window.location.href = "/";
+              }
+              else if (err.response.status === 500) {
+                  console.error("Server error. Please try again later.");
+                  setMessage("Server error. Please try again later.");
+              }
+              else {
+                  console.error("Unexpected error:", err.message);
+                  setMessage("Unexpected error. Please try again.");
+              }
+          }
+              
+          setLoading(false);
       }
     };
+
     fetchRequests();
   }, [token, setLoading]);
-  // const handleFormActionComplete = () => {
-  //   fetchRequests(); // Refresh table after Approve/Reject
-  //   setSelectedForm(null);
-  // };
 
   const handleAction = async (id, form_type, action, comment, signature) => {
     const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
@@ -100,9 +117,9 @@ const SupervisorDashboard = () => {
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   
     let content;
-    /*if (loading) {
+    if (loading) {
       content = <p>Loading...</p>;
-    } else */if (sortedRequests.length === 0) {
+    } else if (sortedRequests.length === 0) {
       content = (
         <div className="empty-message-container">
           <div className="empty-message">No pending approvals.</div>
@@ -122,14 +139,12 @@ const SupervisorDashboard = () => {
           </thead>
           <tbody>
             {sortedRequests.map((req) => {
-              console.log(req); // Log the entire request object
-              console.log(req.Name); // Log the student's full name if populated
               return (
                 <tr key={req._id}>
                   <td>{req.interneeName || "N/A"}</td>
                   <td>
                     <button className="link-button" onClick={() => openFormView(req)}>
-                    {req.interneeEmail || req.ouEmail || "N/A"}
+                    {req.interneeEmail || "N/A"}
                     </button>
                   </td>
                   <td>{req.form_type}</td>

@@ -1,8 +1,26 @@
 import React, { useState } from "react";
 import "../styles/A1InternshipRequestForm.css";
 
+const outcomeLabels = [
+  "Problem Solving",
+  "Solution Development",
+  "Communication",
+  "Decision-Making",
+  "Collaboration",
+  "Application",
+];
+
+const outcomeDescriptions = [
+    "Understand and solve complex computing problems",
+    "Create, build, and assess computing solutions",
+    "Communicate clearly and confidently",
+    "Make responsible decisions",
+    "Work well within a team",
+    "Apply computer science algorithms to create practical solutions",
+];
+
 const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
-  const [comment, setComment] = useState("");
+    const [comment, setComment] = useState("");
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
   const handleDecision = (action) => {
@@ -25,61 +43,127 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
   const weeks = calculateWeeksBetween(formData.startDate, formData.endDate);
   
 
-  // ✅ Inserted rendering helpers
   const renderA1 = () => (
     <>
-      <h1>A1 – Internship Request Form</h1>
-     <table className="dashboard-table">
-          <thead>
-            <tr>
-              <th></th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Student Name:</strong> <p>{formData.interneeName || "N/A"}</p></td>
-              <td></td>
-              <td><strong>Email:</strong> <p>{formData.interneeEmail || "N/A"}</p></td>
-              
-            </tr>
-            <tr>
-              <td><strong>Workplace Name:</strong> {formData.workplace?.name || "N/A"}</td>
-              <td><strong>Phone:</strong> {formData.workplace?.phone || "N/A"}</td>
-              <td><strong>Website:</strong> {formData.workplace?.website || "N/A"}</td>
-            </tr>
-            <tr>
-              <td><strong>Advisor Name:</strong> {formData.internshipAdvisor?.name || "N/A"}</td>
-              <td></td>
-              <td><strong>Advisor Email:</strong> {formData.internshipAdvisor?.email || "N/A"}</td>
-              
-            </tr>
-            <tr>
-              <td><strong>Credit Hours:</strong> {formData.creditHours}</td>
-              <td>
-                <strong>Start:</strong> {new Date(formData.startDate).toLocaleDateString()}<br />
-                <strong>End:</strong> {new Date(formData.endDate).toLocaleDateString()}
-              </td>
-              <td><strong>Number of Weeks:</strong><p>{weeks}</p></td>
-            </tr>
-          </tbody>
-        </table>
+      <h2>A.1 - Internship Request Form</h2>
+      <form>
+      <h3 className="section-title">Internee & Workplace Information:</h3>
+      <table>
+      <thead>
+        <tr>
+          <th colSpan="3">Internee Details</th>
+          <th colSpan="3">Workplace Details</th>
+          <th colSpan="2">Internship Advisor Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colSpan="3">
+            Name:<br />
+            <input type="text" value={formData.studentName} readOnly />
+          </td>
+          <td colSpan="3">
+            Name:<br />
+            <input type="text" value={formData.workplace.name} readOnly />
+          </td>
+          <td colSpan="2">
+            Name:<br />
+            <input type="text" value={formData.internshipAdvisor.name} readOnly />
+          </td>
+        </tr>
+        <tr>
+          <td colSpan="3">
+            Sooner ID:<br />
+            <input type="text" value={formData.soonerId} readOnly />
+          </td>
+          <td colSpan="3">
+            Website:<br />
+            <input type="text" value={formData.workplace.website} readOnly />
+          </td>
+          <td colSpan="2">
+            Job Title:<br />
+            <input type="text" value={formData.internshipAdvisor.jobTitle} readOnly />
+          </td>
+        </tr>
+        <tr>
+          <td colSpan="3">
+            Email:<br />
+            <input type="text" value={formData.studentEmail} readOnly />
+          </td>
+          <td colSpan="3">
+            Phone:<br />
+            <input type="text" value={formData.workplace.phone} readOnly />
+          </td>
+          <td colSpan="2">
+            Email:<br />
+            <input type="text" value={formData.internshipAdvisor.email} readOnly />
+          </td>
+        </tr>
+        <tr>
+          <td colSpan="3">
+            Credit Hours:<br />
+            <input type="text" value={formData.creditHours} readOnly />
+          </td>
+          <td colSpan="3">
+            Start Date:<br />
+            <input type="text" value={formData.startDate?.split("T")[0]} readOnly />
+          </td>
+          <td colSpan="2">
+            End Date:<br />
+            <input type="text" value={formData.endDate?.split("T")[0]} readOnly />
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-        <div style={{ marginTop: "15px" }}>
-          <strong>Task Descriptions & Outcomes:</strong>
-          <ul>
-            {formData.tasks?.map((task, index) => (
-              <li key={index} style={{ marginBottom: "10px" }}>
-                <strong>Task {index + 1}:</strong> {task.description}
-                <br />
-                <strong>Outcomes:</strong> {task.outcomes?.join(", ") || "N/A"}
-              </li>
+    <h3 className="section-title">Task Details & Program Outcomes</h3>
+    <table className="task-table" style={{ border: "1px solid #999" }}>
+      <thead>
+        <tr>
+          <th style={{ width: "20%", border: "1px solid #999" }}>Task</th>
+          {outcomeLabels.map((label, i) => (
+            <th
+              key={label}
+              style={{ width: "13.33%", border: "1px solid #999" }}
+            >
+              {label}
+              <br />
+              <small>({outcomeDescriptions[i]})</small>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {formData.tasks.map((task, i) => (
+          <tr key={i}>
+            <td style={{ border: "1px solid #999" }}>
+              <input
+                type="text"
+                value={task.description}
+                readOnly
+                style={{ width: "100%", border: "none" }}
+              />
+            </td>
+            {outcomeLabels.map((outcome, j) => (
+              <td
+                key={j}
+                style={{ border: "1px solid #999" }}
+                className={
+                  task.outcomes?.includes(outcome.toLowerCase())
+                    ? "outcome-yes"
+                    : "outcome-no"
+                }
+              >
+                {task.outcomes?.includes(outcome.toLowerCase()) ? "✔" : ""}
+              </td>
             ))}
-          </ul>
-        </div>
-    </>
-  );
+          </tr>
+        ))}
+        </tbody>
+        </table>
+        </form>
+        </>
+    );
 
   const renderA2 = () => (
     <>

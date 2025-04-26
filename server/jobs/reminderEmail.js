@@ -140,11 +140,17 @@ const supervisorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDays = now.subtract(7, "day").toDate();
 
-  try {
-    const pendingSubs = await getAllForms({
-      supervisor_status: "pending",
-      last_supervisor_reminder_at: { $lt: fiveWorkingDays },
-    });
+    try {
+        const models = {
+            A1: require("../models/InternshipRequest"),
+            A2: require("../models/WeeklyReport"),
+            A3: require("../models/Evaluation"),
+        };
+        
+        const pendingSubs = await getAllForms({
+            supervisor_status: "pending",
+            last_supervisor_reminder_at: { $lt: fiveWorkingDays },
+        });
 
       for (const submission of pendingSubs) {
 
@@ -182,14 +188,15 @@ const supervisorReminder = async () => {
             text: `Reminder to review submission "${submission._id}".`,
           });
 
-        submission.supervisor_reminder_count = reminderCount + 1;
-        submission.last_supervisor_reminder_at = new Date();
-
-        try {
-          await submission.save();
-        } catch (err) {
-          logger.error(`Failed to save submission: ${err.message}`);
-        }
+      
+          const updatedSubmission = await models[submission.form_type].findByIdAndUpdate(
+              submission._id,
+              {
+                  supervisor_status: "pending",
+                  supervisor_reminder_count: reminderCount + 1,
+                  last_supervisor_reminder_at: new Date(),
+              },
+          );
 
         logger.info(`Reminder sent to supervisor for "${submission._id}"`);
       }

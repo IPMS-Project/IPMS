@@ -33,11 +33,7 @@ const findSupervisorFromForm = async (form) => {
 }
 
 const getSupervisorForms = async (req, res) => {
-  const temp_supervisor = await UserTokenRequest.findOne({ ouEmail: "alice.student-1@ou.edu" });
-  // const supervisor = req.user;
-  const supervisor = temp_supervisor;
-  console.log("Supervisor:", supervisor);
-
+  const supervisor = req.user;
   const InternshipRequest = require("../models/InternshipRequest");
   const WeeklyReport = require("../models/WeeklyReport");
   const Evaluation = require("../models/Evaluation");
