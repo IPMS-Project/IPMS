@@ -4,7 +4,6 @@ const InternshipRequest = require("../models/InternshipRequest");
 const User = require("../models/User");
 const TokenRequest = require("../models/TokenRequest");
 
-
 // GET internship request by student's ouEmail
 router.post("/", async (req, res) => {
   const { ouEmail } = req.body;
@@ -14,14 +13,21 @@ router.post("/", async (req, res) => {
     const studentUser = await TokenRequest.findOne({ ouEmail });
 
     if (!studentUser) {
-      return res.status(404).json({ message: "Student not found in TokenRequest" });
+      return res
+        .status(404)
+        .json({ message: "Student not found in TokenRequest" });
     }
 
-    const internshipData = await InternshipRequest.findOne({ student: studentUser._id });
+    const internshipData = await InternshipRequest.findOne({
+      student: studentUser._id,
+    });
 
     if (!internshipData) {
       // No record found, return a specific flag
-      return res.status(200).json({ message: "No internship request found", approvalStatus: "not_submitted" });
+      return res.status(200).json({
+        message: "No internship request found",
+        approvalStatus: "not_submitted",
+      });
     }
 
     const approvalStatus = internshipData.status;
@@ -33,6 +39,54 @@ router.post("/", async (req, res) => {
   }
 });
 
-  
+// Fetch interneeName, soonerId, interneeEmail by OU email passed as query string
+router.get("/me", async (req, res) => {
+  const { ouEmail } = req.query;
+  if (!ouEmail) {
+    return res
+      .status(400)
+      .json({ message: "Missing query parameter: ouEmail" });
+  }
+
+  try {
+    // look in the TokenRequest collection where your student doc lives
+    const student = await TokenRequest.findOne({ ouEmail }).select(
+      "fullName soonerId ouEmail"
+    );
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    return res.json({
+      interneeName: student.fullName,
+      soonerId: student.soonerId,
+      interneeEmail: student.ouEmail,
+    });
+  } catch (err) {
+    console.error("Error in GET /api/student/me:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+// DELETE /api/student/account/:id
+router.delete("/account/:id", async (req, res) => {
+  try {
+    const studentId = req.params.id;
+
+    await TokenRequest.findByIdAndDelete(studentId);
+
+    await InternshipRequest.deleteMany({ student: studentId });
+
+    return res
+      .status(200)
+      .json({ message: "Account and related data deleted" });
+  } catch (err) {
+    console.error("Error deleting account:", err);
+    return res
+      .status(500)
+      .json({ message: "Server error while deleting account" });
+  }
+});
 
 module.exports = router;

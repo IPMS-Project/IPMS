@@ -83,6 +83,28 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This cannot be undone."
+      )
+    ) {
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/student/account/${user.id}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) throw new Error("Delete failed");
+      localStorage.clear();
+      navigate("/");
+    } catch (err) {
+      console.error("Account deletion error:", err);
+      alert("Sorry, we couldn’t delete your account. Please try again.");
+    }
+  };
+
   return (
     <div className="student-dashboard">
       <div className="dashboard-header">
@@ -176,6 +198,46 @@ const StudentDashboard = () => {
             </tbody>
           </table>
         )}
+        <div className="d-flex justify-content-center mt-4">
+          <button
+            type="button"
+            className="btn btn-outline-danger w-100"
+            onClick={handleDeleteAccount}
+            style={{
+              borderWidth: "3px",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+              padding: "0.5rem 0",
+              maxWidth: "100%",
+              cursor: "pointer",
+            }}
+          >
+            {/* Trash SVG icon */}
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="#e45858"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ marginRight: "10px" }}
+            >
+              <path
+                d="M3 6h18M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"
+                stroke="#e45858"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+              />
+            </svg>
+            <span style={{ color: "#e45858", fontWeight: 500 }}>
+              Delete My Account
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
