@@ -144,7 +144,7 @@ router.post("/user-login", async (req, res) => {
     const user = await TokenRequest.findOne({ ouEmail });
 
     if (!user) {
-      return res.status(401).json({ message: "Email or password is incorrect" });
+      return res.status(401).json({ message: "Email does not Exist. Try Signing up." });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -188,6 +188,27 @@ router.post("/user-login", async (req, res) => {
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Something went wrong on the server." });
+  }
+});
+
+router.delete("/delete", async (req, res) => {
+  try {
+    const { ouEmail } = req.body;
+
+    if (!ouEmail) {
+      return res.status(400).json({ error: "Email is not found for deletion." });
+    }
+    
+    const user = await TokenRequest.findOneAndDelete({ouEmail});
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    res.status(200).json({ message: "User deleted successfully." });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
