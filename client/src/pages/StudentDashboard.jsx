@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/StudentDashboard.css";
+import Swal from "sweetalert2";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -83,26 +84,45 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete your account? This cannot be undone."
-      )
-    ) {
-      return;
-    }
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/student/account/${user.id}`,
-        { method: "DELETE" }
-      );
-      if (!res.ok) throw new Error("Delete failed");
-      localStorage.clear();
-      navigate("/");
-    } catch (err) {
-      console.error("Account deletion error:", err);
-      alert("Sorry, we couldn’t delete your account. Please try again.");
-    }
+
+  const handleAccountDelete = async () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Your account will be permanently deleted. This cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e45858",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete my account"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Make API call to delete account
+          const res = await fetch(`${backendUrl}/api/token/delete`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ouEmail }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+           
+            Swal.fire("Deleted!", data.message || "Your account has been deleted.", "success")
+              .then(() => {
+                // Redirect to login page
+                navigate("/", { replace: true });
+                // Optionally, force reload to clear history stack
+                window.location.reload();
+              });
+          } else {
+            Swal.fire("Error", data.error || "Account deletion failed.", "error");
+          }
+        } catch (err) {
+          Swal.fire("Error", "Account deletion failed.", "error");
+        }
+      }
+    });
   };
 
   return (
@@ -246,11 +266,10 @@ const StudentDashboard = () => {
             </tbody>
           </table>
         )}
-        <div className="d-flex justify-content-center mt-4">
+             <div className="d-flex justify-content-center mt-4">
           <button
             type="button"
             className="btn btn-outline-danger w-100"
-            onClick={handleDeleteAccount}
             style={{
               borderWidth: "3px",
               borderRadius: "8px",
@@ -260,8 +279,9 @@ const StudentDashboard = () => {
               gap: "12px",
               padding: "0.5rem 0",
               maxWidth: "100%",
-              cursor: "pointer",
+              cursor:"pointer"
             }}
+            onClick={handleAccountDelete}
           >
             {/* Trash SVG icon */}
             <svg
