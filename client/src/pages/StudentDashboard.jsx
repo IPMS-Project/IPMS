@@ -107,11 +107,59 @@ const StudentDashboard = () => {
 
   return (
     <div className="student-dashboard">
-      <div className="dashboard-header">
-        <h2>Welcome, {user?.fullName}</h2>
-      </div>
+      
 
       <div className="dashboard-card">
+      <div
+          className="container-fluid p-4 mb-4"
+          style={{
+            background: "#842020",
+            borderRadius: "15px",
+            marginTop: "20px",
+          }}
+        >
+          <div className="d-flex align-items-center">
+            {/* Avatar Icon */}
+            <div
+              className="rounded-circle bg-light d-flex align-items-center justify-content-center"
+              style={{ width: 250, height: 250, marginRight: 50 }}
+            >
+              {/* Bootstrap "person" icon, can use font-awesome as well */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="140"
+                height="140"
+                fill="#90313A"
+                className="bi bi-person"
+                viewBox="0 0 16 16"
+              >
+                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm4-3a4 4 0 1 1-8 0 4 4 0 0 1 8 0zm2 8c0 1-1 2-6 2s-6-1-6-2 1-2 6-2 6 1 6 2zm-1.995-.15c-.977-.211-2.488-.35-4.005-.35-1.517 0-3.028.139-4.005.35C2.523 12.368 4.033 13 8 13s5.477-.632 5.995-1.15z" />
+              </svg>
+            </div>
+            {/* Student Info */}
+            <div>
+              <h1 className="text-white fw-bold" style={{ fontSize: "3rem" }}>
+                {user.fullName}
+              </h1>
+              <div className="mt-3">
+                <span
+                  className="badge rounded-pill px-4 py-2"
+                  style={{ background: "#712622", fontSize: "1.7rem" }}
+                >
+                  Advisor: [{user.academicAdvisor}]
+                </span>
+              </div>
+              <div className="mt-3">
+                <span
+                  className="badge rounded-pill px-4 py-2"
+                  style={{ background: "#712622", fontSize: "1.7rem" }}
+                >
+                  Semester: [{user.semester}]
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* FORM A1 Card */}
         <div className="card-section">
           <div className="card-content">
