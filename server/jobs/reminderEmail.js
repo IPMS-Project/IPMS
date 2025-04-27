@@ -1,5 +1,4 @@
 const emailService = require("../services/emailService");
-// const Submission = require("../models/InternshipRequest"); // ❌ Remove this
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const UserTokenRequest = require("../models/TokenRequest");
@@ -7,24 +6,46 @@ const logger = require("../utils/logger");
 const dayjs = require("dayjs");
 
 // ================= Coordinator Reminder =================
+// Sends reminders for 
+//    A1 (InternshipRequest)  every 5 working days
+//    A2 (Weekly Reports)     every 5 working days
+//    A3 (Evaluations)        every 3 days
 const coordinatorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDays = now.subtract(7, "day").toDate();
+  const threeDays = now.subtract(3, 'day').toDate();
 
   try {
     const pendingSubs = await getAllForms({
       coordinator_status: "pending",
       supervisor_status: "approved",
       createdAt: { $lt: fiveWorkingDays },
+      evaluations: { $size: 0 },
     });
 
-    for (const submission of pendingSubs) {
+    const pendingEvals = await getAllForms({
+      coordinator_status: "pending",
+      supervisor_status: "approved",
+      createdAt: { $lt: threeDays },
+      evaluations: {  $ne: [] },
+    });
+
+    await sendCoordinatorReminder(pendingSubs, 5, now);
+    await sendCoordinatorReminder(pendingEvals, 3, now);
+  } catch (err) {
+    logger.error("❌ Error in coordinatorReminder:", err.message);
+  }
+};
+
+const sendCoordinatorReminder = async (subs, nextDueIn, now) => {
+  try {
+    for (const submission of subs) {
       const student = await User.findById(submission.student_id);
       const coordinator = await User.findById(submission.coordinator_id);
 
       const reminderCount = submission.coordinator_reminder_count || 0;
       const lastReminded = submission.last_coordinator_reminder_at || submission.createdAt;
-      const nextReminderDue = dayjs(lastReminded).add(5, "day");
+      const nextReminderDue = dayjs(lastReminded).add(nextDueIn, "day");
       const shouldRemindAgain = now.isAfter(nextReminderDue);
 
       if (reminderCount >= 2 && shouldRemindAgain && !submission.studentNotified) {
@@ -32,7 +53,7 @@ const coordinatorReminder = async () => {
           to: student.email,
           subject: `Coordinator Not Responding for "${submission.name}"`,
           html: `<p>Your submission "${submission.name}" has not been approved by the coordinator even after 2 reminders.</p>
-                 <p>You can now choose to <strong>resend</strong> or <strong>delete</strong> the request.</p>`,
+                <p>You can now choose to <strong>resend</strong> or <strong>delete</strong> the request.</p>`,
           text: `Your submission "${submission.name}" is still awaiting coordinator approval.`,
         });
 
@@ -63,7 +84,7 @@ const coordinatorReminder = async () => {
       }
     }
   } catch (err) {
-    logger.error("❌ Error in coordinatorReminder:", err.message);
+    logger.error("❌ Error in sendCoordinatorReminder:", err.message);
   }
 };
 
