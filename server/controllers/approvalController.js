@@ -223,7 +223,10 @@ const getCoordinatorReports = async (req, res) => {
 
 const getCoordinatorEvaluations = async (req, res) => {
   try {
-    const evaluations = await Evaluation.find({ advisorAgreement: true });
+    const evaluations = await Evaluation.find({
+      advisorAgreement: true,
+      coordinatorAgreement: { $ne: true }, // Only fetch not-yet-approved evaluations
+    });
     res.status(200).json(evaluations);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch evaluations." });
@@ -241,15 +244,50 @@ const approveJobEvaluation = async (req, res) => {
     evaluation.updatedAt = new Date();
     await evaluation.save();
 
+    // Build Clean HTML Table without newlines
+    const evaluationTable = `
+      <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
+        <thead style="background-color: #f2f2f2;">
+          <tr>
+            <th>Category</th>
+            <th>Rating</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${evaluation.evaluations
+            .map(
+              (item) => `
+            <tr>
+              <td>${item.category}</td>
+              <td>${item.rating}</td>
+              <td>${item.comment ? item.comment : "N/A"}</td>
+            </tr>
+          `
+            )
+            .join("")}
+        </tbody>
+      </table>
+    `;
+
     await EmailService.sendEmail({
       to: evaluation.interneeEmail,
       subject: "Your Job Evaluation (Form A3) is Approved!",
-      html: `<p>Dear ${evaluation.interneeName},</p>
-             <p>Your Job Evaluation (Form A3) has been approved by the Coordinator. Please upload it to Canvas.</p>`,
+      html: `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Dear ${evaluation.interneeName},</p>
+          <p>Your Job Evaluation (Form A3) has been approved by the Coordinator. Please find the evaluation details below. Kindly upload this to Canvas:</p>
+          ${evaluationTable}
+          <p>Best regards,<br/>Internship Program Management System</p>
+        </div>
+      `,
     });
 
-    res.json({ message: "A3 Job Evaluation approved successfully." });
+    res.json({
+      message: "A3 Job Evaluation approved and emailed successfully.",
+    });
   } catch (err) {
+    console.error("Approval failed:", err);
     res.status(500).json({ message: "Approval failed." });
   }
 };
@@ -275,6 +313,7 @@ const rejectJobEvaluation = async (req, res) => {
 
     res.json({ message: "A3 Job Evaluation rejected successfully." });
   } catch (err) {
+    console.error("Rejection failed:", err);
     res.status(500).json({ message: "Rejection failed." });
   }
 };
