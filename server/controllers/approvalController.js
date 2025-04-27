@@ -9,65 +9,48 @@ const UserTokenRequest = require("../models/TokenRequest");
 // =========================================== //
 
 exports.getSupervisorForms = async (req, res, filter) => {
-    try {
-        // ----------------------------
-        //      Fetching A1 Form
-        // ----------------------------
-        const requests = await InternshipRequest.find(filter)
-                                                .populate("_id", "fullName ouEmail soonerId");
+  try {
+    const requests = await InternshipRequest.find(filter)
+      .populate("_id", "fullName ouEmail soonerId");
 
-        const typedRequests = requests.map(req => ({
-            ...req.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A1"    // add the custom type
-        }));
+    const typedRequests = requests.map(req => ({
+      ...req.toObject(),
+      form_type: "A1"
+    }));
 
-        // ----------------------------
-        //      Fetching A2 Form
-        // ----------------------------
-        const reports = await WeeklyReport.find(filter)
-                                          .populate("student_id", "fullName ouEmail soonerId");
+    const reports = await WeeklyReport.find(filter)
+      .populate("student_id", "fullName ouEmail soonerId");
 
-        // Adding custom type to A2 Form
-        const typedReports = reports.map(report => ({
-            ...report.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A2"       // add the custom type
-        }));
+    const typedReports = reports.map(report => ({
+      ...report.toObject(),
+      form_type: "A2"
+    }));
 
-        // ----------------------------
-        //      Fetching A3 Form
-        // ----------------------------
-        const evaluations = await Evaluation.find(filter)
-                                            .populate("student_id", "fullName ouEmail soonerId");
+    const evaluations = await Evaluation.find(filter)
+      .populate("student_id", "fullName ouEmail soonerId");
 
-        // Adding custom type to A3 Form
-        const typedEvaluations = evaluations.map(evaluation => ({
-            ...evaluation.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A3"     // add the custom type
-        }));
-        
-        // ----------------------------
-        //      Combine forms
-        // ----------------------------
-        const allRequests = [...typedRequests, ...typedReports, ...typedEvaluations];
+    const typedEvaluations = evaluations.map(evaluation => ({
+      ...evaluation.toObject(),
+      form_type: "A3"
+    }));
 
-        // Sort by createdAt date
-        allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const allRequests = [...typedRequests, ...typedReports, ...typedEvaluations];
+    allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        // Send response
-        res.status(200).json(allRequests);
-    } catch (err) {
-        res.status(500).json({
-            message: "Failed to fetch internship requests",
-            error: err.message,
-        });
-    }
-}
+    res.status(200).json(allRequests);
+  } catch (err) {
+    res.status(500).json({
+      message: "Failed to fetch internship requests",
+      error: err.message,
+    });
+  }
+};
 
 exports.handleSupervisorFormAction = async (req, res, action) => {
   try {
     const form_type = req.params.type;
     const formId = req.params.id;
-    const { comment = "", signature = "" } = req.body;
+    const { comment = "" } = req.body;
 
     const models = {
       A1: require("../models/InternshipRequest"),
@@ -78,10 +61,6 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
     const FormModel = models[form_type];
     if (!FormModel) {
       return res.status(400).json({ message: "Invalid form type" });
-    }
-
-    if (!["approve", "reject"].includes(action)) {
-      return res.status(400).json({ message: "Invalid action" });
     }
 
     const update = {
@@ -101,38 +80,25 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
       form.studentEmail ||
       null;
 
-    if (!studentEmail) {
-      console.warn("⚠️ No student email found for form:", form._id);
-    } else {
-      const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
-      let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
-      if (comment) {
-        emailBody += `<p>Comment: ${comment}</p>`;
-      }
+    const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+    let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
+    if (comment) {
+      emailBody += `<p>Comment: ${comment}</p>`;
     }
 
-    const student_id = form.student_id || form.internee_id || form.student;
-    const student = await UserTokenRequest.findById(student_id);
-    const student_mail = student?.ouEmail || form?.interneeEmail;
-
-    try {  
-        await EmailService.sendEmail({
-            to: student_mail,
-            subject: emailSubject,
-            html: emailBody,
-        });
-    } catch (err) {
-        console.error("Email sending error:", err);
+    if (studentEmail) {
+      await EmailService.sendEmail({
+        to: studentEmail,
+        subject: emailSubject,
+        html: emailBody,
+      });
     }
-
-    console.log("Email sent to:", student_mail);
 
     res.status(200).json({
       message: `Form ${action}ed successfully`,
       updatedForm: form,
     });
   } catch (err) {
-    console.error("SupervisorFormAction error:", err);
     res.status(500).json({ message: "Error processing form", error: err.message });
   }
 };
@@ -142,7 +108,7 @@ exports.handleSupervisorFormAction = async (req, res, action) => {
 // =========================================== //
 
 exports.getCoordinatorRequests = async (req, res) => {
-    try {
+  try {
     const requests = await InternshipRequest.find({
       coordinator_status: "pending",
     }).populate("student", "userName email");
@@ -152,38 +118,36 @@ exports.getCoordinatorRequests = async (req, res) => {
   }
 };
 
-// Coordinator View Single Request
 exports.getCoordinatorRequestDetails = async (req, res) => {
   try {
     const requestData = await InternshipRequest.findById(req.params.id).lean();
     if (!requestData) {
       return res.status(404).json({ message: "Request not found" });
     }
-
     res.status(200).json({ requestData, supervisorStatus: "Not Submitted" });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch details" });
   }
 };
 
-// Coordinator Approve Request
 exports.coordinatorApproveRequest = async (req, res) => {
   try {
-    const request = await InternshipRequest.findByIdAndUpdate(
-      req.params.id,
-      { coordinator_status: "approved" },
-      { new: true }
-    );
+    const request = await InternshipRequest.findById(req.params.id).populate("student");
 
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    await EmailService.sendEmail({
-      to: request.student.email,
-      subject: "Internship Request Approved",
-      html: `<p>Your internship request has been approved by the Coordinator.</p>`,
-    });
+    request.coordinator_status = "approved";
+    await request.save();
+
+    if (request.student?.ouEmail) {
+      await EmailService.sendEmail({
+        to: request.student.ouEmail,
+        subject: "Internship Request Approved",
+        html: `<p>Your internship request has been approved by the Coordinator.</p>`,
+      });
+    }
 
     res.json({ message: "Request Approved Successfully" });
   } catch (err) {
@@ -191,30 +155,101 @@ exports.coordinatorApproveRequest = async (req, res) => {
   }
 };
 
-// Coordinator Reject Request
 exports.coordinatorRejectRequest = async (req, res) => {
   const { reason } = req.body;
   if (!reason) return res.status(400).json({ message: "Reason required" });
 
   try {
-    const request = await InternshipRequest.findByIdAndUpdate(
-      req.params.id,
-      { coordinator_status: "rejected" },
-      { new: true }
-    );
+    const request = await InternshipRequest.findById(req.params.id).populate("student");
 
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    await EmailService.sendEmail({
-      to: request.student.email,
-      subject: "Internship Request Rejected",
-      html: `<p>Your internship request has been rejected.<br>Reason: ${reason}</p>`,
-    });
+    request.coordinator_status = "rejected";
+    await request.save();
+
+    if (request.student?.ouEmail) {
+      await EmailService.sendEmail({
+        to: request.student.ouEmail,
+        subject: "Internship Request Rejected",
+        html: `<p>Your internship request has been rejected.<br>Reason: ${reason}</p>`,
+      });
+    }
 
     res.json({ message: "Request Rejected Successfully" });
   } catch (err) {
+    res.status(500).json({ message: "Rejection failed", error: err.message });
+  }
+};
+
+// =========================================== //
+//      Coordinator Manual Review of A.1 Forms //
+// =========================================== //
+
+exports.coordinatorApproveManualReview = async (req, res) => {
+  try {
+    const formId = req.params.id;
+    const request = await InternshipRequest.findById(formId).populate('student');
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    request.coordinator_status = "approved";
+    request.manualReviewStatus = "approved";
+    await request.save();
+
+    if (request.student?.ouEmail) {
+      await EmailService.sendEmail({
+        to: request.student.ouEmail,
+        subject: "Internship Request Approved (Manual Review)",
+        html: `<p>Your internship request has been manually reviewed and approved by the Coordinator. Please submit your A.1 form on Canvas.</p>`,
+      });
+    }
+
+    if (request.student?.academicAdvisor) {
+      await EmailService.sendEmail({
+        to: request.student.academicAdvisor,
+        subject: "Advisee Internship Approval Notification",
+        html: `<p>Your advisee <b>${request.student.fullName || "Student"}</b> has had their internship request manually approved by the Coordinator. Please proceed with any necessary academic registration.</p>`,
+      });
+    }
+
+    res.json({ message: "Manual Review Request Approved Successfully" });
+  } catch (err) {
+    console.error("Error during manual review approval:", err);
+    res.status(500).json({ message: "Approval failed", error: err.message });
+  }
+};
+
+exports.coordinatorRejectManualReview = async (req, res) => {
+  const { reason } = req.body;
+  if (!reason) return res.status(400).json({ message: "Reason required" });
+
+  try {
+    const formId = req.params.id;
+    const request = await InternshipRequest.findById(formId).populate('student');
+
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    request.coordinator_status = "rejected";
+    request.manualReviewStatus = "rejected";
+    await request.save();
+
+    if (request.student?.ouEmail) {
+      await EmailService.sendEmail({
+        to: request.student.ouEmail,
+        subject: "Internship Request Rejected (Manual Review)",
+        html: `<p>Your internship request has been manually reviewed and rejected.<br><b>Reason:</b> ${reason}</p>`,
+      });
+    }
+
+    res.json({ message: "Manual Review Request Rejected Successfully" });
+  } catch (err) {
+    console.error("Error during manual review rejection:", err);
     res.status(500).json({ message: "Rejection failed", error: err.message });
   }
 };
