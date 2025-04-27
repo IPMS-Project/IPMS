@@ -36,7 +36,9 @@ const getSupervisorForms = async (req, res) => {
   const supervisor = req.user;
   const InternshipRequest = require("../models/InternshipRequest");
   const WeeklyReport = require("../models/WeeklyReport");
-  const Evaluation = require("../models/Evaluation");
+    const Evaluation = require("../models/Evaluation");
+
+    supervisorReminder();
 
   try {
     // ----------------------------
@@ -151,80 +153,77 @@ const handleSupervisorFormAction = async (req, res, action) => {
       return res.status(404).json({ message: "Form not found" });
     }
 
-    const studentEmail = form.student_id?.email || form.interneeEmail || form.studentEmail || null;
-    let emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
-    let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
+    const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+    let emailBody = `<p>Your ${form_type} form has been ${action === "approve" ? "approved": "rejected"} by the supervisor.</p>`;
     if (comment) {
-      emailBody += `<p>Comment: ${comment}</p>`;
+        emailBody += `<p>Comment: ${comment}</p>`;
     }
 
-    const student_id = form.internee_id || form.student || form.interneeId;
+    const student_id = form.studentId || form.student || form.interneeId;
     const student = await UserTokenRequest.findById(student_id);
     const student_mail = student?.ouEmail;
 
-    try {
-      await EmailService.sendEmail({
-        to: student_mail,
-        subject: emailSubject,
-        html: emailBody,
-      });
+    try {  
+        await EmailService.sendEmail({
+            to: student_mail,
+            subject: emailSubject,
+            html: emailBody,
+        });
     } catch (err) {
-      console.error("Email sending error:", err);
+        console.error("Email sending error:", err);
     }
 
-    console.log("Email sent to:", student_mail);
-    res.status(200).json({ message: `Form ${action}ed successfully`, updatedForm: form });
+    res.status(200).json({
+      message: `Form ${action}ed successfully`,
+      updatedForm: form,
+    });
   } catch (err) {
     console.error("SupervisorFormAction error:", err);
     res.status(500).json({ message: "Error processing form", error: err.message });
   }
 };
 
+// =========================================== //
+//           Coordinator Dashboard             //
+// =========================================== //
+
 const getCoordinatorRequests = async (req, res) => {
-  try {
+    try {
     const requests = await InternshipRequest.find({
       coordinator_status: "pending",
     }).populate("student", "userName email");
-
     res.status(200).json(requests);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch requests" });
   }
 };
 
+// Coordinator View Single Request
 const getCoordinatorRequestDetails = async (req, res) => {
   try {
-    const requestData = await InternshipRequest.findById(req.params.id)
-      .populate("student", "userName email")
-      .lean();
-
+    const requestData = await InternshipRequest.findById(req.params.id).lean();
     if (!requestData) {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    const supervisorStatus = requestData.supervisor_status || "Not Submitted";
-
-    res.status(200).json({ requestData, supervisorStatus });
+    res.status(200).json({ requestData, supervisorStatus: "Not Submitted" });
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch details" });
   }
 };
 
+// Coordinator Approve Request
 const coordinatorApproveRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { status: "approved" },
+      { coordinator_status: "approved" },
       { new: true }
-    ).populate("student", "userName email");
+    );
 
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
-
-    request.coordinator_status = "Approved";
-    request.coordinator_comment = "Approved by Coordinator";
-    await request.save();
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -238,6 +237,7 @@ const coordinatorApproveRequest = async (req, res) => {
   }
 };
 
+// Coordinator Reject Request
 const coordinatorRejectRequest = async (req, res) => {
   const { reason } = req.body;
   if (!reason) return res.status(400).json({ message: "Reason required" });
@@ -245,17 +245,13 @@ const coordinatorRejectRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { status: "rejected" },
+      { coordinator_status: "rejected" },
       { new: true }
-    ).populate("student", "userName email");
+    );
 
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
-
-    request.coordinator_status = "Rejected";
-    request.coordinator_comment = reason;
-    await request.save();
 
     await EmailService.sendEmail({
       to: request.student.email,

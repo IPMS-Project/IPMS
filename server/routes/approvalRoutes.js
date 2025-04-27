@@ -44,15 +44,22 @@ router.post("/supervisor/form/:type/:id/reject", isSupervisor, (req, res) =>
 //         Coordinator Approval Routes         //
 // =========================================== //
 
-
 // Coordinator APIs
 router.get("/coordinator/requests", isCoordinator, getCoordinatorRequests);
-
-router.get("/coordinator/request/:id", isCoordinator, getCoordinatorRequestDetails);
-router.post("/coordinator/request/:id/approve", isCoordinator, coordinatorApproveRequest);
-router.post("/coordinator/request/:id/reject", isCoordinator, coordinatorRejectRequest);
-router.post("/coordinator/request/:id/resend", isCoordinator, coordinatorResendRequest);
-router.delete("/coordinator/request/:id/delete", isCoordinator, deleteStalledSubmission);
-
+router.get(
+    "/coordinator/request/:id",
+    isCoordinator,
+    getCoordinatorRequestDetails
+);
+router.post(
+  "/coordinator/request/:id/approve",
+  isCoordinator,
+  coordinatorApproveRequest
+);
+router.post(
+  "/coordinator/request/:id/reject",
+  isCoordinator,
+  coordinatorRejectRequest
+);
 
 module.exports = router;

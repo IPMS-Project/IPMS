@@ -49,9 +49,8 @@ const isStudent = (req, res, next) => {
   }
 };
 
-// Export all properly
 module.exports = {
-  isSupervisor,
-  isCoordinator,
-  isStudent,
+    isStudent,
+    isSupervisor,
+    isCoordinator,
 };
