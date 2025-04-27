@@ -52,8 +52,8 @@ const evaluationSchema = new mongoose.Schema({
     validate: [arr => arr.length > 0, 'At least one evaluation item is required']
   },
 
-  advisorSignature: { type: signatureSchema, required: true },
-  advisorAgreement: { type: Boolean, required: true },
+  supervisorSignature: { type: signatureSchema, required: true },
+  supervisorAgreement: { type: Boolean, required: true },
   coordinatorSignature: { type: signatureSchema, required: true },
   coordinatorAgreement: { type: Boolean, required: true }
 
