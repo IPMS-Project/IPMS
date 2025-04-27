@@ -22,28 +22,12 @@ const Task = new mongoose.Schema({
   
 });
 const formA1 = new mongoose.Schema({
-    // student: { 
-    //     type: ObjectId,
-    //     required: true,
-    //     ref: 'UserTokenRequest'
-    // },
-    student:{
-        name:{
-            type: String,
-            required: true,
-        },
-        email:{
-            unique: true,
-            type: String,
-            required:true,
-        },
-    },
     ...formMetadata,
-    // student: { 
-    //     type: ObjectId,
-    //     required: true,
-    //     ref: 'UserTokenRequest'
-    // },
+    student: { 
+        type: ObjectId,
+        required: true,
+        ref: 'UserTokenRequest'
+    },
     workplace: {
         name: {
             type: String,
@@ -65,10 +49,12 @@ const formA1 = new mongoose.Schema({
         required: true,
         enum: [1, 2, 3]
     },
+
     requestedAt: {
         type: Date,
         default: Date.now,
       },
+      
     startDate: {
         type: Date,
         required: true
@@ -99,4 +85,6 @@ formA1.virtual("requiredHours").get(function() {
     return this.creditHours * 60;
 })
 
-module.exports = mongoose.models.InternshipRequest || mongoose.model("InternshipRequest", formA1);
+module.exports =
+  mongoose.models.InternshipRequest ||
+  mongoose.model("InternshipRequest", formA1);

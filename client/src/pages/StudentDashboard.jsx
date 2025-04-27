@@ -33,6 +33,54 @@ const StudentDashboard = () => {
   }, [ouEmail]);
   console.log(approvalStatus);
 
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      try {
+        const res = await fetch(`${backendUrl}/api/form/pending-requests`);
+        const data = await res.json();
+        const studentSubmissions = data.filter(
+          (req) =>
+            req?.student?.email?.toLowerCase().trim() ===
+            user.email.toLowerCase().trim()
+        );
+        setSubmissions(studentSubmissions);
+      } catch (err) {
+        console.error("Error fetching submissions", err);
+        setError("Unable to load your submissions right now.");
+      }
+    };
+
+    if (user?.email) fetchSubmissions();
+  }, [backendUrl, user?.email]);
+
+  const handleResend = async (id) => {
+    try {
+      const res = await fetch(`${backendUrl}/api/form/requests/${id}/resend`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      alert(data.message);
+    } catch {
+      alert("Failed to resend request.");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Delete this request?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`${backendUrl}/api/form/requests/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      alert(data.message);
+      setSubmissions((prev) => prev.filter((sub) => sub._id !== id));
+    } catch {
+      alert("Failed to delete request.");
+    }
+  };
+
   return (
     <div className="student-dashboard">
       <div className="dashboard-header">

@@ -147,6 +147,16 @@ function Home() {
                     <p className="role-label">
                       {r.charAt(0).toUpperCase() + r.slice(1)}
                     </p>
+                    <span
+                      className="info-icon"
+                      title={
+                        r === "student"
+                          ? "Students request internships and submit weekly reports."
+                          : r === "supervisor"
+                          ? "Supervisors review and approve student progress."
+                          : "Coordinators manage the internship workflow and approvals."
+                      }
+                    ></span>
                   </div>
                 ))}
               </div>
