@@ -10,58 +10,37 @@ const UserTokenRequest = require("../models/TokenRequest");
 
 const getSupervisorForms = async (req, res, filter) => {
   try {
-        // ----------------------------
-        //      Fetching A1 Form
-        // ----------------------------
-        const requests = await InternshipRequest.find(filter)
-                                                .populate("_id", "fullName ouEmail soonerId");
+    const InternshipRequest = require("../models/InternshipRequest");
+    const WeeklyReport = require("../models/WeeklyReport");
+    const Evaluation = require("../models/Evaluation");
 
-        const typedRequests = requests.map(req => ({
-            ...req.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A1"    // add the custom type
+    const a1Forms = await InternshipRequest.find(filter).populate("student", "fullName ouEmail soonerId");
+    const typedA1 = a1Forms.map((form) => ({
+      ...form.toObject(),
+      form_type: "A1",
     }));
 
-        // ----------------------------
-        //      Fetching A2 Form
-        // ----------------------------
-        const reports = await WeeklyReport.find(filter)
-                                          .populate("student_id", "fullName ouEmail soonerId");
-
-        // Adding custom type to A2 Form
-        const typedReports = reports.map(report => ({
-            ...report.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A2"       // add the custom type
+    const a2Forms = await WeeklyReport.find(filter).populate("student_id", "fullName ouEmail soonerId");
+    const typedA2 = a2Forms.map((form) => ({
+      ...form.toObject(),
+      form_type: "A2",
     }));
 
-        // ----------------------------
-        //      Fetching A3 Form
-        // ----------------------------
-        const evaluations = await Evaluation.find(filter)
-                                            .populate("student_id", "fullName ouEmail soonerId");
-
-        // Adding custom type to A3 Form
-        const typedEvaluations = evaluations.map(evaluation => ({
-            ...evaluation.toObject(), // convert Mongoose doc to plain JS object
-            form_type: "A3"     // add the custom type
+    const a3Forms = await Evaluation.find(filter).populate("student_id", "fullName ouEmail soonerId");
+    const typedA3 = a3Forms.map((form) => ({
+      ...form.toObject(),
+      form_type: "A3",
     }));
 
-        // ----------------------------
-        //      Combine forms
-        // ----------------------------
-        const allRequests = [...typedRequests, ...typedReports, ...typedEvaluations];
+    const allForms = [...typedA1, ...typedA2, ...typedA3];
+    allForms.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        // Sort by createdAt date
-        allRequests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        // Send response
-        res.status(200).json(allRequests);
+    return res.status(200).json(allForms);
   } catch (err) {
-        res.status(500).json({
-            message: "Failed to fetch supervisor forms",
-            error: err.message,
-        });
+    console.error("Error in getSupervisorForms:", err.message);
+    return res.status(500).json({ message: "Failed to fetch supervisor forms", error: err.message });
   }
-}
+};
 
 const handleSupervisorFormAction = async (req, res, action) => {
   try {
@@ -89,26 +68,18 @@ const handleSupervisorFormAction = async (req, res, action) => {
       supervisor_comment: comment,
     };
 
-    const form = await FormModel.findByIdAndUpdate(formId, update, { new: true }).populate("student_id", "userName email");
+    const form = await FormModel.findByIdAndUpdate(formId, update, { new: true })
+      .populate("student_id", "userName email");
 
     if (!form) {
       return res.status(404).json({ message: "Form not found" });
     }
 
-    const studentEmail =
-      form.student_id?.email ||
-      form.interneeEmail ||
-      form.studentEmail ||
-      null;
-
-    if (!studentEmail) {
-      console.warn("⚠️ No student email found for form:", form._id);
-    } else {
-      const emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
+    const studentEmail = form.student_id?.email || form.interneeEmail || form.studentEmail || null;
+    let emailSubject = `Form ${action === "approve" ? "Approved" : "Rejected"}`;
     let emailBody = `<p>Your ${form_type} form has been ${action}ed by the supervisor.</p>`;
     if (comment) {
       emailBody += `<p>Comment: ${comment}</p>`;
-      }
     }
 
     const student_id = form.student_id || form.internee_id || form.student;
@@ -126,36 +97,31 @@ const handleSupervisorFormAction = async (req, res, action) => {
     }
 
     console.log("Email sent to:", student_mail);
-
-    res.status(200).json({
-      message: `Form ${action}ed successfully`,
-      updatedForm: form,
-    });
+    res.status(200).json({ message: `Form ${action}ed successfully`, updatedForm: form });
   } catch (err) {
     console.error("SupervisorFormAction error:", err);
     res.status(500).json({ message: "Error processing form", error: err.message });
   }
 };
 
-// =========================================== //
-//           Coordinator Dashboard             //
-// =========================================== //
-
 const getCoordinatorRequests = async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
       coordinator_status: "pending",
     }).populate("student", "userName email");
+
     res.status(200).json(requests);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch requests" });
   }
 };
 
-// Coordinator View Single Request
 const getCoordinatorRequestDetails = async (req, res) => {
   try {
-    const requestData = await InternshipRequest.findById(req.params.id).lean();
+    const requestData = await InternshipRequest.findById(req.params.id)
+      .populate("student", "userName email")
+      .lean();
+
     if (!requestData) {
       return res.status(404).json({ message: "Request not found" });
     }
@@ -168,18 +134,21 @@ const getCoordinatorRequestDetails = async (req, res) => {
   }
 };
 
-// Coordinator Approve Request
 const coordinatorApproveRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { coordinator_status: "approved" },
+      { status: "approved" },
       { new: true }
-    );
+    ).populate("student", "userName email");
 
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
+
+    request.coordinator_status = "Approved";
+    request.coordinator_comment = "Approved by Coordinator";
+    await request.save();
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -193,7 +162,6 @@ const coordinatorApproveRequest = async (req, res) => {
   }
 };
 
-// Coordinator Reject Request
 const coordinatorRejectRequest = async (req, res) => {
   const { reason } = req.body;
   if (!reason) return res.status(400).json({ message: "Reason required" });
@@ -201,13 +169,17 @@ const coordinatorRejectRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findByIdAndUpdate(
       req.params.id,
-      { coordinator_status: "rejected" },
+      { status: "rejected" },
       { new: true }
-    );
+    ).populate("student", "userName email");
 
     if (!request) {
       return res.status(404).json({ message: "Request not found" });
     }
+
+    request.coordinator_status = "Rejected";
+    request.coordinator_comment = reason;
+    await request.save();
 
     await EmailService.sendEmail({
       to: request.student.email,
@@ -347,18 +319,18 @@ const deleteStalledSubmission = async (req, res) => {
 };
 
 
-// module.exports = {
-//   getCoordinatorRequests,
-//   getCoordinatorRequestDetails,
-//   coordinatorApproveRequest,
-//   coordinatorRejectRequest,
-//   coordinatorResendRequest,
-//   deleteStudentSubmission,
-//   getStudentSubmissions,
-//   getPendingSubmissions,
-//   getSupervisorForms,
-//   handleSupervisorFormAction,
-//   approveSubmission,
-//   rejectSubmission,
-//   deleteStalledSubmission,
-// };
+module.exports = {
+  getCoordinatorRequests,
+  getCoordinatorRequestDetails,
+  coordinatorApproveRequest,
+  coordinatorRejectRequest,
+  coordinatorResendRequest,
+  deleteStudentSubmission,
+  getStudentSubmissions,
+  getPendingSubmissions,
+  getSupervisorForms,
+  handleSupervisorFormAction,
+  approveSubmission,
+  rejectSubmission,
+  deleteStalledSubmission,
+};
