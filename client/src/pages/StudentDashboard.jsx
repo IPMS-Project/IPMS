@@ -93,11 +93,11 @@ const StudentDashboard = () => {
             <h3>Request Internship (FORM A1)</h3>
             <p>Track your internship journey</p>
             {approvalStatus === "not_submitted" && (
-              <p className="info-msg">You have not submitted the form yet</p>
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>You have not submitted the form yet</p>
             )}
             {(approvalStatus === "submitted" ||
               approvalStatus === "pending manual review") && (
-              <p className="info-msg">Your form is under review</p>
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>Your form is under review</p>
             )}
             {approvalStatus === "approved" && (
               <p className="success-msg">Approved</p>
@@ -130,9 +130,24 @@ const StudentDashboard = () => {
         {/* FORM A2 */}
         <div className="card-section">
           <div className="card-content">
-            <h3>Weekly Report (FORM A2)</h3>
-            {approvalStatus !== "approved" && (
-              <p className="info-msg">Finish Form A1 & get approved first</p>
+          <h3>Weekly Report (Form A2)</h3>
+            {approvalStatus === "not_submitted" && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Please fill your Form A1 first
+              </p>
+            )}
+
+            {approvalStatus === "draft" && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Finish your Form A1 first
+              </p>
+            )}
+
+            {(approvalStatus === "submitted" ||
+              approvalStatus === "pending manual review") && (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Wait for your Form A1 to be approved
+              </p>
             )}
           </div>
           <button

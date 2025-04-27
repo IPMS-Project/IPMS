@@ -162,11 +162,11 @@ const supervisorReminder = async () => {
           logger.error(`Failed to save submission: ${err.message}`);
         }
 
-        logger.info(`Reminder sent to supervisor for "${submission._id}"`);
+        logger.info(`[Reminder Sent] Supervisor: "${supervisor.email}" for "${submission.name}"`);
       }
     }
   } catch (err) {
-    logger.error("Error in supervisorReminder:", err.message);
+    logger.error("Error in supervisorReminder:", err.message || err);
   }
 };
 

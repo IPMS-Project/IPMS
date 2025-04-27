@@ -71,13 +71,6 @@ function Home() {
             text: `Welcome back, ${role}!`,
           });
           navigate("/supervisor-dashboard");
-        } else if (role === "coordinator") {
-          Swal.fire({
-            icon: "success",
-            title: "Login Successful 🌟",
-            text: `Welcome back, ${role}!`,
-          });
-          navigate("/coordinator-dashboard");
         } else{
           Swal.fire({
             icon: "success",
@@ -85,17 +78,7 @@ function Home() {
             text: `Welcome back, ${role}!`,
           });
           navigate("/coordinator-dashboard");
-        }
-
-       
-
-        // Swal.fire({
-        //   icon: "success",
-        //   title: "Login Successful",
-        //   text: `Welcome back, `,
-        // });
-
-       
+        }       
       } else {
         Swal.fire({
           icon: "error",
