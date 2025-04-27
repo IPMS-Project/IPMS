@@ -29,63 +29,62 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   const [message, setMessage] = useState("");
   const [startDate, setStartDate] = useState(null);
 
-  // Load report if read-only
+  // Fetch A1 Form + Weekly Reports
   useEffect(() => {
-    if (readOnly && reportId) {
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/api/reports/${reportId}`)
-        .then((res) => {
-          if (res.data.success) {
-            setFormData((prev) => ({
-              ...prev,
-              ...res.data.report,
-            }));
-          }
-        })
-        .catch((err) => console.error("Failed to load report", err));
-    }
-  }, [readOnly, reportId]);
-
-  // Fetch A1 Form
-  useEffect(() => {
-    const fetchA1Data = async () => {
+    const fetchData = async () => {
       try {
-        const email = "vikash@example.com"; // TODO: dynamic session email later
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`);
-
-        if (res.data.success) {
-          const {
-            name,
-            email: userEmail,
-            supervisorName,
-            supervisorEmail,
-            creditHours,
-            completedHours,
-            requiredHours,
-            startDate: fetchedStartDate,
-          } = res.data.form;
-
-          setFormData((prev) => ({
+        const email = "vikash.balaji.kokku-1@ou.edu"; // TODO: make dynamic later
+        
+        // Fetch A1 Form
+        const a1Res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`);
+        if (a1Res.data.success) {
+          const { name, email: userEmail, supervisorName, supervisorEmail, creditHours, startDate: fetchedStartDate } = a1Res.data.form;
+          
+          setFormData(prev => ({
             ...prev,
             name,
             email: userEmail,
             supervisorName,
             supervisorEmail,
             creditHours,
-            completedHours,
-            requiredHours: requiredHours || (creditHours ? creditHours * 60 : 0),
+            requiredHours: creditHours ? creditHours * 60 : 0,
           }));
 
           setStartDate(fetchedStartDate);
         }
+
+        // Fetch Weekly Reports to calculate completed hours
+        const reportsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine?email=${email}`);
+        if (reportsRes.data.success) {
+          setFormData(prev => ({
+            ...prev,
+            completedHours: reportsRes.data.completedHours || 0,
+          }));
+        }
       } catch (err) {
-        console.error("Failed to fetch A1 form:", err);
-        setMessage("⚠️ You must submit the A1 form before submitting weekly reports.");
+        console.error("Error loading data:", err);
+        setMessage("⚠️ Please ensure you have submitted A1 form.");
       }
     };
 
-    if (!readOnly) fetchA1Data();
+    if (!readOnly) fetchData();
   }, [readOnly]);
+
+  // Load a single report if readonly mode
+  useEffect(() => {
+    if (readOnly && reportId) {
+      axios.get(`${process.env.REACT_APP_API_URL}/api/reports/${reportId}`)
+        .then(res => {
+          if (res.data.success) {
+            setFormData(prev => ({
+              ...prev,
+              ...res.data.report,
+            }));
+          }
+        })
+        .catch(err => console.error("Failed to load report", err));
+    }
+  }, [readOnly, reportId]);
 
   // Auto-calculate current week
   useEffect(() => {
@@ -96,12 +95,12 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
 
       if (diffInDays >= 0) {
         const weekNumber = Math.floor(diffInDays / 7) + 1;
-        setFormData((prev) => ({
+        setFormData(prev => ({
           ...prev,
-          week: `Week ${weekNumber}`,
+          week: `Week ${Math.min(weekNumber, 15)}`,
         }));
       } else {
-        setFormData((prev) => ({
+        setFormData(prev => ({
           ...prev,
           week: "Week 1",
         }));
@@ -116,11 +115,11 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
 
     if (name === "hours") {
       const num = parseInt(value, 10);
-      if (num > 40) return setFormData((prev) => ({ ...prev, hours: 40 }));
-      if (num < 1 && value !== "") return setFormData((prev) => ({ ...prev, hours: 1 }));
+      if (num > 40) return setFormData(prev => ({ ...prev, hours: 40 }));
+      if (num < 1 && value !== "") return setFormData(prev => ({ ...prev, hours: 1 }));
     }
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
