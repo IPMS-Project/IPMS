@@ -128,6 +128,17 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     }
   };
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("ipmsUser"));
+    if (storedUser) {
+      setFormData((prev) => ({
+        ...prev,
+        interneeName: storedUser.fullName || "",
+        interneeEmail: storedUser.email || ""
+      }));
+    }
+  }, []);
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -379,7 +390,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   id="interneeName" 
                   value={formData.interneeName} 
                   onChange={handleInputChange} 
-                  disabled={!isFieldEditable("interneeName")} 
+                  // disabled={!isFieldEditable("interneeName")} 
+                  disabled
                 />
                 {errors.interneeName && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeName}</div>}
               </td>
@@ -448,7 +460,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   id="interneeEmail" 
                   value={formData.interneeEmail} 
                   onChange={handleInputChange} 
-                  disabled={!isFieldEditable("interneeEmail")} 
+                  disabled
+                  // disabled={!isFieldEditable("interneeEmail")} 
                 />
                 {errors.interneeEmail && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeEmail}</div>}
               </td>

@@ -8,72 +8,77 @@ const Task = new mongoose.Schema({
     type: String,
     required: true,
   },
-  outcomes: [{
-    type: String,
-    enum: [
-      "problemSolving",
-      "solutionDevelopment",
-      "communication",
-      "decisionMaking",
-      "collaboration",
-      "application"
-    ]
-  }]
-  
-});
-const formA1 = new mongoose.Schema({
-    ...formMetadata,
-    student: { 
-        type: ObjectId,
-        required: true,
-        ref: 'UserTokenRequest'
+  outcomes: [
+    {
+      type: String,
+      enum: [
+        "problemSolving",
+        "solutionDevelopment",
+        "communication",
+        "decisionMaking",
+        "collaboration",
+        "application",
+      ],
     },
+  ],
+});
+const formA1 = new mongoose.Schema(
+  {
+    // student: {
+    //     type: ObjectId,
+    //     required: true,
+    //     ref: 'UserTokenRequest'
+    // },
+    student: {
+      name: {
+        type: String,
+        required: true,
+      },
+      email: {
+        unique: true,
+        type: String,
+        required: true,
+      },
+    },
+    ...formMetadata,
+    // student: {
+    //     type: ObjectId,
+    //     required: true,
+    //     ref: 'UserTokenRequest'
+    // },
     workplace: {
-        name: {
-            type: String,
-            required: true,
-        },
-        website: String,
-        phone: String, // TODO how to validate this?
+      name: {
+        type: String,
+        required: true,
+      },
+      website: String,
+      phone: String, // TODO how to validate this?
     },
     internshipAdvisor: {
-        name: String,
-        jobTitle: String,
-        email: {
-            type: String,
-            required: true
-        }
+      name: String,
+      jobTitle: String,
+      email: {
+        type: String,
+        required: true,
+      },
     },
     creditHours: {
-        type: Number,
-        required: true,
-        enum: [1, 2, 3]
+      type: Number,
+      required: true,
+      enum: [1, 2, 3],
     },
-
-    requestedAt: {
-        type: Date,
-        default: Date.now,
-      },
-      coordinatorResponded: {
-        type: Boolean,
-        default: false,
-      },
-      studentNotified: {
-        type: Boolean,
-        default: false,
-      },
-      
     startDate: {
-        type: Date,
-        required: true
+      type: Date,
+      required: true,
     },
-    endDate: { // TODO how to make sure endDate is later than startDate?
-        type: Date,
-        required: true
+    endDate: {
+      // TODO how to make sure endDate is later than startDate?
+      type: Date,
+      required: true,
     },
     tasks: {
-        type: [Task],
-        required: true
+      type: [Task],
+      required: true,
     },
     // status: {
     //     type: String,
@@ -87,11 +92,13 @@ const formA1 = new mongoose.Schema({
     reminders: [Date],
     // requiredHours is an easily derived attribute
     // TODO needs to be a virtual getter that checks this student's WeeklyReports
-    completedHours: Number
-}, { timestamps: true });
-formA1.virtual("requiredHours").get(function() {
-    return this.creditHours * 60;
-})
+    completedHours: Number,
+  },
+  { timestamps: true }
+);
+formA1.virtual("requiredHours").get(function () {
+  return this.creditHours * 60;
+});
 
 module.exports =
   mongoose.models.InternshipRequest ||

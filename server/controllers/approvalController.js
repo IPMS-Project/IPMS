@@ -4,17 +4,19 @@ const Evaluation = require("../models/Evaluation");
 const EmailService = require("../services/emailService");
 const UserTokenRequest = require("../models/TokenRequest");
 
-// ---------------------------------------------------
-// Student + Supervisor methods (NO CHANGES)
-// ---------------------------------------------------
+// =======================================
+//         Student-Side Controllers
+// =======================================
 
 const getStudentSubmissions = async (req, res) => {
   try {
+    const studentId = req.user._id;
     const submissions = await InternshipRequest.find({
-      student: req.user._id,
+      student: studentId,
     }).sort({ createdAt: -1 });
     res.status(200).json(submissions);
-  } catch (err) {
+  } catch (error) {
+    console.error("Error fetching student submissions:", error);
     res.status(500).json({ message: "Failed to fetch submissions." });
   }
 };
@@ -41,6 +43,7 @@ const deleteStudentSubmission = async (req, res) => {
     await InternshipRequest.findByIdAndDelete(id);
     res.status(200).json({ message: "Submission deleted successfully." });
   } catch (err) {
+    console.error("Error deleting student submission:", err);
     res.status(500).json({ message: "Internal server error." });
   }
 };
@@ -49,17 +52,18 @@ const getPendingSubmissions = async (req, res) => {
   try {
     const pendingRequests = await InternshipRequest.find({
       supervisor_status: "pending",
-    }).populate("student", "fullName email");
+    }).populate("student", "fullName ouEmail");
     res.status(200).json(pendingRequests);
   } catch (err) {
+    console.error("Error fetching pending submissions:", err);
     res.status(500).json({ message: "Failed to fetch pending submissions." });
   }
 };
 
 const approveSubmission = async (req, res) => {
+  const { id } = req.params;
+  const { comment } = req.body;
   try {
-    const { id } = req.params;
-    const { comment } = req.body;
     const request = await InternshipRequest.findByIdAndUpdate(
       id,
       { supervisor_status: "approved", supervisor_comment: comment || "" },
@@ -68,16 +72,16 @@ const approveSubmission = async (req, res) => {
     if (!request)
       return res.status(404).json({ message: "Submission not found." });
 
-    res.json({ message: "Submission approved successfully." });
+    res.json({ message: "Submission approved", updated: request });
   } catch (err) {
-    res.status(500).json({ message: "Approval failed." });
+    res.status(500).json({ message: "Approval failed", error: err.message });
   }
 };
 
 const rejectSubmission = async (req, res) => {
+  const { id } = req.params;
+  const { comment } = req.body;
   try {
-    const { id } = req.params;
-    const { comment } = req.body;
     const request = await InternshipRequest.findByIdAndUpdate(
       id,
       { supervisor_status: "rejected", supervisor_comment: comment || "" },
@@ -86,9 +90,9 @@ const rejectSubmission = async (req, res) => {
     if (!request)
       return res.status(404).json({ message: "Submission not found." });
 
-    res.json({ message: "Submission rejected successfully." });
+    res.json({ message: "Submission rejected", updated: request });
   } catch (err) {
-    res.status(500).json({ message: "Rejection failed." });
+    res.status(500).json({ message: "Rejection failed", error: err.message });
   }
 };
 
@@ -107,14 +111,15 @@ const deleteStalledSubmission = async (req, res) => {
 
     await InternshipRequest.findByIdAndDelete(id);
     res.status(200).json({ message: "Submission deleted successfully." });
-  } catch (err) {
-    res.status(500).json({ message: "Internal server error." });
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// ---------------------------------------------------
-// Coordinator-specific methods (UPDATED)
-// ---------------------------------------------------
+// =======================================
+//         Coordinator-Side Controllers
+// =======================================
 
 const getCoordinatorRequests = async (req, res) => {
   try {
@@ -198,6 +203,24 @@ const coordinatorRejectRequest = async (req, res) => {
   }
 };
 
+const coordinatorResendRequest = async (req, res) => {
+  try {
+    const submission = await InternshipRequest.findById(req.params.id);
+    if (!submission)
+      return res.status(404).json({ message: "Submission not found" });
+
+    submission.coordinator_reminder_count = 0;
+    submission.last_coordinator_reminder_at = new Date();
+    submission.coordinator_status = "pending";
+    await submission.save();
+
+    res.status(200).json({ message: "Reminder cycle restarted." });
+  } catch (error) {
+    console.error("Error in coordinatorResendRequest:", error);
+    res.status(500).json({ message: "Server error while resending request." });
+  }
+};
+
 const getCoordinatorReports = async (req, res) => {
   try {
     const reports = await WeeklyReport.find({}).sort({ submittedAt: -1 });
@@ -227,13 +250,15 @@ const approveJobEvaluation = async (req, res) => {
     evaluation.updatedAt = new Date();
     await evaluation.save();
 
+    // Send A3 Final Form to Student (for Canvas)
     await EmailService.sendEmail({
       to: evaluation.interneeEmail,
-      subject: "Job Evaluation Approved",
-      html: `<p>Your Job Evaluation (Form A3) has been approved by the Coordinator.</p>`,
+      subject: "Your Job Evaluation (Form A3) is Approved!",
+      html: `<p>Dear ${evaluation.interneeName},</p>
+             <p>Your Job Evaluation (Form A3) has been approved by the Coordinator. Please upload it to Canvas.</p>`,
     });
 
-    res.json({ message: "Job Evaluation approved successfully." });
+    res.json({ message: "A3 Job Evaluation approved successfully." });
   } catch (err) {
     res.status(500).json({ message: "Approval failed." });
   }
@@ -253,15 +278,20 @@ const rejectJobEvaluation = async (req, res) => {
 
     await EmailService.sendEmail({
       to: evaluation.interneeEmail,
-      subject: "Job Evaluation Rejected",
-      html: `<p>Your Job Evaluation (Form A3) was rejected.<br><b>Reason:</b> ${reason}</p>`,
+      subject: "Your Job Evaluation (Form A3) Needs Attention",
+      html: `<p>Dear ${evaluation.interneeName},</p>
+             <p>Your Job Evaluation (Form A3) was not approved.<br><b>Reason:</b> ${reason}</p>`,
     });
 
-    res.json({ message: "Job Evaluation rejected successfully." });
+    res.json({ message: "A3 Job Evaluation rejected successfully." });
   } catch (err) {
     res.status(500).json({ message: "Rejection failed." });
   }
 };
+
+// =======================================
+//              EXPORTS
+// =======================================
 
 module.exports = {
   getStudentSubmissions,
@@ -270,10 +300,13 @@ module.exports = {
   approveSubmission,
   rejectSubmission,
   deleteStalledSubmission,
+
   getCoordinatorRequests,
   getCoordinatorRequestDetails,
   coordinatorApproveRequest,
   coordinatorRejectRequest,
+  coordinatorResendRequest,
+
   getCoordinatorReports,
   getCoordinatorEvaluations,
   approveJobEvaluation,

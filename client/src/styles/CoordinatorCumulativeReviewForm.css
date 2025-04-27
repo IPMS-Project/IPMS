@@ -51,13 +51,17 @@
     font-weight: bold;
     cursor: pointer;
   }
+
+  .button-group .reject-btn {
+    background: #aa1e2e;;
+  }
   
   .button-group .cancel-btn {
     background: #e0e0e0;
   }
   
   .button-group .submit-btn {
-    background: #aa1e2e;
+    background: #35aa1e;
     color: white;
   }
   

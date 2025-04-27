@@ -15,6 +15,7 @@ const {
   getCoordinatorEvaluations,
   approveJobEvaluation,
   rejectJobEvaluation,
+  coordinatorResendRequest,
 } = require("../controllers/approvalController");
 
 const {
@@ -58,6 +59,11 @@ router.post(
   "/coordinator/request/:id/reject",
   isCoordinator,
   coordinatorRejectRequest
+);
+router.post(
+  "/coordinator/request/:id/resend",
+  isCoordinator,
+  coordinatorResendRequest
 );
 router.delete(
   "/coordinator/request/:id/delete",

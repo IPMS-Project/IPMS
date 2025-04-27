@@ -2,44 +2,49 @@ const express = require("express");
 const router = express.Router();
 const InternshipRequest = require("../models/InternshipRequest");
 const { insertFormData } = require("../services/insertData");
+const emailService = require("../services/emailService"); // Missing import added
 
-// router.post("/internshiprequests/:id/approve", approveSubmission);
-// router.post("/internshiprequests/:id/reject", rejectSubmission);
-
-// UPDATED: GET route to fetch internship requests pending supervisor action
+// -----------------------------------------
+// GET internship requests (pending supervisor action)
+// -----------------------------------------
 router.get("/internshiprequests", async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
-      supervisor_status: "pending",
-      // approvals: "advisor", // advisor has approved
-      supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
-    }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
-
+      supervisor_status: { $in: [null, "pending"] },
+    })
+      .sort({ createdAt: 1 }) // oldest first
+      .select(
+        "student workplace name supervisor_status coordinator_status createdAt"
+      );
     res.status(200).json(requests);
   } catch (err) {
     console.error("Error fetching internship requests:", err);
-    res.status(500).json({ message: "Server error while fetching internship requests" });
+    res
+      .status(500)
+      .json({ message: "Server error while fetching internship requests" });
   }
 });
 
-// Validate required fields
+// -----------------------------------------
+// Validate Form Data (Before Submit)
+// -----------------------------------------
 function validateFormData(formData) {
   const requiredFields = [
-    'soonerId',
-    'workplaceName',
-    'website',
-    'phone',
-    'advisorName',
-    'advisorJobTitle',
-    'advisorEmail',
-    'creditHours',
-    'startDate',
-    'endDate',
-    'tasks'
+    "soonerId",
+    "workplaceName",
+    "website",
+    "phone",
+    "advisorName",
+    "advisorJobTitle",
+    "advisorEmail",
+    "creditHours",
+    "startDate",
+    "endDate",
+    "tasks",
   ];
 
   for (const field of requiredFields) {
-    if (!formData[field] || formData[field] === '') {
+    if (!formData[field] || formData[field] === "") {
       return `Missing or empty required field: ${field}`;
     }
   }
@@ -48,35 +53,32 @@ function validateFormData(formData) {
     return `Sooner ID must be a 9-digit number, not ${formData.soonerId}`;
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
-    return 'Tasks must be a non-empty array';
+    return "Tasks must be a non-empty array.";
   }
-  // for (const [index, task] of formData.tasks.entries()) {
-  //   if (!task.description || !task.outcomes) {
-  //     return `Task at index ${index} is missing description or outcomes`;
-  //   }
-  // }
-
-  // uncomment below if student has to fill in task outcomes
-  // const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
-  // if (filledTasks.length < 3)
-  //   return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`;
 
   const tasks = formData.tasks;
-  console.log(tasks);
-  if (tasks.filter((task) => task.description && task.description.trim() !== '').length < 3)
-    return 'At least 3 tasks must be provided';
+  if (
+    tasks.filter((task) => task.description && task.description.trim() !== "")
+      .length < 3
+  )
+    return "At least 3 tasks must be provided.";
+
   const uniqueOutcomes = new Set();
   tasks.forEach((task) => {
     if (Array.isArray(task.outcomes)) {
-      task.outcomes.forEach(outcome => uniqueOutcomes.add(outcome));
-    } 
+      task.outcomes.forEach((outcome) => uniqueOutcomes.add(outcome));
+    }
   });
-  formData.status = uniqueOutcomes.size < 3 ? 'pending manual review' : 'submitted';
+
+  formData.status =
+    uniqueOutcomes.size < 3 ? "pending manual review" : "submitted";
   return null;
 }
 
-
-router.post('/submit', async (req, res) => {
+// -----------------------------------------
+// Submit Form A1
+// -----------------------------------------
+router.post("/submit", async (req, res) => {
   const formData = req.body;
   const validationError = validateFormData(formData);
   if (validationError) {
@@ -85,16 +87,24 @@ router.post('/submit', async (req, res) => {
 
   try {
     await insertFormData(formData);
-    res.status(200).json({ message: 'Form received and handled!', manual: formData.status !== 'submitted'});
+    res.status(200).json({
+      message: "Form received and handled!",
+      manual: formData.status !== "submitted",
+    });
   } catch (error) {
-    console.error('Error handling form data:', error);
-    res.status(500).json({ message: 'Something went wrong' });
+    console.error("Error handling form data:", error);
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
 
-router.get('/pending-requests', async (req, res) => {
+// -----------------------------------------
+// Get pending internship requests for Student Dashboard
+// -----------------------------------------
+router.get("/pending-requests", async (req, res) => {
   try {
-    const pending = await InternshipRequest.find({ status: { $in: ['submitted', 'pending manual review'] } });
+    const pending = await InternshipRequest.find({
+      status: { $in: ["submitted", "pending manual review"] },
+    });
     res.json(pending);
   } catch (err) {
     console.error("Error fetching pending submissions:", err);
@@ -102,30 +112,28 @@ router.get('/pending-requests', async (req, res) => {
   }
 });
 
+// -----------------------------------------
+// Resend Request (Reset reminders)
+// -----------------------------------------
 router.post("/requests/:id/resend", async (req, res) => {
   try {
     const request = await InternshipRequest.findById(req.params.id);
     if (!request) return res.status(404).json({ message: "Request not found" });
 
-    // Reset reminders
     request.reminders = [new Date()];
     request.coordinatorResponded = false;
     request.studentNotified = false;
     await request.save();
 
-    // Send email to coordinator
+    // Send email to internship advisor and student
     await emailService.sendEmail({
-      to: [
-        request.internshipAdvisor.email,
-        request.student.email,
-        "coordinator@ipms.edu"
-      ],
+      to: [request.internshipAdvisor.email, request.student.email],
       subject: "Internship Request Resent",
       html: `
         <p>Hello,</p>
-        <p>The student <strong>${request.student.userName}</strong> has resent their internship approval request due to inactivity.</p>
+        <p>The student <strong>${request.student.name}</strong> has resent their internship approval request due to coordinator inactivity.</p>
         <p>Please review and take necessary action.</p>
-      `
+      `,
     });
 
     res.json({ message: "Request resent successfully" });
@@ -134,22 +142,33 @@ router.post("/requests/:id/resend", async (req, res) => {
     res.status(500).json({ message: "Failed to resend request" });
   }
 });
+
+// -----------------------------------------
+// Delete Request
+// -----------------------------------------
 router.delete("/requests/:id", async (req, res) => {
   try {
     const deleted = await InternshipRequest.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Request not found" });
+
     res.json({ message: "Request deleted successfully" });
   } catch (err) {
     console.error("Delete error:", err);
     res.status(500).json({ message: "Failed to delete request" });
   }
 });
+
+// -----------------------------------------
+// Fetch student's approval status
+// -----------------------------------------
 router.post("/student", async (req, res) => {
   const { ouEmail } = req.body;
   if (!ouEmail) return res.status(400).json({ message: "Missing email" });
 
   try {
-    const request = await InternshipRequest.findOne({ "student.email": ouEmail });
+    const request = await InternshipRequest.findOne({
+      "student.email": ouEmail,
+    });
     if (!request) return res.json({ approvalStatus: "not_submitted" });
 
     return res.json({ approvalStatus: request.status || "draft" });

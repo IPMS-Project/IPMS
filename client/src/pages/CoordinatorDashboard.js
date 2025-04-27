@@ -7,7 +7,7 @@ const CoordinatorDashboard = () => {
   const [activeTab, setActiveTab] = useState("requests");
   const navigate = useNavigate();
 
-  // Internship Requests
+  // Internship Requests (Form A1)
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
@@ -30,7 +30,7 @@ const CoordinatorDashboard = () => {
     }
   };
 
-  // Weekly Reports
+  // Weekly Reports (Form A2)
   const [reports, setReports] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
 
@@ -53,7 +53,7 @@ const CoordinatorDashboard = () => {
     }
   };
 
-  // Job Evaluations (A3 forms)
+  // Job Evaluations (Form A3)
   const [evaluations, setEvaluations] = useState([]);
   const [loadingEvaluations, setLoadingEvaluations] = useState(true);
 

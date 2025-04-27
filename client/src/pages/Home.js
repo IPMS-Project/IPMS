@@ -29,7 +29,6 @@ function Home() {
     e.preventDefault();
     const { email: ouEmail, password, role } = formData;
 
-
     if (!ouEmail || !password || !role) {
       return Swal.fire({
         icon: "warning",
@@ -54,41 +53,39 @@ function Home() {
 
       if (response.ok) {
         const user = data.user;
-        if(role === "student"){
-           // Store only required fields
+        if (role === "student") {
           const limitedUserInfo = {
             fullName: user.fullName,
             id: user._id,
-            email:user.ouEmail
+            email: user.ouEmail,
           };
-
           localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
           navigate("/student-dashboard");
-        } else if(role === "supervisor"){
+        } else if (role === "supervisor") {
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",
-            text: `Welcome back, ${role}!`,
+            text: `Welcome back, Supervisor!`,
           });
           navigate("/supervisor-dashboard");
         } else if (role === "coordinator") {
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",
-            text: `Welcome back, ${role}!`,
+            text: `Welcome back, Coordinator!`,
           });
-          navigate("/coordinator-dashboard");      
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Login Failed",
-            text: data.message || "Something went wrong",
-            html: data.message + " " + 
-          (data.renewalLink 
-          ? `Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.` 
-          : "Something went wrong."),
-          });
+          navigate("/coordinator-dashboard");
         }
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          html:
+            data.message +
+            (data.renewalLink
+              ? ` Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.`
+              : " Something went wrong."),
+        });
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -108,7 +105,9 @@ function Home() {
         </div>
 
         <div className="login-options">
-          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>Welcome back</h2>
+          <h2 style={{ fontWeight: "600", fontSize: "1.9rem" }}>
+            Welcome back
+          </h2>
 
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
@@ -129,22 +128,11 @@ function Home() {
                     onClick={() =>
                       setFormData((prev) => ({ ...prev, role: r }))
                     }
-                
                   >
                     <Icon />
                     <p className="role-label">
                       {r.charAt(0).toUpperCase() + r.slice(1)}
                     </p>
-                    <span
-                      className="info-icon"
-                      title={
-                        r === "student"
-                          ? "Students request internships and submit weekly reports."
-                          : r === "supervisor"
-                          ? "Supervisors review and approve student progress."
-                          : "Coordinators manage the internship workflow and approvals."
-                      }
-                    ></span>
                   </div>
                 ))}
               </div>
@@ -152,7 +140,9 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="email">
-                <FaEnvelope style={{ marginRight: "6px", verticalAlign: "middle" }} />
+                <FaEnvelope
+                  style={{ marginRight: "6px", verticalAlign: "middle" }}
+                />
                 Email
               </label>
               <input
@@ -168,7 +158,9 @@ function Home() {
 
             <div className="form-group clean-input">
               <label htmlFor="password">
-                <FaLock style={{ marginRight: "6px", verticalAlign: "middle" }} />
+                <FaLock
+                  style={{ marginRight: "6px", verticalAlign: "middle" }}
+                />
                 Password
               </label>
               <div className="password-wrapper">

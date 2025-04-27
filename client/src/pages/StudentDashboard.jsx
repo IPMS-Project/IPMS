@@ -4,10 +4,10 @@ import "../styles/StudentDashboard.css";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-
   const user = JSON.parse(localStorage.getItem("ipmsUser"));
   const backendUrl = process.env.REACT_APP_API_URL;
   const ouEmail = user?.email;
+
   const [approvalStatus, setApprovalStatus] = useState("not_submitted");
   const [submissions, setSubmissions] = useState([]);
   const [error, setError] = useState("");
@@ -22,7 +22,6 @@ const StudentDashboard = () => {
           },
           body: JSON.stringify({ ouEmail }),
         });
-
         const data = await res.json();
         setApprovalStatus(data.approvalStatus);
       } catch (err) {
@@ -118,9 +117,7 @@ const StudentDashboard = () => {
               ["draft", "not_submitted"].includes(approvalStatus) &&
               navigate("/a1-form")
             }
-            disabled={
-              !["draft", "not_submitted"].includes(approvalStatus)
-            }
+            disabled={!["draft", "not_submitted"].includes(approvalStatus)}
             style={{
               backgroundColor: ["draft", "not_submitted"].includes(
                 approvalStatus
@@ -164,7 +161,9 @@ const StudentDashboard = () => {
           <button
             className="card-button"
             disabled={approvalStatus !== "approved"}
-            onClick={() => approvalStatus === "approved" && navigate("/weekly-report")}
+            onClick={() =>
+              approvalStatus === "approved" && navigate("/weekly-report")
+            }
             style={{
               backgroundColor: approvalStatus !== "approved" ? "#ccc" : "",
               cursor: approvalStatus !== "approved" ? "not-allowed" : "pointer",
@@ -191,7 +190,7 @@ const StudentDashboard = () => {
           <tbody>
             {submissions.map((req) => (
               <tr key={req._id}>
-                <td>{req.workplace.name}</td>
+                <td>{req.workplace?.name || "-"}</td>
                 <td>{req.status}</td>
                 <td>{new Date(req.createdAt).toLocaleDateString()}</td>
                 <td>

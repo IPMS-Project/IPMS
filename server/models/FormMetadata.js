@@ -15,6 +15,8 @@ const formMetadata = {
   coordinator_comment: String,
   coordinator_reminder_count: { type: Number, default: 0 },
   last_coordinator_reminder_at: Date,
+  coordinator_responded: {type: Boolean, default: false },
+  coordinator_studentNotified: {type: Boolean, default: false },
 };
 
 module.exports = formMetadata;
