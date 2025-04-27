@@ -4,9 +4,6 @@ const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const UserTokenRequest = require("../models/TokenRequest");
 const logger = require("../utils/logger");
-const WeeklyReport = require("../models/WeeklyReport");
-const SupervisorReview = require("../models/SupervisorReview");
-const InternshipRequest = require("../models/InternshipRequest");
 const dayjs = require("dayjs");
 
 // ================= Coordinator Reminder =================
@@ -15,7 +12,7 @@ const coordinatorReminder = async () => {
   const fiveWorkingDays = now.subtract(7, "day").toDate();
 
   try {
-    const pendingSubs = await InternshipRequest.find({
+    const pendingSubs = await getAllForms({
       coordinator_status: "pending",
       supervisor_status: "approved",
       createdAt: { $lt: fiveWorkingDays },
@@ -46,7 +43,7 @@ const coordinatorReminder = async () => {
           message: `Student notified about stalled coordinator approval for "${submission.name}"`,
         });
 
-        submission.studentNotified = true;
+        submission.coordinator_studentNotified = true;
         await submission.save();
 
         logger.info(`🔔 Escalation: student notified for "${submission.name}"`);

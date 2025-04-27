@@ -9,6 +9,7 @@ const CoordinatorDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
+  // == INTERNSHIP REQUESTS (FORM A1) ==
   useEffect(() => {
     if (activeTab === "requests") {
       fetchInternshipRequests();
@@ -25,7 +26,8 @@ const CoordinatorDashboard = () => {
       setLoadingRequests(false);
     }
   };
-  // Group D's Weekly Report Review Logic
+
+  // == WEEKLY REPORT (FORM A2) ==
 
   const [reportGroups, setReportGroups] = useState([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -85,10 +87,10 @@ const CoordinatorDashboard = () => {
               <tbody>
                 {requests.map(req => (
                   <tr key={req._id}>
-                    <td>{req.studentName}</td>
-                    <td>{req.studentId}</td>
-                    <td>{req.companyName}</td>
-                    <td>{req.status}</td>
+                    <td>{req.student.studentName}</td>
+                    <td>{req.student_id}</td>
+                    <td>{req.workplace.name}</td>
+                    <td>{req.coordinator_status}</td>
                   </tr>
                 ))}
               </tbody>

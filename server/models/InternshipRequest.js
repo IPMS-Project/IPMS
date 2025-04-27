@@ -54,14 +54,6 @@ const formA1 = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
-      coordinatorResponded: {
-        type: Boolean,
-        default: false,
-      },
-      studentNotified: {
-        type: Boolean,
-        default: false,
-      },
       
     startDate: {
         type: Date,

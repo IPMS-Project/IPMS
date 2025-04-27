@@ -109,8 +109,8 @@ router.post("/requests/:id/resend", async (req, res) => {
 
     // Reset reminders
     request.reminders = [new Date()];
-    request.coordinatorResponded = false;
-    request.studentNotified = false;
+    request.coordinator_responded = false;
+    request.coordinator_studentNotified = false;
     await request.save();
 
     // Send email to coordinator

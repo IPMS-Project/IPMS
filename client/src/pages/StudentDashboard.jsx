@@ -169,7 +169,7 @@ const StudentDashboard = () => {
                 <td>{req.status}</td>
                 <td>{new Date(req.createdAt).toLocaleDateString()}</td>
                 <td>
-                  {req.reminders?.length === 2 && !req.coordinatorResponded ? (
+                  {req.reminders?.length === 2 && !req.coordinator_responded ? (
                     <>
                       <button
                         className="btn-warning"

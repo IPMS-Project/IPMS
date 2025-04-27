@@ -47,6 +47,7 @@ const CoordinatorCumulativeReviewForm = () => {
   
       await axios.post(`${process.env.REACT_APP_API_URL}/api/reports/coordinator-comments`, {
         groupIndex: parseInt(groupIndex),
+        coordinator_status: "approved",
         comments: coordinatorComment.trim(),
         weeks,
       });
@@ -60,7 +61,28 @@ const CoordinatorCumulativeReviewForm = () => {
       Swal.fire("Error", "Failed to submit comment. Please try again.", "error");
     }
   };
+
+  // Submit coordinator coordinator rejction
+  const handleReject = async () => {  
+    try {
+      const weeks = reports.map((report) => report.week); // extract weeks
   
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/reports/coordinator-comments`, {
+        groupIndex: parseInt(groupIndex),
+        coordinator_status: "rejected",
+        comments: "",
+        weeks,
+      });
+  
+      Swal.fire("Success", "Coordinator rejected weekly update FORM A2.", "success");
+  
+      localStorage.setItem("reviewedGroupIndex", groupIndex); // ✅ For dashboard refresh
+      navigate("/coordinator-dashboard");
+    } catch (err) {
+      console.error("[CoordinatorCumulativeReviewForm] Failed to reject weekly report", err);
+      Swal.fire("Error", "Failed to reject weekly report. Please try again.", "error");
+    }
+  };  
 
   if (loading) {
     return <p className="coordinator-review-container">Loading...</p>;
@@ -108,6 +130,9 @@ const CoordinatorCumulativeReviewForm = () => {
       </div>
 
       <div className="button-group">
+        <button className="reject-btn" onClick={handleReject}>
+          Reject
+        </button>
         <button className="cancel-btn" onClick={() => navigate("/coordinator-dashboard")}>
           Cancel
         </button>
