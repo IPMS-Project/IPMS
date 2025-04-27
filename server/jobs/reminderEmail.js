@@ -1,5 +1,4 @@
 const emailService = require("../services/emailService");
-const Submission = require("../models/InternshipRequest");
 const NotificationLog = require("../models/NotifLog");
 const User = require("../models/User");
 const WeeklyReport = require("../models/WeeklyReport");
@@ -9,57 +8,68 @@ const UserTokenRequest = require("../models/TokenRequest");
 const logger = require("../utils/logger");
 const dayjs = require("dayjs");
 
-// Coordinator reminder: weekly report reviewed by supervisor but not yet commented by coordinator
+// ================= Coordinator Reminder =================
 const coordinatorReminder = async () => {
   const now = dayjs();
+  const fiveWorkingDays = now.subtract(7, "day").toDate();
+
   try {
-    const supervisorReviews = await SupervisorReview.find({});
+    const pendingSubs = await InternshipRequest.find({
+      coordinator_status: "pending",
+      supervisor_status: "approved",
+      createdAt: { $lt: fiveWorkingDays },
+    });
 
-    for (const review of supervisorReviews) {
-      const { studentId, weeks } = review;
-      const reports = await WeeklyReport.find({
-        studentId,
-        week: { $in: weeks },
-      });
+    for (const submission of pendingSubs) {
+      const student = await User.findById(submission.student_id);
+      const coordinator = await User.findById(submission.coordinator_id);
 
-      const allCoordinatorCommentsMissing = reports.every(
-        (r) => !r.coordinatorComments || r.coordinatorComments.trim() === ""
-      );
+      const reminderCount = submission.coordinator_reminder_count || 0;
+      const lastReminded = submission.last_coordinator_reminder_at || submission.createdAt;
+      const nextReminderDue = dayjs(lastReminded).add(5, "day");
+      const shouldRemindAgain = now.isAfter(nextReminderDue);
 
-      if (!allCoordinatorCommentsMissing) continue;
+      if (reminderCount >= 2 && shouldRemindAgain && !submission.studentNotified) {
+        await emailService.sendEmail({
+          to: student.email,
+          subject: `Coordinator Not Responding for "${submission.name}"`,
+          html: `<p>Your submission "${submission.name}" has not been approved by the coordinator even after 2 reminders.</p>
+                 <p>You can now choose to <strong>resend</strong> or <strong>delete</strong> the request.</p>`,
+          text: `Your submission "${submission.name}" is still awaiting coordinator approval.`,
+        });
 
-      const coordinatorEmail = reports[0]?.coordinatorEmail;
-      const studentEmail = reports[0]?.email;
+        await NotificationLog.create({
+          submissionId: submission._id,
+          type: "studentEscalation",
+          recipientEmail: student.email,
+          message: `Student notified about stalled coordinator approval for "${submission.name}"`,
+        });
 
-      const internship = await InternshipRequest.findOne({
-        email: studentEmail,
-      });
-      if (!internship || dayjs().isAfter(dayjs(internship.endDate))) continue;
+        submission.studentNotified = true;
+        await submission.save();
 
-      await emailService.sendEmail({
-        to: coordinatorEmail,
-        subject: `Reminder: Coordinator Review Pending (Weeks ${weeks.join(
-          ", "
-        )})`,
-        html: `<p>Supervisor has reviewed weeks <strong>${weeks.join(
-          ", "
-        )}</strong>.</p>
-               <p>Please add your coordinator comments in IPMS dashboard before the internship ends.</p>`,
-        text: `Reminder to review weeks ${weeks.join(", ")} as coordinator.`,
-      });
+        logger.info(`🔔 Escalation: student notified for "${submission.name}"`);
+      } else if (shouldRemindAgain) {
+        await emailService.sendEmail({
+          to: coordinator.email,
+          subject: `Reminder: Please Approve Submission "${submission.name}"`,
+          html: `<p>This is a reminder to review and approve the internship submission by ${submission.student_name}.</p>`,
+          text: `Reminder to approve submission "${submission.name}".`,
+        });
 
-      logger.info(
-        `[Reminder Sent] Coordinator: "${coordinatorEmail}" for weeks: ${weeks.join(
-          ", "
-        )}`
-      );
+        submission.coordinator_reminder_count = reminderCount + 1;
+        submission.last_coordinator_reminder_at = new Date();
+        await submission.save();
+
+        logger.info(`📧 Reminder sent to coordinator for "${submission.name}"`);
+      }
     }
   } catch (err) {
-    logger.error("[CoordinatorReminder Error]:", err.message || err);
+    logger.error("❌ Error in coordinatorReminder:", err.message);
   }
 };
 
-// Utility to get all forms of type A1, A2, A3
+// ================= Supervisor Reminder =================
 const getAllForms = async (filter = {}) => {
   const models = {
     A1: require("../models/InternshipRequest"),
@@ -67,24 +77,20 @@ const getAllForms = async (filter = {}) => {
     A3: require("../models/Evaluation"),
   };
 
-  const formPromises = Object.entries(models).map(
-    async ([form_type, Model]) => {
-      const results = await Model.find(filter);
-      return results;
-    }
-  );
+  const formPromises = Object.entries(models).map(async ([form_type, Model]) => {
+    return await Model.find(filter);
+  });
 
   const allResults = await Promise.all(formPromises);
   return allResults.flat();
 };
 
-// Supervisor reminder: weekly progress reports pending review
 const supervisorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDaysAgo = now.subtract(7, "day").toDate();
 
   try {
-    const pendingSubs = await Submission.find({
+    const pendingSubs = await getAllForms({
       supervisor_status: "pending",
       createdAt: { $lt: fiveWorkingDaysAgo },
     });
