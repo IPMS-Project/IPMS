@@ -4,11 +4,11 @@ const formMetadata = require("./FormMetadata");
 const weeklyReportSchema = new mongoose.Schema({
   ...formMetadata,
 
-  studentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserTokenRequest",
-    required: true,
-  },
+  // studentId: {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "UserTokenRequest",
+  //   required: true,
+  // },
 
   // New Fields from A1
   name: {

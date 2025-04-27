@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import dayjs from "dayjs";
 import "../styles/WeeklyProgressReportForm.css";
 
 const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
@@ -26,8 +27,9 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   });
 
   const [message, setMessage] = useState("");
+  const [startDate, setStartDate] = useState(null);
 
-  // Load report data in read-only mode
+  // Load report if read-only
   useEffect(() => {
     if (readOnly && reportId) {
       axios
@@ -40,17 +42,15 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             }));
           }
         })
-        .catch((err) => {
-          console.error("Failed to load report", err);
-        });
+        .catch((err) => console.error("Failed to load report", err));
     }
-  }, [readOnly, reportId]);   
+  }, [readOnly, reportId]);
 
-  // Auto-fill A1 data
+  // Fetch A1 Form
   useEffect(() => {
     const fetchA1Data = async () => {
       try {
-        const email = "vikash@example.com"; // TODO: replace with real session email
+        const email = "vikash@example.com"; // TODO: dynamic session email later
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`);
 
         if (res.data.success) {
@@ -62,6 +62,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             creditHours,
             completedHours,
             requiredHours,
+            startDate: fetchedStartDate,
           } = res.data.form;
 
           setFormData((prev) => ({
@@ -74,9 +75,11 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             completedHours,
             requiredHours: requiredHours || (creditHours ? creditHours * 60 : 0),
           }));
+
+          setStartDate(fetchedStartDate);
         }
       } catch (err) {
-        console.error("A1 form not found or failed to fetch.");
+        console.error("Failed to fetch A1 form:", err);
         setMessage("⚠️ You must submit the A1 form before submitting weekly reports.");
       }
     };
@@ -84,13 +87,35 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     if (!readOnly) fetchA1Data();
   }, [readOnly]);
 
+  // Auto-calculate current week
+  useEffect(() => {
+    if (startDate && !readOnly) {
+      const today = dayjs();
+      const start = dayjs(startDate);
+      const diffInDays = today.diff(start, "day");
+
+      if (diffInDays >= 0) {
+        const weekNumber = Math.floor(diffInDays / 7) + 1;
+        setFormData((prev) => ({
+          ...prev,
+          week: `Week ${weekNumber}`,
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          week: "Week 1",
+        }));
+      }
+    }
+  }, [startDate, readOnly]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     if (readOnly && !(role === "coordinator" && name === "coordinatorComments")) return;
 
     if (name === "hours") {
-      const num = parseInt(value);
+      const num = parseInt(value, 10);
       if (num > 40) return setFormData((prev) => ({ ...prev, hours: 40 }));
       if (num < 1 && value !== "") return setFormData((prev) => ({ ...prev, hours: 1 }));
     }
@@ -113,27 +138,31 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     try {
       const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, formData);
       setMessage(res.data.message || "Report submitted successfully!");
-      setFormData({
-        name: "",
-        email: "",
-        supervisorName: "",
-        supervisorEmail: "",
-        coordinatorName: "Naveena",
-        coordinatorEmail: "naveena.suddapalli-1@ou.edu",
-        creditHours: "",
-        completedHours: 0,
-        requiredHours: 0,
-        week: "",
-        hours: "",
-        tasks: "",
-        lessons: "",
-        supervisorComments: "",
-        coordinatorComments: "",
-      });
+      resetForm();
     } catch (err) {
       console.error(err);
       setMessage("Submission failed. Please try again.");
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      supervisorName: "",
+      supervisorEmail: "",
+      coordinatorName: "Naveena",
+      coordinatorEmail: "naveena.suddapalli-1@ou.edu",
+      creditHours: "",
+      completedHours: 0,
+      requiredHours: 0,
+      week: "",
+      hours: "",
+      tasks: "",
+      lessons: "",
+      supervisorComments: "",
+      coordinatorComments: "",
+    });
   };
 
   const handleCoordinatorSubmit = async () => {
@@ -162,11 +191,17 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
         {["name", "email", "supervisorName", "supervisorEmail", "coordinatorName", "coordinatorEmail"].map((field) => (
           <div className="form-group" key={field}>
             <label>{field.replace(/([A-Z])/g, " $1").replace("Email", "Email*").replace("Name", "Name*")}</label>
-            <input type={field.includes("Email") ? "email" : "text"} name={field} value={formData[field]} readOnly required />
+            <input
+              type={field.includes("Email") ? "email" : "text"}
+              name={field}
+              value={formData[field]}
+              readOnly
+              required
+            />
           </div>
         ))}
 
-        {/* Progress Display */}
+        {/* Progress Info */}
         {!readOnly && (
           <div className="form-group progress-info">
             <p><strong>Credit Hours:</strong> {formData.creditHours || "--"}</p>
@@ -174,10 +209,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             <p><strong>Completed Hours:</strong> {formData.completedHours || "--"}</p>
             {formData.requiredHours && (
               <>
-                <p>
-                  <strong>Progress:</strong>{" "}
-                  {Math.min(100, Math.round((formData.completedHours / formData.requiredHours) * 100))}%
-                </p>
+                <p><strong>Progress:</strong> {Math.min(100, Math.round((formData.completedHours / formData.requiredHours) * 100))}%</p>
                 <div className="progress-bar-outer">
                   <div
                     className="progress-bar-inner"
@@ -195,10 +227,18 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
         <div className="week-hours-row">
           <div className="form-group">
             <label>Week</label>
-            <select name="week" value={formData.week} onChange={handleChange} disabled={readOnly} required>
+            <select
+              name="week"
+              value={formData.week || ""}
+              onChange={handleChange}
+              disabled={readOnly}
+              required
+            >
               <option value="">-- Select Week --</option>
               {Array.from({ length: 15 }, (_, i) => (
-                <option key={i} value={`Week ${i + 1}`}>Week {i + 1}</option>
+                <option key={i} value={`Week ${i + 1}`}>
+                  Week {i + 1}
+                </option>
               ))}
             </select>
           </div>
@@ -219,7 +259,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
           </div>
         </div>
 
-        {/* Tasks & Lessons */}
+        {/* Tasks and Lessons */}
         {["tasks", "lessons"].map((field) => (
           <div className="form-group floating-label-group" key={field}>
             <textarea
@@ -250,9 +290,9 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
           </div>
         ))}
 
-        {/* Buttons */}
+        {/* Submit Buttons */}
         {readOnly && role === "coordinator" && (
-          <button className="submit-button" type="button" onClick={handleCoordinatorSubmit}>
+          <button type="button" className="submit-button" onClick={handleCoordinatorSubmit}>
             Submit Coordinator Comment
           </button>
         )}

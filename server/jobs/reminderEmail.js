@@ -8,7 +8,7 @@ const InternshipRequest = require("../models/InternshipRequest");
 const UserTokenRequest = require("../models/TokenRequest");
 const logger = require("../utils/logger");
 const dayjs = require("dayjs");
-
+//const emailService = require("../services/emailService");
 // Coordinator reminder: weekly report reviewed by supervisor but not yet commented by coordinator
 const coordinatorReminder = async () => {
   const now = dayjs();
@@ -194,8 +194,26 @@ const supervisorReminder = async () => {
     logger.error("[SupervisorReminder Error]:", err.message);
   }
 };
+const sendStudentProgressEmail = async ({ name, email, completedHours, remainingHours }) => {
+  try {
+    await emailService.sendEmail({
+      to: email,
+      subject: "Weekly Progress Update",
+      html: `<p>Hi ${name},</p>
+             <p>You have completed <strong>${completedHours}</strong> hours out of your required internship hours.</p>
+             <p>Remaining hours: <strong>${remainingHours}</strong>.</p>
+             <p>Keep up the good work!</p>`,
+      text: `Hi ${name}, you have completed ${completedHours} hours. Remaining: ${remainingHours} hours.`,
+    });
+
+    console.log(`[Email Sent] Progress email sent to ${email}`);
+  } catch (err) {
+    console.error("[Error sending student progress email]:", err.message);
+  }
+};
 
 module.exports = {
   coordinatorReminder,
   supervisorReminder,
+  sendStudentProgressEmail, 
 };
