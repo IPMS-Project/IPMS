@@ -8,7 +8,6 @@ const jobFunctions = {
   coordinatorApprovalReminder: coordinatorReminder,
   supervisorApprovalReminder: supervisorReminder,
   // Add future cron jobs here
-  supervisorApprovalReminder: supervisorReminder,  
   tokenExpiryReminder: checkAndSendReminders,
   autoDeactivateCronjobs: autoDeactivateCronjobs,
   // Add more job functions here as needed

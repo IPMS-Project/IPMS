@@ -78,6 +78,8 @@ function Home() {
             title: "Login Successful 🌟",
             text: `Welcome back, ${role}!`,
           });
+          const token = data.user.token;
+          localStorage.setItem("token", token);
           navigate("/supervisor-dashboard");
         }else{
           Swal.fire({
