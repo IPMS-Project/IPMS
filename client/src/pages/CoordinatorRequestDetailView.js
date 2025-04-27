@@ -65,10 +65,10 @@ const CoordinatorRequestDetailView = () => {
 
       <div className="dashboard-card">
         <p>
-          <b>Student:</b> {requestData.student?.fullName || "N/A"}
+          <b>Student:</b> {requestData.student?.name || "N/A"}
         </p>
         <p>
-          <b>Email:</b> {requestData.student?.ouEmail || "N/A"}
+          <b>Email:</b> {requestData.student?.email || "N/A"}
         </p>
         <p>
           <b>Company:</b> {requestData.workplace?.name || "N/A"}

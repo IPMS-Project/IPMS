@@ -2,7 +2,6 @@ const InternshipRequest = require("../models/InternshipRequest");
 const WeeklyReport = require("../models/WeeklyReport");
 const Evaluation = require("../models/Evaluation");
 const EmailService = require("../services/emailService");
-const UserTokenRequest = require("../models/TokenRequest");
 
 // =======================================
 //         Student-Side Controllers
@@ -10,9 +9,9 @@ const UserTokenRequest = require("../models/TokenRequest");
 
 const getStudentSubmissions = async (req, res) => {
   try {
-    const studentId = req.user._id;
+    const studentEmail = req.user.ouEmail;
     const submissions = await InternshipRequest.find({
-      student: studentId,
+      "student.email": studentEmail,
     }).sort({ createdAt: -1 });
     res.status(200).json(submissions);
   } catch (error) {
@@ -28,7 +27,7 @@ const deleteStudentSubmission = async (req, res) => {
     if (!submission)
       return res.status(404).json({ message: "Submission not found." });
 
-    if (submission.student.toString() !== req.user._id.toString()) {
+    if (submission.student.email !== req.user.ouEmail) {
       return res
         .status(403)
         .json({ message: "Unauthorized to delete this submission." });
@@ -52,7 +51,7 @@ const getPendingSubmissions = async (req, res) => {
   try {
     const pendingRequests = await InternshipRequest.find({
       supervisor_status: "pending",
-    }).populate("student", "fullName ouEmail");
+    });
     res.status(200).json(pendingRequests);
   } catch (err) {
     console.error("Error fetching pending submissions:", err);
@@ -125,7 +124,7 @@ const getCoordinatorRequests = async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
       coordinator_status: "pending",
-    }).populate("student", "fullName email");
+    });
     res.status(200).json(requests);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch internship requests." });
@@ -134,9 +133,7 @@ const getCoordinatorRequests = async (req, res) => {
 
 const getCoordinatorRequestDetails = async (req, res) => {
   try {
-    const requestData = await InternshipRequest.findById(req.params.id)
-      .populate("student", "fullName ouEmail")
-      .lean();
+    const requestData = await InternshipRequest.findById(req.params.id).lean();
     if (!requestData)
       return res.status(404).json({ message: "Request not found." });
 
@@ -149,10 +146,7 @@ const getCoordinatorRequestDetails = async (req, res) => {
 
 const coordinatorApproveRequest = async (req, res) => {
   try {
-    const request = await InternshipRequest.findById(req.params.id).populate(
-      "student",
-      "fullName email"
-    );
+    const request = await InternshipRequest.findById(req.params.id);
     if (!request)
       return res.status(404).json({ message: "Request not found." });
 
@@ -179,10 +173,7 @@ const coordinatorRejectRequest = async (req, res) => {
     return res.status(400).json({ message: "Rejection reason required." });
 
   try {
-    const request = await InternshipRequest.findById(req.params.id).populate(
-      "student",
-      "fullName email"
-    );
+    const request = await InternshipRequest.findById(req.params.id);
     if (!request)
       return res.status(404).json({ message: "Request not found." });
 
@@ -250,7 +241,6 @@ const approveJobEvaluation = async (req, res) => {
     evaluation.updatedAt = new Date();
     await evaluation.save();
 
-    // Send A3 Final Form to Student (for Canvas)
     await EmailService.sendEmail({
       to: evaluation.interneeEmail,
       subject: "Your Job Evaluation (Form A3) is Approved!",

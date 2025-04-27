@@ -120,7 +120,7 @@ const CoordinatorDashboard = () => {
               <tbody>
                 {requests.map((req) => (
                   <tr key={req._id}>
-                    <td>{req.student?.fullName || "-"}</td>
+                    <td>{req.student?.name || "-"}</td>
                     <td>{req.workplace?.name || "-"}</td>
                     <td>{req.coordinator_status || "-"}</td>
                     <td>
