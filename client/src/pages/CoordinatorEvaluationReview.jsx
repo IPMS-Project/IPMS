@@ -1,40 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/CoordinatorRequestDetailView.css"; // Reuse same styling
+import "../styles/CoordinatorRequestDetailView.css";
 
-const CoordinatorRequestDetailView = () => {
+const CoordinatorEvaluationReview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [requestData, setRequestData] = useState(null);
-  const [supervisorStatus, setSupervisorStatus] = useState(null);
+  const [evaluation, setEvaluation] = useState(null);
 
   useEffect(() => {
-    fetchRequestDetails();
+    fetchEvaluationDetails();
   }, [id]);
 
-  const fetchRequestDetails = async () => {
+  const fetchEvaluationDetails = async () => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}`
+        `${process.env.REACT_APP_API_URL}/api/coordinator/evaluations`
       );
-      setRequestData(res.data.requestData);
-      setSupervisorStatus(res.data.supervisorStatus);
+      const matchedEvaluation = res.data.find((form) => form._id === id);
+      setEvaluation(matchedEvaluation || null);
     } catch (err) {
-      console.error("Error fetching request details:", err);
+      console.error("Error fetching evaluation form:", err);
     }
   };
 
   const handleApprove = async () => {
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}/approve`
+        `${process.env.REACT_APP_API_URL}/api/coordinator/evaluation/${id}/approve`
       );
       alert(res.data.message);
       navigate("/coordinator-dashboard");
     } catch (err) {
-      console.error("Approval failed:", err);
-      alert("Error approving the request.");
+      console.error("Error approving evaluation:", err);
+      alert("Error approving evaluation form.");
     }
   };
 
@@ -46,50 +45,46 @@ const CoordinatorRequestDetailView = () => {
     }
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}/reject`,
+        `${process.env.REACT_APP_API_URL}/api/coordinator/evaluation/${id}/reject`,
         { reason }
       );
       alert(res.data.message);
       navigate("/coordinator-dashboard");
     } catch (err) {
-      console.error("Rejection failed:", err);
-      alert("Error rejecting the request.");
+      console.error("Error rejecting evaluation:", err);
+      alert("Error rejecting evaluation form.");
     }
   };
 
-  if (!requestData) return <h2>Loading request details...</h2>;
+  if (!evaluation) return <h2>Loading evaluation details...</h2>;
 
   return (
     <div className="request-form">
-      <h2 className="dashboard-title">Internship Request Details</h2>
+      <h2 className="dashboard-title">Job Evaluation (Form A3) Review</h2>
 
       <div className="dashboard-card">
         <p>
-          <b>Student:</b> {requestData.student?.fullName || "N/A"}
+          <b>Internee Name:</b> {evaluation.interneeName}
         </p>
         <p>
-          <b>Email:</b> {requestData.student?.ouEmail || "N/A"}
-        </p>
-        <p>
-          <b>Company:</b> {requestData.workplace?.name || "N/A"}
-        </p>
-        <p>
-          <b>Supervisor Status:</b> {supervisorStatus}
+          <b>Internee Email:</b> {evaluation.interneeEmail}
         </p>
 
-        <h3 className="section-title">Tasks & CS Outcomes</h3>
+        <h3 className="section-title">Evaluation Categories</h3>
         <table className="data-table">
           <thead>
             <tr>
-              <th>Task</th>
-              <th>Outcomes</th>
+              <th>Category</th>
+              <th>Rating</th>
+              <th>Comments</th>
             </tr>
           </thead>
           <tbody>
-            {requestData.tasks.map((task, idx) => (
+            {evaluation.evaluations.map((item, idx) => (
               <tr key={idx}>
-                <td>{task.description}</td>
-                <td>{task.outcomes?.join(", ") || "N/A"}</td>
+                <td>{item.category}</td>
+                <td>{item.rating}</td>
+                <td>{item.comment || "N/A"}</td>
               </tr>
             ))}
           </tbody>
@@ -117,4 +112,4 @@ const CoordinatorRequestDetailView = () => {
   );
 };
 
-export default CoordinatorRequestDetailView;
+export default CoordinatorEvaluationReview;

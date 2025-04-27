@@ -24,6 +24,7 @@ import SubmittedReports from "./pages/SubmittedReports";
 import CumulativeReviewForm from "./pages/CumulativeReviewForm";
 import CoordinatorReviewForm from "./pages/CoordinatorReviewForm";
 import CoordinatorCumulativeReviewForm from "./pages/CoordinatorCumulativeReviewForm";
+import CoordinatorEvaluationReview from "./pages/CoordinatorEvaluationReview";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -111,6 +112,10 @@ const router = createBrowserRouter([
       {
         path: "weekly-report/:groupIndex/week-:weekNumber/:studentName",
         element: <Home />,
+      },
+      {
+        path: "coordinator/evaluation/:id",
+        element: <CoordinatorEvaluationReview />,
       },
     ],
   },
