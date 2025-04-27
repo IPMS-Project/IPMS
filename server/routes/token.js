@@ -276,8 +276,8 @@ router.post("/renew", async (req, res) => {
       return res.status(400).json({ message: "Token is required." });
     }
 
-    const hashedToken = hashToken(token);
-    const user = await TokenRequest.findOne({ token: hashedToken });
+    // const hashedToken = hashToken(token);
+    const user = await TokenRequest.findOne({ token: token });
 
     if (!user) {
       return res.status(404).json({ message: "Token not found." });
