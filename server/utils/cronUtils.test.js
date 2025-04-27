@@ -1,7 +1,16 @@
 const cron = require("node-cron");
 const logger = require("./logger");
 const cronJobManager = require("./cronUtils");
-	@@ -15,135 +14,86 @@ jest.mock("./logger", () => ({
+
+jest.mock("node-cron", () => ({
+  validate: jest.fn(),
+  schedule: jest.fn(),
+}));
+
+jest.mock("./logger", () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
 }));
 
 describe("cronUtils", () => {
