@@ -75,7 +75,6 @@ describe("cronUtils", () => {
       "Invalid cron expression: invalid"
     );
   });
-
   test("should stop a specific job", () => {
     cron.validate.mockReturnValue(true);
     const stopFn = jest.fn();

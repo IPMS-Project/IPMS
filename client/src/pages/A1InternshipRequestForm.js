@@ -128,6 +128,17 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     }
   };
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("ipmsUser"));
+    if (storedUser) {
+      setFormData((prev) => ({
+        ...prev,
+        interneeName: storedUser.fullName || "",
+        interneeEmail: storedUser.email || ""
+      }));
+    }
+  }, []);
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -252,41 +263,12 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   const submitFormData = async () => {
     try {
-      // Fetch logged-in student ID from localStorage or context
-      const studentId = localStorage.getItem("studentId"); // You must store this during login
-  
-      const payload = {
-        student: studentId,
-        workplace: {
-          name: formData.workplaceName,
-          website: formData.website,
-          phone: formData.phone
-        },
-        internshipAdvisor: {
-          name: formData.advisorName,
-          jobTitle: formData.advisorJobTitle,
-          email: formData.advisorEmail
-        },
-        creditHours: parseInt(formData.creditHours),
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        tasks: formData.tasks,
-        status: "submitted",
-        approvals: ["advisor"]
-      };
-  
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/form/submit`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-  
-      if (!response.ok) {
-        throw new Error("Failed to submit form", { cause: response });
-      }
-  
+      if (!response.ok) throw new Error("Failed to submit form");
       const data = await response.json();
       return data;
     } catch (error) {
@@ -294,7 +276,6 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
       throw error;
     }
   };
-  
 
   const sendTaskDescriptions = async (descriptions) => {
     try {
@@ -379,7 +360,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   id="interneeName" 
                   value={formData.interneeName} 
                   onChange={handleInputChange} 
-                  disabled={!isFieldEditable("interneeName")} 
+                  // disabled={!isFieldEditable("interneeName")} 
+                  disabled
                 />
                 {errors.interneeName && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeName}</div>}
               </td>
@@ -448,7 +430,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   id="interneeEmail" 
                   value={formData.interneeEmail} 
                   onChange={handleInputChange} 
-                  disabled={!isFieldEditable("interneeEmail")} 
+                  disabled
+                  // disabled={!isFieldEditable("interneeEmail")} 
                 />
                 {errors.interneeEmail && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeEmail}</div>}
               </td>
