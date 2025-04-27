@@ -1,7 +1,7 @@
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
 const CoordinatorReview = require("../models/CoordinatorReview");
-const InternshipRequest = require("../models/internshiprequest");
+const InternshipRequest = require("../models/InternshipRequest");
 const { sendStudentProgressEmail } = require("../jobs/reminderEmail");
 
 const STATIC_USER_ID = "vikash123";
