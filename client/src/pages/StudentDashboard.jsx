@@ -4,34 +4,33 @@ import "../styles/StudentDashboard.css"; // Make sure you create this CSS
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
-
   const user = JSON.parse(localStorage.getItem("ipmsUser"));
+  const backendUrl = process.env.REACT_APP_API_URL;
   const ouEmail = user?.email;
+
   const [approvalStatus, setApprovalStatus] = useState("not_submitted");
+  const [submissions, setSubmissions] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchStatus = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/student`, {
+        const res = await fetch(`${backendUrl}/api/student`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ouEmail }),
         });
-
         const data = await res.json();
         setApprovalStatus(data.approvalStatus);
       } catch (err) {
-        console.error("Error fetching internship data", err);
+        console.error("Error fetching approval status", err);
       }
     };
 
-    if (ouEmail) {
-      fetchData();
-    }
-  }, [ouEmail]);
-  console.log(approvalStatus);
+    if (ouEmail) fetchStatus();
+  }, [ouEmail, backendUrl]);
 
   useEffect(() => {
     const fetchSubmissions = async () => {
