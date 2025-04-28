@@ -1,7 +1,5 @@
 const CronJob = require("../models/CronJob");
-const { coordinatorReminder, supervisorReminder } = require("./reminderEmail");
-const { checkAndSendReminders } = require("./tokenExpiryCheck");
-const autoDeactivateCronjobs = require("./autoDeactivateCronjobs");
+const { coordinatorReminder, supervisorReminder, evaluationReminder } = require("./reminderEmail");
 
 // Map of job names to actual handler functions
 const jobFunctions = {
@@ -9,8 +7,7 @@ const jobFunctions = {
   supervisorApprovalReminder: supervisorReminder,
   // Add future cron jobs here
   supervisorApprovalReminder: supervisorReminder,  
-  tokenExpiryReminder: checkAndSendReminders,
-  autoDeactivateCronjobs: autoDeactivateCronjobs,
+  evaluationReminderJob: evaluationReminder,
   // Add more job functions here as needed
 };
 

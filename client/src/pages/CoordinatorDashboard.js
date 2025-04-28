@@ -25,10 +25,19 @@ const CoordinatorDashboard = () => {
       setLoadingRequests(false);
     }
   };
-  // Group D's Weekly Report Review Logic
 
-  const [reportGroups, setReportGroups] = useState([]);
-  const [loadingReports, setLoadingReports] = useState(true);
+  const approveForm = async (formId) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/approval/form/${formId}/approve`
+      );
+      alert("Form approved successfully!");
+      fetchRequests(); // refresh the list after approving
+    } catch (err) {
+      console.error("Failed to approve form:", err);
+      alert("Failed to approve form!");
+    }
+  };
 
   useEffect(() => {
     if (activeTab === "reports") {
@@ -69,53 +78,28 @@ const CoordinatorDashboard = () => {
         <button onClick={() => setActiveTab("reports")} className={activeTab === "reports" ? "active" : ""}>Weekly Reports Review</button>
       </div>
 
-      {/* Tab: Internship Requests */}
-      {activeTab === "requests" && (
-        <>
-          {loadingRequests ? <p>Loading...</p> : (
-            <table className="dashboard-table">
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>Student ID</th>
-                  <th>Company</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {requests.map(req => (
-                  <tr key={req._id}>
-                    <td>{req.studentName}</td>
-                    <td>{req.studentId}</td>
-                    <td>{req.companyName}</td>
-                    <td>{req.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </>
-      )}
-
-      {/* Tab: Weekly Reports Review */}
-      {activeTab === "reports" && (
-        <>
-          {loadingReports ? <p>Loading reports...</p> : (
-            reportGroups.length === 0
-              ? <p>No reports to review</p>
-              : reportGroups.map(group => (
-                <div className="report-group-card" key={group.groupIndex}>
-                  <h4>Weeks: {group.weeks?.join(", ")}</h4>
-                  <ul>
-                    {group.reports.map((r, i) => (
-                      <li key={i}>Week {r.week} — Hours: {r.hours} — Tasks: {r.tasks}</li>
-                    ))}
-                  </ul>
-                  <button onClick={() => handleReviewClick(group)}>Review & Comment</button>
-                </div>
-              ))
-          )}
-        </>
+      {requests.length === 0 ? (
+        <p>No Pending Requests</p>
+      ) : (
+        requests.map((req) => (
+          <div key={req._id} className="request-card">
+            <p>Company: {req.workplace.name}</p>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                className="btn-approve"
+                onClick={() => approveForm(req._id)}
+              >
+                Approve
+              </button>
+              <button
+                className="btn-view"
+                onClick={() => navigate(`/coordinator/request/${req._id}`)}
+              >
+                View Details
+              </button>
+            </div>
+          </div>
+        ))
       )}
     </div>
   );
