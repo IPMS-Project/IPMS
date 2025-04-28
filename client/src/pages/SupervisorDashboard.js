@@ -23,30 +23,30 @@ const SupervisorDashboard = () => {
             },
         });
 
-          const formatted = response.data.map(item => ({
-              _id: item._id,
-              interneeName: item.student?.fullName || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
-              interneeEmail: item.student?.ouEmail || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
-              form_type: item.form_type,
-              createdAt: item.createdAt || item.submittedAt,
-              supervisor_status: item.supervisor_status || "pending",
-              fullForm: item,
-              workplace: {
-                  name: item.workplace?.name || "N/A",
-                  website: item.workplace?.website || "N/A",
-                  phone: item.workplace?.phone || "N/A",
-              },
-              internshipAdvisor: {
-                name: item.internshipAdvisor?.name || "N/A",
-                jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
-                email: item.internshipAdvisor?.email || "N/A",
-            },
-            creditHours: item.creditHours || 0,
-            startDate: item.startDate || "N/A",
-            endDate: item.endDate || "N/A",
-            tasks: item.tasks || [],
-            status: item.status || "pending",
-            supervisor_comment: item.supervisor_comment || "N/A"
+        const formatted = response.data.map(item => ({
+          _id: item._id,
+          interneeName: item.student?.fullName || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
+          interneeEmail: item.student?.ouEmail || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
+          form_type: item.form_type,
+          createdAt: item.createdAt || item.submittedAt,
+          supervisor_status: item.supervisor_status || "pending",
+          fullForm: item,
+          workplace: {
+            name: item.workplace?.name || "N/A",
+            website: item.workplace?.website || "N/A",
+            phone: item.workplace?.phone || "N/A",
+          },
+          internshipAdvisor: {
+            name: item.internshipAdvisor?.name || "N/A",
+            jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
+            email: item.internshipAdvisor?.email || "N/A",
+          },
+          creditHours: item.creditHours || 0,
+          startDate: item.startDate || "N/A",
+          endDate: item.endDate || "N/A",
+          tasks: item.tasks || [],
+          status: item.status || "pending",
+          supervisor_comment: item.supervisor_comment || "N/A"
         }));
 
         setLoading(false);

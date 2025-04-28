@@ -197,7 +197,6 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
         <tbody>
           <tr>
             <td><strong>Name:</strong> <p>{formData.interneeName || "N/A"}</p></td>
-            <td></td>
             <td><strong>Email:</strong> <p>{formData.interneeEmail || "N/A"}</p></td>
           </tr>
           <tr>
@@ -258,6 +257,7 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
       </table>
     </>
   );
+  console.log("A3 Data: ", formData);
 
   const renderSignaturesAndActions = () => (
     <>
