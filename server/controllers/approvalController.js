@@ -1,6 +1,5 @@
 const InternshipRequest = require("../models/InternshipRequest");
-const WeeklyReport = require("../models/WeeklyReport");
-const Evaluation = require("../models/Evaluation");
+const Evaluation = require("../models/Evaluation"); // 🔥 Added for Form A.3 approval
 const EmailService = require("../services/emailService");
 const UserTokenRequest = require("../models/TokenRequest");
 
@@ -215,6 +214,32 @@ exports.coordinatorRejectRequest = async (req, res) => {
 
     res.json({ message: "Request Rejected Successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Rejection failed", error: err.message });
+    res.status(500).json({ message: "Rejection failed" });
+  }
+};
+
+// Coordinator Approval for Form A.3
+exports.approveFormA3 = async (req, res) => {
+  try {
+    const { formId } = req.params;
+
+    const form = await Evaluation.findById(formId);
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    if (form.status === "approved") {
+      return res.status(400).json({ message: "Form already approved" });
+    }
+
+    form.status = "approved";
+    form.approvedAt = new Date();
+    await form.save();
+
+    res.status(200).json({ message: "Form A.3 approved successfully." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
   }
 };
