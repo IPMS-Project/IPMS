@@ -160,6 +160,17 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     }
   };
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("ipmsUser"));
+    if (storedUser) {
+      setFormData((prev) => ({
+        ...prev,
+        interneeName: storedUser.fullName || "",
+        interneeEmail: storedUser.email || ""
+      }));
+    }
+  }, []);
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -427,12 +438,13 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
             <tr>
               <td colSpan="3">
                 Name<span className="required-asterisk">*</span>:<br />
-                <input
-                  type="text"
-                  id="interneeName"
-                  value={formData.interneeName}
-                  onChange={handleInputChange}
-                  disabled={isFieldEditable("interneeName")}
+                <input 
+                  type="text" 
+                  id="interneeName" 
+                  value={formData.interneeName} 
+                  onChange={handleInputChange} 
+                  // disabled={!isFieldEditable("interneeName")} 
+                  disabled
                 />
                 {errors.interneeName && (
                   <div style={{ color: "red", fontSize: "0.8rem" }}>
@@ -518,12 +530,13 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
             <tr>
               <td colSpan="3">
                 Email<span className="required-asterisk">*</span>:<br />
-                <input
-                  type="email"
-                  id="interneeEmail"
-                  value={formData.interneeEmail}
-                  onChange={handleInputChange}
-                  disabled={isFieldEditable("interneeEmail")}
+                <input 
+                  type="email" 
+                  id="interneeEmail" 
+                  value={formData.interneeEmail} 
+                  onChange={handleInputChange} 
+                  disabled
+                  // disabled={!isFieldEditable("interneeEmail")} 
                 />
                 {errors.interneeEmail && (
                   <div style={{ color: "red", fontSize: "0.8rem" }}>
