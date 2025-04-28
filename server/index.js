@@ -18,6 +18,8 @@ const outcomeRoutes = require("./routes/outcomeRoutes");
 const cronJobManager = require("./utils/cronUtils").cronJobManager;
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
+
+
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
 const path = require("path");
 
@@ -45,6 +47,10 @@ mongoose
     try {
       await registerAllJobs();
       console.log("Cron jobs initialized successfully");
+
+       // ✅ Register your coordinator reminder job here
+      const { registerCoordinatorReminderJob } = require("./utils/reminderCoordinatorUtils");
+      registerCoordinatorReminderJob();
     } catch (error) {
       console.error("Failed to initialize cron jobs:", error);
     }
