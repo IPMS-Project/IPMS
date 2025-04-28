@@ -104,9 +104,16 @@ app.post("/api/evaluation", async (req, res) => {
     //check if there's an existing evaluation for the given interneeID and email
     const existingEvaluation = await Evaluation.findOne({ interneeID, interneeEmail });
 
-    //if evaluation is locked, prevent update
-    if (existingEvaluation && existingEvaluation.locked) {
-      return res.status(400).json({ error: "Evaluation is locked and cannot be modified." });
+    if (existingEvaluation) {
+      //If evaluation is locked, prevent update
+      if (existingEvaluation.locked) {
+        return res.status(400).json({ error: "Evaluation is locked and cannot be modified." });
+      }
+    
+      //If evaluation is not in 'draft' status, prevent update
+      if (existingEvaluation.status !== 'draft') {
+        return res.status(400).json({ error: "This evaluation has already been finalized and cannot be modified." });
+      }
     }
     
     const evaluations = Object.keys(ratings).map((category) => ({
@@ -124,7 +131,7 @@ app.post("/api/evaluation", async (req, res) => {
       coordinatorSignature,
       coordinatorAgreement,
       evaluations,
-      locked: false, //set to false initially
+      locked: true,
     });
 
     await newEvaluation.save();

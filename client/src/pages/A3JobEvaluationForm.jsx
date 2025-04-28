@@ -9,6 +9,7 @@ import {
   Modal,
   Tab,
   Nav,
+  Alert,
 } from "react-bootstrap";
 import SignatureCanvas from "react-signature-canvas";
 import "../styles/A3JobEvaluationForm.css";
@@ -45,6 +46,7 @@ const A3JobEvaluationForm = () => {
     supervisorAgreement: false,
     coordinatorSignature: "",
     coordinatorAgreement: false,
+    locked: false, 
   });
   const [supervisorDetails, setSupervisorDetails] = useState(null);
   const [errors, setErrors] = useState({});
