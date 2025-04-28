@@ -1,13 +1,12 @@
 const mongoose = require("mongoose");
-const InternshipRequest = require("../server/models/InternshipRequest"); 
-const User = require("../server/models/User"); // Make sure User model is imported properly
-const Submission = require("../server/models/Submission");
+const InternshipRequest = require("../models/InternshipRequest"); 
+const User = require("../models/User"); 
+const Submission = require("../models/Submission");
 
 async function insertFormData(formData) {
   try {
     console.log("Received Form Data:\n", JSON.stringify(formData, null, 2));
 
-    // Dynamically find the student based on email
     const student = await User.findOne({ email: formData.email });
 
     if (!student) {
@@ -15,7 +14,7 @@ async function insertFormData(formData) {
     }
 
     const formattedData = {
-      student: student._id,  // ✅ Real user's ID from database
+      student: student._id,
       workplace: {
         name: formData.workplaceName,
         website: formData.website,
