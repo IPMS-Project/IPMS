@@ -91,7 +91,7 @@ const SignatureInput = ({ id, value, onChange, disabled, placeholder }) => {
 const A1InternshipRequestForm = ({ userRole = "student" }) => {
   const initialState = {
     interneeName: "",
-    soonerId: "",
+    // soonerId: "",
     interneeEmail: "",
     workplaceName: "",
     website: "",
@@ -102,8 +102,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     advisorJobTitle: "",
     advisorEmail: "",
     interneeSignature: "",
-    advisorSignature: "",
-    coordinatorApproval: "",
+    // advisorSignature: "",
+    // coordinatorApproval: "",
     creditHours: "",
     tasks: Array(5).fill({ description: "", outcomes: [] }), // Updated for outcomes
     supervisorComments: "",
@@ -223,15 +223,15 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   const validateForm = () => {
     const namePattern = /^[A-Za-z\s]+$/;
-    const numberPattern = /^[0-9]+$/;
+    // const numberPattern = /^[0-9]+$/;
     const phonePattern = /^[0-9]{10}$/;
     const emailPattern = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
     const newErrors = {};
 
     if (!formData.interneeName) newErrors.interneeName = "Internee name is required";
     else if (!namePattern.test(formData.interneeName)) newErrors.interneeName = "Name should contain only letters and spaces";
-    if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
-    else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
+    //if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
+    //else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
     if (!formData.interneeEmail) newErrors.interneeEmail = "Email is required";
     else if (!emailPattern.test(formData.interneeEmail)) newErrors.interneeEmail = "Invalid email format";
     if (!formData.workplaceName) newErrors.workplaceName = "Workplace name is required";
@@ -247,12 +247,12 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     else if (!emailPattern.test(formData.advisorEmail)) newErrors.advisorEmail = "Invalid supervisor email format";
     if (!formData.interneeSignature) newErrors.interneeSignature = "Internee signature is required";
     else if (!namePattern.test(formData.interneeSignature)) newErrors.interneeSignature = "Signature should contain only letters and spaces";
-    if (formData.advisorSignature && !namePattern.test(formData.advisorSignature)) {
-      newErrors.advisorSignature = "Signature should contain only letters and spaces";
-    }
-    if (formData.coordinatorApproval && !namePattern.test(formData.coordinatorApproval)) {
-      newErrors.coordinatorApproval = "Approval should contain only letters and spaces";
-    }
+    // if (formData.advisorSignature && !namePattern.test(formData.advisorSignature)) {
+    //   newErrors.advisorSignature = "Signature should contain only letters and spaces";
+    // }
+    // if (formData.coordinatorApproval && !namePattern.test(formData.coordinatorApproval)) {
+    //   newErrors.coordinatorApproval = "Approval should contain only letters and spaces";
+    // }
     if (!formData.creditHours) newErrors.creditHours = "Please select credit hours";
     const tasksFilled = formData.tasks.filter((task) => task.description.trim() !== "").length >= 3;
     if (!tasksFilled) newErrors.tasks = "At least 3 tasks are required";
@@ -389,7 +389,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
               </td>
             </tr>
             <tr>
-              <td colSpan="3">
+              {/* <td colSpan="3">
                 Sooner ID<span className="required-asterisk">*</span>:<br />
                 <input 
                   type="text" 
@@ -399,7 +399,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   disabled={!isFieldEditable("soonerId")} 
                 />
                 {errors.soonerId && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.soonerId}</div>}
-              </td>
+              </td> */}
               <td colSpan="3">
                 Website:<br />
                 <input 
@@ -559,7 +559,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
         <table>
           <tbody>
             <tr>
-              <td className="signature-cell" colSpan="3">
+              <td className="signature-cell" colSpan="1">
                 Internee Signature<span className="required-asterisk">*</span>:<br />
                 <div className="signature-field">
                   <SignatureInput 
@@ -572,7 +572,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                 </div>
                 {errors.interneeSignature && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeSignature}</div>}
               </td>
-              <td className="signature-cell" colSpan="3">
+              {/* <td className="signature-cell" colSpan="3">
                 Internship Supervisor Signature:<br />
                 <div className="signature-field">
                   <SignatureInput 
@@ -584,8 +584,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   />
                 </div>
                 {errors.advisorSignature && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.advisorSignature}</div>}
-              </td>
-              <td className="signature-cell" colSpan="2">
+              </td> */}
+              {/* <td className="signature-cell" colSpan="2">
                 Internship Coordinator Approval:<br />
                 <div className="signature-field">
                   <SignatureInput 
@@ -597,7 +597,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   />
                 </div>
                 {errors.coordinatorApproval && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.coordinatorApproval}</div>}
-              </td>
+              </td> */}
             </tr>
             {/* <tr>
               <td colSpan="3">
