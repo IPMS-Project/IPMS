@@ -9,6 +9,7 @@ import {
   Modal,
   Tab,
   Nav,
+  Alert,
 } from "react-bootstrap";
 import SignatureCanvas from "react-signature-canvas";
 import "../styles/A3JobEvaluationForm.css";
@@ -41,22 +42,24 @@ const A3JobEvaluationForm = () => {
     interneeName: "",
     interneeID: "",
     interneeEmail: "",
-    advisorSignature: "",
-    advisorAgreement: false,
+    supervisorSignature: "",
+    supervisorAgreement: false,
     coordinatorSignature: "",
     coordinatorAgreement: false,
+    locked: false, //not locked with fresh form
   });
+  const [supervisorDetails, setSupervisorDetails] = useState(null);
   const [errors, setErrors] = useState({});
-
+  
   // Ratings and comments
   const [ratings, setRatings] = useState({});
   const [comments, setComments] = useState({});
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
-  const [activeSignatureTarget, setActiveSignatureTarget] = useState("advisor");
+  const [activeSignatureTarget, setActiveSignatureTarget] = useState("supervisor");
   const [typedSignatures, setTypedSignatures] = useState({
-    advisor: "",
+    supervisor: "",
     coordinator: "",
   });
   const [selectedFont, setSelectedFont] = useState(fonts[0]);
@@ -68,7 +71,7 @@ const A3JobEvaluationForm = () => {
     if (!formData.interneeName?.trim()) newErrors.interneeName = "Name is required.";
     if (!/^\d{9}$/.test(formData.interneeID || "")) newErrors.interneeID = "Enter a valid 9-digit Sooner ID.";
     if (!/\S+@\S+\.\S+/.test(formData.interneeEmail || "")) newErrors.interneeEmail = "Invalid email.";
-    if (!formData.advisorSignature) newErrors.advisorSignature = "Signature is required.";
+    if (!formData.supervisorSignature) newErrors.supervisorSignature = "Signature is required.";
     if (!formData.coordinatorSignature) newErrors.coordinatorSignature = "Signature is required.";
     evaluationItems.forEach((item) => {
       if (!ratings[item]) {
@@ -109,8 +112,8 @@ const A3JobEvaluationForm = () => {
   // Handle inserting signature from modal
   const handleSignatureInsert = () => {
     const targetField =
-      activeSignatureTarget === "advisor"
-        ? "advisorSignature"
+      activeSignatureTarget === "supervisor"
+        ? "supervisorSignature"
         : "coordinatorSignature";
     if (activeTab === "type" && typedSignatures[activeSignatureTarget].trim()) {
       //handleChange(targetField, JSON.stringify({ type: 'text', value: typedSignatures[activeSignatureTarget], font: selectedFont }));
@@ -143,10 +146,24 @@ const A3JobEvaluationForm = () => {
   // Submit the form to the backend
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm() || !formData.advisorAgreement || !formData.coordinatorAgreement) {
+  
+    if (!validateForm() || !formData.supervisorAgreement || !formData.coordinatorAgreement) {
       alert("Please confirm internee details and both signature agreements before submitting.");
       return;
     }
+  
+    // ✅ Build evaluations array with ALL 9 ITEMS
+    const evaluations = evaluationItems.slice(0, 3).map((item) => ({
+      category: item,
+      rating: ratings[item],
+      comment: comments[item] || ""
+    }));
+    
+    if (evaluations.length !== 3 || evaluations.some(ev => !ev.rating)) {
+      alert("Please complete ratings for the required 3 evaluation items before submitting.");
+      return;
+    }
+  
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/evaluation`, 
@@ -157,29 +174,32 @@ const A3JobEvaluationForm = () => {
             interneeName: formData.interneeName,
             interneeID: formData.interneeID,
             interneeEmail: formData.interneeEmail,
-            advisorSignature: formData.advisorSignature,
+            supervisorSignature: formData.supervisorSignature,
+            supervisorAgreement: formData.supervisorAgreement,
             coordinatorSignature: formData.coordinatorSignature,
-            advisorAgreement: formData.advisorAgreement,
             coordinatorAgreement: formData.coordinatorAgreement,
-            ratings,
-            comments,
+            evaluations,
+            locked: true,   // 🔥 ADD THIS LINE
           }),
-        }
+        }      
       );
+      
       if (response.ok) {
         alert("Evaluation submitted successfully!");
+        // Reset form fields
         setFormData({
           interneeName: "", 
           interneeID: "",
           interneeEmail: "",
-          advisorSignature: "",
-          advisorAgreement: false,
+          supervisorSignature: "",
+          supervisorAgreement: false,
           coordinatorSignature: "",
           coordinatorAgreement: false,
+          locked: true,
         });
         setRatings({});
         setComments({});
-        setTypedSignatures({ advisor: "", coordinator: "" });
+        setTypedSignatures({ supervisor: "", coordinator: "" });
         sigCanvasRef.current?.clear();
       } else {
         const err = await response.json();
@@ -191,6 +211,7 @@ const A3JobEvaluationForm = () => {
       console.error(err);
     }
   };
+  
 
   // Show preview of signature (text or image)
   const renderSignaturePreview = (field) => {
@@ -231,29 +252,44 @@ const A3JobEvaluationForm = () => {
         style={{ backgroundColor: "#fff", maxWidth: "900px", width: "100%" }}
       >
         <Form onSubmit={handleSubmit}>
-          <Row className="justify-content-center">
+          <Row className="justify-content-center" style={{ marginBottom: "20px" }}>
             <Col xs={12}> 
             <div className="border-box">
               <h5 style={{ backgroundColor: '#9d2235', color: 'white', padding: '8px', borderRadius: '5px', textAlign: "center", width: '100%',}}>Internee Details</h5>
                 <Form.Group controlId="interneeName">
                   <Form.Label>Name</Form.Label>
-                  <Form.Control type="text" value={formData.interneeName} onChange={(e) => handleChange("interneeName", e.target.value)} isInvalid={!!errors.interneeName} placeholder="Enter full name" style={{ maxWidth: "300px" }}/>
+                  <Form.Control type="text" value={formData.interneeName} onChange={(e) => handleChange("interneeName", e.target.value)} isInvalid={!!errors.interneeName} placeholder="Enter full name" style={{ maxWidth: "300px" }} disabled={formData.locked}/> 
                   <Form.Text className="text-danger">{errors.interneeName}</Form.Text>
-                  
                 </Form.Group>
                 <Form.Group controlId="interneeID">
                   <Form.Label>Sooner ID</Form.Label>
-                  <Form.Control type="text" maxLength={9} value={formData.interneeID} onChange={(e) => handleChange("interneeID", e.target.value)} isInvalid={!!errors.interneeID} placeholder="Enter 9-digit student ID" style={{ maxWidth: "300px" }}/>
+                  <Form.Control type="text" maxLength={9} value={formData.interneeID} onChange={(e) => handleChange("interneeID", e.target.value)} isInvalid={!!errors.interneeID} placeholder="Enter 9-digit student ID" style={{ maxWidth: "300px" }} disabled={formData.locked}/>
                   <Form.Text className="text-danger">{errors.interneeID}</Form.Text>
                 </Form.Group>
                 <Form.Group controlId="interneeEmail">
                   <Form.Label>Email</Form.Label>
-                  <Form.Control type="email" value={formData.interneeEmail} onChange={(e) => handleChange("interneeEmail", e.target.value)} isInvalid={!!errors.interneeEmail}  placeholder="Enter student email" style={{ maxWidth: "300px" }}/>
+                  <Form.Control type="email" value={formData.interneeEmail} onChange={(e) => handleChange("interneeEmail", e.target.value)} isInvalid={!!errors.interneeEmail}  placeholder="Enter student email" style={{ maxWidth: "300px" }} disabled={formData.locked}/>
                   <Form.Text className="text-danger">{errors.interneeEmail}</Form.Text>
+                  </Form.Group>
+            </div>
+            <div className="border-box mt-4">
+                <h5 style={{ backgroundColor: '#9d2235', color: 'white', padding: '8px', borderRadius: '5px', textAlign: "center", width: '100%' }}> Internship Supervisor Details </h5>
+                <Form.Group>
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control type="text" value={formData.supervisorName} readOnly style={{ maxWidth: "300px" }} />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Job Title</Form.Label>
+                  <Form.Control type="text" value={formData.supervisorJobTitle} readOnly style={{ maxWidth: "300px" }} />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control type="email" value={formData.supervisorEmail} readOnly style={{ maxWidth: "300px" }} />
                   </Form.Group>
             </div>
           </Col>
           </Row>
+          
           <Table bordered responsive className="text-center custom-table">
             <thead>
               <tr>
@@ -280,6 +316,7 @@ const A3JobEvaluationForm = () => {
                       checked={ratings[item] === "Satisfactory"}
                       onChange={() => handleRatingChange(item, "Satisfactory")}
                       isInvalid={!!errors[`${item}_rating`]}
+                      disabled={formData.locked} 
                     />
                     <Form.Check
                       type="radio"
@@ -290,6 +327,7 @@ const A3JobEvaluationForm = () => {
                       checked={ratings[item] === "Unsatisfactory"}
                       onChange={() => handleRatingChange(item, "Unsatisfactory")}
                       isInvalid={!!errors[`${item}_rating`]}
+                      disabled={formData.locked} 
                     />
                   </div>
                   
@@ -318,10 +356,10 @@ const A3JobEvaluationForm = () => {
           </Table>
 
           {/* Signature section */}
-          <Row className="mb-4">
-            <Col md={6} className="mb-3 mb-md-0">
+          <Row className="mb-4 d-flex flex-column flex-md-row gap-3">
+            <Col md={6} style={{ flex: 1 }} className="mb-3 mb-md-0">
               <Form.Group>
-                <Form.Label>Internship Advisor Signature</Form.Label>
+                <Form.Label>Internship Supervisor Signature</Form.Label>
                 <div
                   style={{
                     cursor: "pointer",
@@ -330,26 +368,29 @@ const A3JobEvaluationForm = () => {
                     padding: "6px 0",
                   }}
                   onClick={() => {
-                    setActiveSignatureTarget("advisor");
-                    setShowModal(true);
+                    if (!formData.locked) {
+                      setActiveSignatureTarget("supervisor");
+                      setShowModal(true);
+                    }
                   }}
                 >
-                  {renderSignaturePreview("advisorSignature")}
+                  {renderSignaturePreview("supervisorSignature")}
                 </div>
-                <Form.Text className="text-danger">{errors.advisorSignature}</Form.Text>
+                <Form.Text className="text-danger">{errors.supervisorSignature}</Form.Text>
                 <Form.Check
                   type="checkbox"
                   className="mt-2"
                   label="I agree that by typing/drawing my name, I am electronically signing this document."
-                  checked={formData.advisorAgreement}
+                  checked={formData.supervisorAgreement}
                   onChange={(e) =>
-                    handleChange("advisorAgreement", e.target.checked)
+                    handleChange("supervisorAgreement", e.target.checked)
                   }
                   required
+                  disabled={formData.locked}
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={6} style={{ flex: 1 }}>
               <Form.Group>
                 <Form.Label>Internship Coordinator Signature</Form.Label>
                 <div
@@ -360,8 +401,10 @@ const A3JobEvaluationForm = () => {
                     padding: "6px 0",
                   }}
                   onClick={() => {
-                    setActiveSignatureTarget("coordinator");
-                    setShowModal(true);
+                    if (!formData.locked) {
+                      setActiveSignatureTarget("coordinator");
+                      setShowModal(true);
+                    }
                   }}
                 >
                   {renderSignaturePreview("coordinatorSignature")}
@@ -376,21 +419,29 @@ const A3JobEvaluationForm = () => {
                     handleChange("coordinatorAgreement", e.target.checked)
                   }
                   required
+                  disabled={formData.locked}
                 />
               </Form.Group>
             </Col>
           </Row>
 
           {/* Submit button */}
-          <div className="text-center">
-            <Button
-              type="submit"
-              className="px-5 text-white"
-              style={{ backgroundColor: "#9d2235", borderColor: "#9d2235" }}
-            >
-              Submit Evaluation
-            </Button>
-          </div>
+          <div className="text-center mt-4">
+  {formData.locked ? (
+    <Alert variant="info">
+      This form has been finalized and is locked for editing.
+    </Alert>
+  ) : (
+    <Button
+      type="submit"
+      className="px-5 text-white"
+      style={{ backgroundColor: "#9d2235", borderColor: "#9d2235" }}
+      disabled={formData.locked} // Ensure the button is also disabled
+    >
+      Submit Evaluation
+    </Button>
+  )}
+</div>
         </Form>
       </Container>
 
