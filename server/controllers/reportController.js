@@ -1,24 +1,25 @@
+// server/controllers/reportController.js
+
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
 const CoordinatorReview = require("../models/CoordinatorReview");
-const InternshipRequest = require("../models/internshiprequest");
+const InternshipRequest = require("../models/InternshipRequest");
 const { sendStudentProgressEmail } = require("../jobs/reminderEmail");
-
-const STATIC_USER_ID = "vikash123";
+const groupReportsByWeeks = require("../utils/groupReportsByWeeks"); // ✅ you must have a helper for this
 
 const reportController = {
+  // ------------------ Create Weekly Report ------------------
   createReport: async (req, res) => {
     try {
       const { week, hours, tasks, lessons, name, email, supervisorName, supervisorEmail, coordinatorName, coordinatorEmail } = req.body;
-
-      if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons) {
+      if (!week || hours === undefined || isNaN(hours) || !tasks || !lessons || !email) {
         return res.status(400).json({ success: false, message: "All required fields must be valid." });
       }
 
+      const normalizedEmail = email.trim().toLowerCase();
       const newReport = new WeeklyReport({
-        studentId: STATIC_USER_ID,
         name,
-        email,
+        email: normalizedEmail,
         supervisorName,
         supervisorEmail,
         coordinatorName,
@@ -33,252 +34,275 @@ const reportController = {
 
       await newReport.save();
 
-      const reports = await WeeklyReport.find({ email }).sort({ week: 1 });
+      const reports = await WeeklyReport.find({ email: normalizedEmail }).sort({ week: 1 });
       const completedHours = reports.reduce((sum, r) => sum + (r.hours || 0), 0);
 
-      const internshipForm = await InternshipRequest.findOne({ email });
-      const requiredHours = internshipForm ? internshipForm.creditHours * 60 : 0;
+      const internshipForm = await InternshipRequest.findOne({ "student.email": normalizedEmail });
+      const requiredHours = internshipForm ? (internshipForm.creditHours || 0) * 60 : 0;
+      const remainingHours = Math.max(0, requiredHours - completedHours);
 
-      await sendStudentProgressEmail({
-        name,
-        email,
-        completedHours,
-        remainingHours: requiredHours - completedHours,
-      });
+      await sendStudentProgressEmail({ name, email: normalizedEmail, completedHours, remainingHours });
 
-      return res.status(201).json({
-        success: true,
-        message: "Weekly report submitted successfully.",
-        reports
-      });
-
+      return res.status(201).json({ success: true, message: "Weekly report submitted successfully.", reports });
     } catch (error) {
       console.error("Error in createReport:", error);
       return res.status(500).json({ success: false, message: "Internal server error." });
     }
   },
 
-  getReportsByStudent: async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const reports = await WeeklyReport.find({ studentId: userId }).sort({ week: 1 });
-
-      return res.status(200).json({ success: true, reports });
-    } catch (error) {
-      console.error("Error in getReportsByStudent:", error);
-      return res.status(500).json({ success: false, message: "Failed to fetch reports." });
-    }
-  },
-
+  // ------------------ Get My Weekly Reports ------------------
   getMyReports: async (req, res) => {
     try {
-      const studentId = req.user?.id || STATIC_USER_ID;
-      const reports = await WeeklyReport.find({ studentId }).sort({ week: 1 });
+      const { email } = req.query;
+      if (!email) return res.status(400).json({ success: false, message: "Email is required." });
 
-      const reviews = await SupervisorReview.find({ studentId });
+      const normalizedEmail = email.trim().toLowerCase();
+      const reports = await WeeklyReport.find({ email: normalizedEmail }).sort({ week: 1 });
+      const completedHours = reports.reduce((sum, r) => sum + (r.hours || 0), 0);
 
-      const weekToComment = {};
-      reviews.forEach((review) => {
-        review.weeks.forEach((week) => {
-          weekToComment[week] = review.comments;
-        });
+      const internshipForm = await InternshipRequest.findOne({ "student.email": normalizedEmail });
+      const requiredHours = internshipForm ? (internshipForm.creditHours || 0) * 60 : 0;
+
+      return res.status(200).json({
+        success: true,
+        reports,
+        completedHours,
+        requiredHours,
+        progress: requiredHours ? Math.min(100, Math.round((completedHours / requiredHours) * 100)) : 0,
       });
-
-      const enrichedReports = reports.map((r) => ({
-        ...r._doc,
-        supervisorComments: weekToComment[r.week] || "",
-      }));
-
-      return res.status(200).json({ success: true, reports: enrichedReports });
-
     } catch (error) {
       console.error("Error in getMyReports:", error);
       return res.status(500).json({ success: false, message: "Failed to fetch your reports." });
     }
   },
 
-  getCumulativeReports: async (req, res) => {
-    try {
-      const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ createdAt: 1 });
-
-      if (!reports.length) {
-        return res.status(200).json({ success: true, cumulativeReports: [] });
-      }
-
-      const groupedReports = [];
-
-      for (let i = 0; i < reports.length; i += 4) {
-        const groupIndex = i / 4;
-
-        const isReviewed = await SupervisorReview.findOne({
-          studentId: STATIC_USER_ID,
-          groupIndex,
-        });
-
-        if (isReviewed) continue;
-
-        groupedReports.push({
-          groupIndex,
-          weeks: reports.slice(i, i + 4).map(r => r.week),
-          reports: reports.slice(i, i + 4),
-        });
-      }
-
-      return res.status(200).json({ success: true, cumulativeReports: groupedReports });
-
-    } catch (error) {
-      console.error("Error in getCumulativeReports:", error);
-      return res.status(500).json({ success: false, message: "Internal server error." });
-    }
-  },
-
-  getCumulativeGroup: async (req, res) => {
-    try {
-      const { groupIndex } = req.params;
-      const index = parseInt(groupIndex);
-
-      const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ createdAt: 1 });
-
-      if (!reports.length) {
-        return res.status(404).json({ success: false, message: "No reports found." });
-      }
-
-      const groupedReports = [];
-      for (let i = 0; i < reports.length; i += 4) {
-        groupedReports.push({
-          groupIndex: i / 4,
-          weeks: reports.slice(i, i + 4).map(r => r.week),
-          reports: reports.slice(i, i + 4),
-        });
-      }
-
-      const targetGroup = groupedReports[index];
-      if (!targetGroup) {
-        return res.status(404).json({ success: false, message: "Group not found." });
-      }
-
-      return res.status(200).json({ success: true, group: targetGroup });
-
-    } catch (error) {
-      console.error("Error in getCumulativeGroup:", error);
-      return res.status(500).json({ success: false, message: "Internal server error." });
-    }
-  },
-
+  // ------------------ Get Report By ID ------------------
   getReportById: async (req, res) => {
     try {
       const report = await WeeklyReport.findById(req.params.id);
-      if (!report) {
-        return res.status(404).json({ success: false, message: "Report not found" });
-      }
+      if (!report) return res.status(404).json({ success: false, message: "Report not found." });
 
       return res.status(200).json({ success: true, report });
     } catch (error) {
       console.error("Error in getReportById:", error);
-      return res.status(500).json({ success: false, message: "Failed to fetch report" });
+      return res.status(500).json({ success: false, message: "Failed to fetch report." });
     }
   },
 
+  // ------------------ Supervisor Comments ------------------
   submitSupervisorComments: async (req, res) => {
     try {
-      const { groupIndex, comments, weeks } = req.body;
-
-      if (!comments || !weeks || weeks.length === 0) {
-        return res.status(400).json({ success: false, message: "Invalid comment data." });
+      const { email, groupIndex, comments, weeks } = req.body;
+      if (!comments || !weeks?.length || !email) {
+        return res.status(400).json({ success: false, message: "Invalid data." });
       }
 
-      const newReview = new SupervisorReview({
-        studentId: STATIC_USER_ID,
-        groupIndex,
-        weeks,
-        comments,
-      });
+      const normalizedEmail = email.trim().toLowerCase();
 
+      const newReview = new SupervisorReview({ email: normalizedEmail, groupIndex, weeks, comments });
       await newReview.save();
 
-      await WeeklyReport.updateMany(
-        { studentId: STATIC_USER_ID, week: { $in: weeks } },
-        { $set: { supervisorComments: comments } }
-      );
+      await WeeklyReport.updateMany({ email: normalizedEmail, week: { $in: weeks } }, { $set: { supervisorComments: comments } });
 
       return res.status(200).json({ success: true, message: "Supervisor comment submitted successfully." });
-
     } catch (error) {
       console.error("Error in submitSupervisorComments:", error);
-      return res.status(500).json({ success: false, message: "Failed to submit comment." });
+      return res.status(500).json({ success: false, message: "Failed to submit supervisor comment." });
     }
   },
 
+  // ------------------ Coordinator Comments ------------------
+  // POST /api/reports/coordinator-comments
+ submitCoordinatorComments :async (req, res) => {
+  try {
+    const { email, comments, weeks } = req.body;
+
+    if (!email || !comments || !weeks) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+
+    // Update all matching weekly reports
+    const updated = await WeeklyReport.updateMany(
+      { email, week: { $in: weeks } },
+      { $set: { coordinatorComments: comments } }
+    );
+
+    console.log("Updated Reports:", updated);
+
+    res.status(200).json({ message: "Coordinator comments updated successfully!" });
+  } catch (error) {
+    console.error("Error updating coordinator comments:", error);
+    res.status(500).json({ error: "Server error updating coordinator comments" });
+  }
+},
+
+
+  // ------------------ Get Cumulative Reports ------------------
+  getCumulativeReports: async (req, res) => {
+    const { email } = req.query;
+  
+    try {
+      const reports = await WeeklyReport.find({ email });
+      if (!reports.length) {
+        return res.status(404).json({ message: "No reports found for this email." });
+      }
+  
+      const groupedReports = groupReportsByWeeks(reports);
+  
+      const completeGroups = groupedReports.filter(group => {
+        // Group must have 4 weeks
+        const hasFourWeeks = group.weeks.length === 4;
+        // No supervisor comments on any report
+        const allReportsWithoutComments = group.reports.every(
+          report => !report.supervisorComments || report.supervisorComments.trim() === ""
+        );
+        return hasFourWeeks && allReportsWithoutComments;
+      });
+  
+      res.json({ cumulativeReports: completeGroups });
+    } catch (error) {
+      console.error("Error fetching cumulative reports:", error);
+      res.status(500).json({ message: "Server error fetching cumulative reports." });
+    }
+  },
+  
+  // ------------------ Get Single Cumulative Group ------------------
+  getCumulativeGroup: async (req, res) => {
+    try {
+      const { groupIndex } = req.params;
+      const { email } = req.query;
+      if (!email) return res.status(400).json({ success: false, message: "Email is required." });
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const reports = await WeeklyReport.find({ email: normalizedEmail });
+      if (!reports.length) {
+        return res.status(404).json({ message: "No reports found for this email." });
+      }
+
+      const groupedReports = groupReportsByWeeks(reports);
+      const group = groupedReports[groupIndex];
+      if (!group) {
+        return res.status(404).json({ message: "No group found." });
+      }
+
+      return res.json({ group });
+    } catch (error) {
+      console.error("Error fetching cumulative group:", error);
+      return res.status(500).json({ message: "Server error fetching group." });
+    }
+  },
+
+  // ------------------ Supervisor Reviewed Groups (for Coordinator Approval) ------------------
   getSupervisorReviewedGroups: async (req, res) => {
     try {
-      const supervisorReviews = await SupervisorReview.find({
-        studentId: STATIC_USER_ID
-      });
-
-      const reviewedGroups = [];
-
+      // No need for email - Coordinator needs to review everyone's groups
+      const supervisorReviews = await SupervisorReview.find();
+  
+      const groupsNeedingCoordinator = [];
+  
       for (const review of supervisorReviews) {
-        const reports = await WeeklyReport.find({
-          studentId: STATIC_USER_ID,
-          week: { $in: review.weeks }
-        });
-
-        const allCoordinatorCommentsPresent = reports.every(
-          (r) => r.coordinatorComments && r.coordinatorComments.trim() !== ""
-        );
-
-        if (allCoordinatorCommentsPresent) continue;
-
-        reviewedGroups.push({
-          groupIndex: review.groupIndex,
-          weeks: review.weeks,
-          reports,
-        });
+        const { email, weeks, groupIndex } = review;
+        const reports = await WeeklyReport.find({ email, week: { $in: weeks } });
+  
+        const allSupervisorReviewed = reports.every(r => r.supervisorComments && r.supervisorComments.trim() !== "");
+        const anyCoordinatorMissing = reports.some(r => !r.coordinatorComments || r.coordinatorComments.trim() === "");
+  
+        if (allSupervisorReviewed && anyCoordinatorMissing) {
+          groupsNeedingCoordinator.push({
+            groupIndex,
+            email,
+            weeks,
+            reports,
+          });
+        }
       }
-
-      return res.status(200).json({ success: true, groups: reviewedGroups });
+  
+      return res.status(200).json({ groups: groupsNeedingCoordinator });
     } catch (error) {
       console.error("Error in getSupervisorReviewedGroups:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch supervisor-reviewed groups.",
-      });
+      return res.status(500).json({ success: false, message: "Failed to fetch supervisor-reviewed groups." });
     }
   },
-
-  submitCoordinatorGroupComments: async (req, res) => {
+  fetchCoordinatorGroup: async (req, res) => {
+    const { email, weeks } = req.body;
     try {
-      const { groupIndex, comments, weeks } = req.body;
-
-      if (!comments || !weeks || weeks.length === 0) {
-        return res.status(400).json({ success: false, message: "Invalid comment data." });
+      const reports = await WeeklyReport.find({ email, week: { $in: weeks } });
+      if (!reports.length) {
+        return res.status(404).json({ message: "No reports found for this group." });
       }
-
-      const firstWeek = weeks[0];
-      const firstReport = await WeeklyReport.findOne({ studentId: STATIC_USER_ID, week: firstWeek });
-
-      const newReview = new CoordinatorReview({
-        studentId: STATIC_USER_ID,
-        groupIndex,
-        weeks,
-        supervisorComments: firstReport?.supervisorComments || "",
-        coordinatorComments: comments,
-      });
-
-      await newReview.save();
-
-      await WeeklyReport.updateMany(
-        { studentId: STATIC_USER_ID, week: { $in: weeks } },
-        { $set: { coordinatorComments: comments } }
-      );
-
-      return res.status(200).json({ success: true, message: "Coordinator comment submitted successfully." });
-
+      res.json({ group: { reports, weeks, email } });
     } catch (error) {
-      console.error("Error in submitCoordinatorGroupComments:", error);
-      return res.status(500).json({ success: false, message: "Failed to submit comment." });
+      console.error("Error fetching coordinator group:", error);
+      res.status(500).json({ message: "Server error fetching coordinator group." });
     }
-  }
-};
-
+  },
+  
+  getCoordinatorReviewedGroups :async (req, res) => {
+    try {
+      const allReports = await WeeklyReport.find({
+        supervisorComments: { $exists: true, $ne: "" }, // Supervisor reviewed
+        coordinatorComments: { $in: [null, ""] }         // Coordinator not yet reviewed
+      });
+  
+      const grouped = {}; // Group by email + 4 weeks
+  
+      for (const report of allReports) {
+        const key = report.email;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(report);
+      }
+  
+      const groups = [];
+  
+      Object.values(grouped).forEach((reports) => {
+        if (reports.length >= 4) {
+          groups.push({
+            email: reports[0].email,
+            reports: reports,
+            weeks: reports.map(r => r.week),
+            supervisorComment: reports[0].supervisorComments,
+            groupIndex: Math.floor(Math.random() * 10000), // Generate random group index
+          });
+        }
+      });
+  
+      res.json({ groups });
+    } catch (error) {
+      console.error("Error fetching coordinator reviewed groups:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+  fetchGroupByEmailAndWeeks : async (req, res) => {
+    try {
+      const { email, weeks } = req.body;
+  
+      if (!email || !weeks || !Array.isArray(weeks)) {
+        return res.status(400).json({ message: "Invalid request parameters" });
+      }
+  
+      const reports = await WeeklyReport.find({
+        email: email,
+        week: { $in: weeks },
+        supervisorComments: { $exists: true, $ne: "" },
+        coordinatorComments: { $in: [null, ""] }  // not yet reviewed
+      }).sort({ week: 1 }); // optional: to keep them ordered
+  
+      if (reports.length === 0) {
+        return res.status(404).json({ message: "No matching reports found" });
+      }
+  
+      const group = {
+        email,
+        weeks,
+        reports
+      };
+  
+      res.status(200).json({ group });
+    } catch (error) {
+      console.error("Error in fetchGroupByEmailAndWeeks:", error);
+      res.status(500).json({ message: "Server error fetching group", error: error.message });
+    }
+  },
+  
+};  
 module.exports = reportController;

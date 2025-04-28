@@ -1,3 +1,5 @@
+// src/router.js
+
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 import A1InternshipRequestForm from "./pages/A1InternshipRequestForm";
@@ -9,7 +11,6 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
-import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 import A3JobEvaluationForm from "./pages/A3JobEvaluationForm";
 import ActivateAccount from "./pages/ActivateAccount";
 import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
@@ -24,6 +25,10 @@ import SubmittedReports from "./pages/SubmittedReports";
 import CumulativeReviewForm from "./pages/CumulativeReviewForm";
 import CoordinatorReviewForm from "./pages/CoordinatorReviewForm";
 import CoordinatorCumulativeReviewForm from "./pages/CoordinatorCumulativeReviewForm";
+// import ProtectedSupervisor from "./pages/ProtectedSupervisor";
+
+// ⚡️ Corrected import for WeeklyProgressReportForm
+import WeeklyProgressReportForm from "./pages/WeeklyProgressReportForm";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -70,7 +75,11 @@ const router = createBrowserRouter([
       },
       {
         path: "supervisor-dashboard",
-        element: <SupervisorDashboard />,
+        element: (
+          // <ProtectedSupervisor>
+          <SupervisorDashboard />
+          // </ProtectedSupervisor>
+        ),
       },
       {
         path: "coordinator-dashboard",
@@ -111,6 +120,10 @@ const router = createBrowserRouter([
       {
         path: "weekly-report/:groupIndex/week-:weekNumber/:studentName",
         element: <Home />,
+      },
+      {
+        path: "report/:reportId",
+        element: <WeeklyProgressReportForm readOnly={true} />,
       },
     ],
   },

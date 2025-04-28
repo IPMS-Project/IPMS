@@ -1,110 +1,104 @@
+/* src/styles/SubmittedReports.css */
+
 .submitted-reports-container {
-    max-width: 1000px;
-    margin: 3rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    animation: fadeSlideIn 0.8s ease;
+  max-width: 1000px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  animation: fadeSlideIn 0.8s ease;
+}
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  
-  @keyframes fadeSlideIn {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .submitted-reports-container h2 {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #263238;
-    margin-bottom: 2rem;
-    position: relative;
-  }
-  
-  .submitted-reports-table-wrapper {
-    overflow-x: auto;
-  }
-  
-  .submitted-reports-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 0 10px rgba(155, 17, 30, 0.15);
-  }
-  
-  .submitted-reports-table th {
-    background-color: #9b111e;
-    color: #fff;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 14px 20px;
-    font-size: 13px;
-    letter-spacing: 0.5px;
-  }
-  
-  .submitted-reports-table td {
-    text-align: center;
-    padding: 14px 16px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-  }
-  
-  .submitted-reports-table tr {
-    transition: all 0.3s ease;
-  }
-  
-  .submitted-reports-table tr:hover {
-    background-color: #fff3f3;
-    box-shadow: 0 2px 10px rgba(155, 17, 30, 0.2);
-    transform: scale(1.01);
-    cursor: pointer;
-  }
-  
-  .submitted-reports-table td:last-child {
-    font-weight: 600;
-    color: #2e7d32;
-  }
-  
-  /* Glowing border on container hover */
-  .submitted-reports-container:hover {
-    box-shadow: 0 0 20px rgba(155, 17, 30, 0.2);
-  }
-  
-  /* Optional scroll fade (if many rows) */
-  .submitted-reports-table-wrapper::-webkit-scrollbar {
-    height: 8px;
-  }
-  .submitted-reports-table-wrapper::-webkit-scrollbar-thumb {
-    background-color: rgba(155, 17, 30, 0.5);
-    border-radius: 10px;
-  }
-  .submitted-reports-table td:last-child {
-    animation: glowUp 2s ease-in-out infinite alternate;
-  }
-  
-  @keyframes glowUp {
-    from {
-      text-shadow: 0 0 5px rgba(155, 17, 30, 0.3);
-    }
-    to {
-      text-shadow: 0 0 12px rgba(155, 17, 30, 0.6);
-    }
-  }
-  .clickable-row {
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  .clickable-row:hover {
-    background-color: #fff0f0;
-    transform: scale(1.01);
-    box-shadow: 0 0 10px rgba(155, 17, 30, 0.15);
-  }
-      
+}
+
+.submitted-reports-container h2 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #263238;
+  margin-bottom: 2rem;
+}
+
+.submitted-reports-table-wrapper {
+  overflow-x: auto;
+}
+
+.submitted-reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(155, 17, 30, 0.15);
+}
+
+.submitted-reports-table th {
+  background-color: #9b111e;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.submitted-reports-table td {
+  text-align: center;
+  padding: 14px 16px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.submitted-reports-table tr {
+  transition: all 0.3s ease;
+}
+
+.submitted-reports-table tr:hover {
+  background-color: #fff3f3;
+  box-shadow: 0 2px 10px rgba(155, 17, 30, 0.2);
+  transform: scale(1.01);
+  cursor: pointer;
+}
+
+.submitted-reports-table td:last-child {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.back-button {
+  margin-top: 2rem;
+  background-color: #9b111e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.back-button:hover {
+  background-color: #7a0d18;
+}
+
+/* Optional scroll bar customization */
+.submitted-reports-table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.submitted-reports-table-wrapper::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 17, 30, 0.5);
+  border-radius: 10px;
+}

@@ -2,10 +2,13 @@ const mongoose = require("mongoose");
 const formMetadata = require("./FormMetadata");
 
 const weeklyReportSchema = new mongoose.Schema({
-  studentId: {
-    type: String,
-    required: true,
-  },
+  ...formMetadata,
+
+  // studentId: {
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: "UserTokenRequest",
+  //   required: true,
+  // },
 
   // New Fields from A1
   name: {

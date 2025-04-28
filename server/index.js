@@ -4,32 +4,35 @@ const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+// Models
 const User = require("./models/User");
 const formRoutes = require("./routes/formRoutes");
+
+// Routes
+//const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 const studentRoutes = require("./routes/studentRoutes");
-
 const outcomeRoutes = require("./routes/outcomeRoutes");
 
-// Import cron job manager and register jobs
-const cronJobManager = require("./utils/cronUtils").cronJobManager;
+// Cron jobs
+const { cronJobManager } = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
-const path = require("path");
-
-
+const path=require("path");
+// App initialization
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// API routes
 app.use("/api/form", formRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
-
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
   autoIndex: true,
@@ -37,7 +40,6 @@ const mongoConfig = {
   socketTimeoutMS: 45000,
   family: 4,
 };
-
 mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
   .then(async () => {
@@ -68,15 +70,16 @@ mongoose.connection.on("disconnected", () => {
   }
 });
 
+// Default Route
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
 });
 
+// Simple backend ping
 app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
-
-app.use("/api/email", emailRoutes);
+app.use("api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", approvalRoutes);
 
@@ -84,6 +87,7 @@ app.use("/api/reports", weeklyReportRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/fourWeekReports", fourWeekReportRoutes);
 
+// User creation
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -94,12 +98,11 @@ app.post("/api/createUser", async (req, res) => {
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to create user", error: error.message });
+    res.status(500).json({ message: "Failed to create user", error: error.message });
   }
 });
 
+// Evaluation form submission
 app.post("/api/evaluation", async (req, res) => {
   try {
     const {
@@ -138,14 +141,9 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
-
-
-
-
-//Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
-
+// Graceful shutdown
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
@@ -158,5 +156,7 @@ process.on("SIGINT", async () => {
   }
 });
 
+// Start Server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+

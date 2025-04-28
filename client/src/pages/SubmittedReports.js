@@ -1,37 +1,43 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../styles/SubmittedReports.css";
 
 const SubmittedReports = () => {
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [reports, setReports] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine`);
+        const email = "vikash.balaji.kokku-1@ou.edu"; // Later replace with session email
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine?email=${email}`);
         if (res.data.success) {
           setReports(res.data.reports);
+        } else {
+          setError("Failed to fetch reports.");
         }
       } catch (err) {
         console.error("Error fetching reports", err);
-      } finally {
-        setLoading(false);
+        setError("Failed to load reports.");
       }
     };
 
     fetchReports();
   }, []);
 
+  const handleRowClick = (reportId) => {
+    navigate(`/report/${reportId}`);
+  };
+
   return (
     <div className="submitted-reports-container">
-      <h2>Previous Weekly Reports</h2>
+      <h2>Submitted Weekly Reports</h2>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : reports.length === 0 ? (
+      {error && <p className="error-message">{error}</p>}
+
+      {reports.length === 0 ? (
         <p>No reports found.</p>
       ) : (
         <table className="submitted-reports-table">
@@ -40,29 +46,27 @@ const SubmittedReports = () => {
               <th>Week</th>
               <th>Hours</th>
               <th>Tasks</th>
-              <th>Lessons</th>
-              <th>Supervisor Comments</th>
+              <th>Lessons</th> {/* ✅ Added Lessons */}
             </tr>
           </thead>
           <tbody>
             {reports.map((report) => (
-              <tr
-                key={report._id}
-                className="clickable-row"
-                onClick={() => navigate(`/submitted-reports/view/${report._id}`)}
-              >
+              <tr key={report._id} onClick={() => handleRowClick(report._id)}>
                 <td>{report.week}</td>
                 <td>{report.hours}</td>
-                <td>{report.tasks}</td>
-                <td>{report.lessons}</td>
-                <td className="highlight-comment">
-                  {report.supervisorComments || "—"}
-                </td>
+                <td>{report.tasks?.length > 20 ? `${report.tasks.slice(0, 20)}...` : report.tasks}</td>
+                <td>{report.lessons?.length > 20 ? `${report.lessons.slice(0, 20)}...` : report.lessons}</td> {/* ✅ Lessons shown properly */}
               </tr>
             ))}
           </tbody>
         </table>
       )}
+
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <button className="back-button" onClick={() => navigate("/weekly-report")}>
+          Return
+        </button>
+      </div>
     </div>
   );
 };

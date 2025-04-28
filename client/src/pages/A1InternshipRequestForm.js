@@ -277,8 +277,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     }
   };
 
-  const sendTaskDescriptions = async (descriptions) => {
-    try {
+    const sendTaskDescriptions = async (descriptions) => {
+        try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/align-outcomes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

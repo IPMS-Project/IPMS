@@ -2,12 +2,9 @@ const mongoose = require("mongoose");
 const UserTokenRequest = require("../models/TokenRequest");
 
 const formMetadata = {
-  student_id: { type: mongoose.Schema.Types.ObjectId, ref: "UserTokenRequest"},
-  supervisor_id: { type: mongoose.Schema.Types.ObjectId, ref: "UserTokenRequest"},
-  coordinator_id: { type: mongoose.Schema.Types.ObjectId, ref: "UserTokenRequest"},
-
   supervisor_status: { type: String, default: "pending" },
-  supervisor_comment: String,
+    supervisor_comment: String,
+    supervisor_signature: String,
   supervisor_reminder_count: { type: Number, default: 0 },
   last_supervisor_reminder_at: Date,
 

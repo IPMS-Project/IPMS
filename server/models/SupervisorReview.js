@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
 
 const supervisorReviewSchema = new mongoose.Schema({
-  studentId: {
-    type: String,
-    required: true,
-  },
+  email: { type: String, required: true },
+
   groupIndex: {
     type: Number,
     required: true,

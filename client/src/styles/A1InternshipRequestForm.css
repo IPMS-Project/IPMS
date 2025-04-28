@@ -193,6 +193,10 @@
     margin-top: 10px;
 }
 
+.required-asterisk {
+    color: #ff6666; /* Light red */
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;

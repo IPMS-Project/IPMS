@@ -1,63 +1,118 @@
 /* CoordinatorCumulativeReviewForm.css */
 
-.coordinator-review-container {
-    max-width: 900px;
-    margin: auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .coordinator-review-container h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  
-  .coordinator-review-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 2rem;
-  }
-  
-  .coordinator-review-table th,
-  .coordinator-review-table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: center;
-  }
-  
-  textarea.coordinator-comment-box {
-    width: 100%;
-    min-height: 100px;
-    padding: 10px;
-    font-size: 1rem;
-    border: 2px solid #aa1e2e;
-    border-radius: 4px;
-    resize: vertical;
-    margin-bottom: 1rem;
-  }
-  
-  .button-group {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-  }
-  
-  .button-group button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  
-  .button-group .cancel-btn {
-    background: #e0e0e0;
-  }
-  
-  .button-group .submit-btn {
-    background: #aa1e2e;
-    color: white;
-  }
-  
+.cumulative-review-container {
+  max-width: 900px;
+  margin: 40px auto; /* center align */
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 30px 40px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.cumulative-review-container:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.cumulative-review-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #861f1f;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* Table Styling */
+.review-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.review-table th,
+.review-table td {
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 16px;
+}
+
+.review-table th {
+  background-color: #9b111e;
+  color: #fff;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.review-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.review-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Comment Boxes */
+.supervisor-comment-box {
+  background-color: #f3f3f3;
+  padding: 18px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-style: italic;
+  color: #555;
+  border: 1px solid #ccc;
+}
+
+.coordinator-comment-area {
+  width: 100%;
+  min-height: 150px;
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  resize: vertical;
+  font-size: 16px;
+  margin-bottom: 25px;
+  background: #fafafa;
+}
+
+/* Button Group */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.submit-button {
+  background-color: #9b111e;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 17px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #7d0e16;
+}
+
+.cancel-button {
+  background-color: transparent;
+  color: #9b111e;
+  border: 2px solid #9b111e;
+  padding: 10px 26px;
+  font-size: 17px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cancel-button:hover {
+  background-color: #9b111e;
+  color: white;
+}
