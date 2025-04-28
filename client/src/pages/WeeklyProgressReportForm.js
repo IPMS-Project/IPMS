@@ -44,7 +44,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             creditHours,
             requiredHours: creditHours ? creditHours * 60 : 0,
           }));
-          setStartDate(fetchedStartDate);
         }
 
         const reportsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine?email=${email}`);
