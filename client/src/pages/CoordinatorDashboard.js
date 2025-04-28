@@ -18,6 +18,19 @@ function CoordinatorDashboard() {
     }
   };
 
+  const approveForm = async (formId) => {
+    try {
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/approval/form/${formId}/approve`
+      );
+      alert("Form approved successfully!");
+      fetchRequests(); // refresh the list after approving
+    } catch (err) {
+      console.error("Failed to approve form:", err);
+      alert("Failed to approve form!");
+    }
+  };
+
   useEffect(() => {
     fetchRequests();
   }, []);
@@ -30,14 +43,22 @@ function CoordinatorDashboard() {
         <p>No Pending Requests</p>
       ) : (
         requests.map((req) => (
-          <div
-            key={req._id}
-            className="request-card"
-            onClick={() => navigate(`/coordinator/request/${req._id}`)}
-          >
-            {/* <h4>{req.student.userName}</h4>
-            <p>Email: {req.student.email}</p> */}
+          <div key={req._id} className="request-card">
             <p>Company: {req.workplace.name}</p>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button
+                className="btn-approve"
+                onClick={() => approveForm(req._id)}
+              >
+                Approve
+              </button>
+              <button
+                className="btn-view"
+                onClick={() => navigate(`/coordinator/request/${req._id}`)}
+              >
+                View Details
+              </button>
+            </div>
           </div>
         ))
       )}

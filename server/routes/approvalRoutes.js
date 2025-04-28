@@ -15,7 +15,7 @@ const {
 const { isSupervisor, isCoordinator } = require("../middleware/authMiddleware");
 
 // Import InternshipRequest model to manually handle basic form approval
-const InternshipRequest = require("../models/InternshipRequest"); 
+const InternshipRequest = require("../models/InternshipRequest");
 
 // Supervisor APIs
 router.get("/submissions/pending", isSupervisor, getPendingSubmissions);
@@ -43,6 +43,7 @@ router.post("/form/:formId/approve", async (req, res) => {
     }
 
     form.status = 'approved';
+    form.approvedAt = new Date();  
     await form.save();        
 
     res.status(200).json({ message: 'Form approved successfully!' });
