@@ -132,6 +132,17 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     }
   };
 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("ipmsUser"));
+    if (storedUser) {
+      setFormData((prev) => ({
+        ...prev,
+        interneeName: storedUser.fullName || "",
+        interneeEmail: storedUser.email || "",
+      }));
+    }
+  }, []);
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -401,7 +412,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   id="interneeName"
                   value={formData.interneeName}
                   onChange={handleInputChange}
-                  disabled={!isFieldEditable("interneeName")}
+                  // disabled={!isFieldEditable("interneeName")}
+                  disabled
                 />
                 {errors.interneeName && (
                   <div style={{ color: "red", fontSize: "0.8rem" }}>
@@ -492,7 +504,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   id="interneeEmail"
                   value={formData.interneeEmail}
                   onChange={handleInputChange}
-                  disabled={!isFieldEditable("interneeEmail")}
+                  disabled
                 />
                 {errors.interneeEmail && (
                   <div style={{ color: "red", fontSize: "0.8rem" }}>
@@ -710,48 +722,6 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                 )}
               </td>
             </tr>
-            {/* <tr>
-              <td colSpan="3">
-                <label htmlFor="supervisorComments" style={{ fontWeight: "bold" }}>Supervisor Comments:</label><br />
-                <textarea
-                  id="supervisorComments"
-                  value={formData.supervisorComments}
-                  onChange={handleInputChange}
-                  placeholder="Enter any comments or feedback for this internship request"
-                  style={{ 
-                    width: "100%", 
-                    padding: "8px", 
-                    boxSizing: "border-box",
-                    minHeight: "80px",
-                    resize: "vertical",
-                    marginTop: "5px",
-                    border: "1px solid #ccc",
-                    borderRadius: "3px"
-                  }}
-                  disabled={!isFieldEditable("supervisorComments")}
-                />
-              </td>
-              <td colSpan="5">
-                <label htmlFor="coordinatorComments" style={{ fontWeight: "bold" }}>Coordinator Comments:</label><br />
-                <textarea
-                  id="coordinatorComments"
-                  value={formData.coordinatorComments}
-                  onChange={handleInputChange}
-                  placeholder="Enter any comments or feedback regarding this internship request"
-                  style={{ 
-                    width: "100%",
-                    padding: "8px", 
-                    boxSizing: "border-box",
-                    minHeight: "80px",
-                    resize: "vertical",
-                    marginTop: "5px",
-                    border: "1px solid #ccc",
-                    borderRadius: "3px"
-                  }}
-                  disabled={!isFieldEditable("coordinatorComments")}
-                />
-              </td>
-            </tr> */}
           </tbody>
         </table>
 
