@@ -67,7 +67,8 @@ const evaluationSchema = new mongoose.Schema({
   evaluations: {
     type: [evaluationItemSchema],
     validate: [arr => arr.length === 3, 'Exactly 3 evaluation items are required']
-  },
+  }  
+  ,
 
   supervisorSignature: {
     type: signatureSchema,
