@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/StudentDashboard.css"; // Make sure you create this CSS
+import "../styles/StudentDashboard.css";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -113,26 +113,20 @@ const StudentDashboard = () => {
 
           <button
             className="card-button"
-            onClick={() => {
-              if (
-                approvalStatus === "draft" ||
-                approvalStatus === "not_submitted"
-              ) {
-                navigate("/a1-form");
-              }
-            }}
-            disabled={
-              approvalStatus !== "draft" && approvalStatus !== "not_submitted"
+            onClick={() =>
+              ["draft", "not_submitted"].includes(approvalStatus) &&
+              navigate("/a1-form")
             }
+            disabled={!["draft", "not_submitted"].includes(approvalStatus)}
             style={{
-              backgroundColor:
-                approvalStatus !== "draft" && approvalStatus !== "not_submitted"
-                  ? "#ccc"
-                  : "",
-              cursor:
-                approvalStatus !== "draft" && approvalStatus !== "not_submitted"
-                  ? "not-allowed"
-                  : "pointer",
+              backgroundColor: ["draft", "not_submitted"].includes(
+                approvalStatus
+              )
+                ? ""
+                : "#ccc",
+              cursor: ["draft", "not_submitted"].includes(approvalStatus)
+                ? "pointer"
+                : "not-allowed",
             }}
           >
             {approvalStatus === "approved" ? "Track" : "Request Internship"}
@@ -142,7 +136,8 @@ const StudentDashboard = () => {
         {/* ------ FORM A2 Card ------ */}
         <div className="card-section">
           <div className="card-content">
-            <h3>Weekly Report (Form A2)</h3>
+            <h3>Weekly Report (FORM A2)</h3>
+
             {approvalStatus === "not_submitted" && (
               <p style={{ fontSize: "0.85rem", color: "#888" }}>
                 Please fill your Form A1 first
@@ -166,11 +161,9 @@ const StudentDashboard = () => {
           <button
             className="card-button"
             disabled={approvalStatus !== "approved"}
-            onClick={() => {
-              if (approvalStatus === "approved") {
-                navigate("/weekly-report");
-              }
-            }}
+            onClick={() =>
+              approvalStatus === "approved" && navigate("/weekly-report")
+            }
             style={{
               backgroundColor: approvalStatus !== "approved" ? "#ccc" : "",
               cursor: approvalStatus !== "approved" ? "not-allowed" : "pointer",
@@ -180,6 +173,7 @@ const StudentDashboard = () => {
           </button>
         </div>
       </div>
+
       {/* Submissions Table */}
       <div className="dashboard-table">
         <h2>Your Internship Submissions</h2>
@@ -196,11 +190,11 @@ const StudentDashboard = () => {
           <tbody>
             {submissions.map((req) => (
               <tr key={req._id}>
-                <td>{req.workplace.name}</td>
+                <td>{req.workplace?.name || "-"}</td>
                 <td>{req.status}</td>
                 <td>{new Date(req.createdAt).toLocaleDateString()}</td>
                 <td>
-                  {req.reminders?.length === 2 && !req.coordinator_responded ? (
+                  {req.reminders?.length === 2 && !req.coordinatorResponded ? (
                     <>
                       <button
                         className="btn-warning"

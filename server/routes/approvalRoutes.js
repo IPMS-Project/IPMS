@@ -1,69 +1,113 @@
 const express = require("express");
 const router = express.Router();
-
 const {
-  getSupervisorForms,
-  handleSupervisorFormAction,
+  getStudentSubmissions,
+  deleteStudentSubmission,
+  getPendingSubmissions,
+  approveSubmission,
+  rejectSubmission,
+  deleteStalledSubmission,
   getCoordinatorRequests,
   getCoordinatorRequestDetails,
   coordinatorApproveRequest,
   coordinatorRejectRequest,
-  getStudentSubmissions,
-  getPendingSubmissions,
+  getCoordinatorReports,
+  getCoordinatorEvaluations,
+  approveJobEvaluation,
+  rejectJobEvaluation,
   coordinatorResendRequest,
-  deleteStalledSubmission,
-  deleteStudentSubmission,
-  rejectSubmission,
-  approveSubmission,
+  getManualReviewForms,
+  coordinatorApproveManualReview,
+  coordinatorRejectManualReview
 } = require("../controllers/approvalController");
 
-const { isSupervisor, isCoordinator, isStudent } = require("../middleware/authMiddleware");
+const {
+  isSupervisor,
+  isCoordinator,
+  isStudent,
+} = require("../middleware/authMiddleware");
 
-
-// Student API
+// -----------------------------------------------
+// Student Routes
+// -----------------------------------------------
 router.get("/student/submissions", isStudent, getStudentSubmissions);
-router.delete("/student/request/:id/delete", isStudent, deleteStudentSubmission);
+router.delete(
+  "/student/request/:id/delete",
+  isStudent,
+  deleteStudentSubmission
+);
 
-// Supervisor APIs
+// -----------------------------------------------
+// Supervisor Routes
+// -----------------------------------------------
 router.get("/submissions/pending", isSupervisor, getPendingSubmissions);
 router.post("/submissions/:id/approve", isSupervisor, approveSubmission);
 router.post("/submissions/:id/reject", isSupervisor, rejectSubmission);
 
-// =========================================== //
-//          Supervisor Approval Routes         //
-// =========================================== //
-
-// Supervisor APIs
-router.get("/supervisor/forms", isSupervisor, (req, res) => {
-    // const supervisorId = req.user._id,
-    return getSupervisorForms(req, res, {
-        // supervisor_id: supervisorId,
-        supervisor_status: { $in: ["pending"] },
-    })
-});
-// Approve route
-router.post("/supervisor/form/:type/:id/approve", isSupervisor, (req, res) =>
-    handleSupervisorFormAction(req, res, "approve")
-);
-
-// Reject route
-router.post("/supervisor/form/:type/:id/reject", isSupervisor, (req, res) =>
-    handleSupervisorFormAction(req, res, "reject")
-);
-
-// =========================================== //
-//         Coordinator Approval Routes         //
-// =========================================== //
-
-
-// Coordinator APIs
+// -----------------------------------------------
+// Coordinator Routes
+// -----------------------------------------------
 router.get("/coordinator/requests", isCoordinator, getCoordinatorRequests);
+router.get(
+  "/coordinator/request/:id",
+  isCoordinator,
+  getCoordinatorRequestDetails
+);
+router.post(
+  "/coordinator/request/:id/approve",
+  isCoordinator,
+  coordinatorApproveRequest
+);
+router.post(
+  "/coordinator/request/:id/reject",
+  isCoordinator,
+  coordinatorRejectRequest
+);
+router.post(
+  "/coordinator/request/:id/resend",
+  isCoordinator,
+  coordinatorResendRequest
+);
+router.delete(
+  "/coordinator/request/:id/delete",
+  isCoordinator,
+  deleteStalledSubmission
+);
 
-router.get("/coordinator/request/:id", isCoordinator, getCoordinatorRequestDetails);
-router.post("/coordinator/request/:id/approve", isCoordinator, coordinatorApproveRequest);
-router.post("/coordinator/request/:id/reject", isCoordinator, coordinatorRejectRequest);
-router.post("/coordinator/request/:id/resend", isCoordinator, coordinatorResendRequest);
-router.delete("/coordinator/request/:id/delete", isCoordinator, deleteStalledSubmission);
+router.get("/coordinator/reports", isCoordinator, getCoordinatorReports);
+router.get(
+  "/coordinator/evaluations",
+  isCoordinator,
+  getCoordinatorEvaluations
+);
+router.post(
+  "/coordinator/evaluation/:id/approve",
+  isCoordinator,
+  approveJobEvaluation
+);
+router.post(
+  "/coordinator/evaluation/:id/reject",
+  isCoordinator,
+  rejectJobEvaluation
+);
 
+// -----------------------------------------------
+// Coordinator Manual Review Routes (NEW)
+// -----------------------------------------------
+router.get(
+  "/coordinator/manual-review-a1",
+  isCoordinator,
+  getManualReviewForms
+);
+router.post(
+  "/coordinator/manual-review-a1/:id/approve",
+  isCoordinator,
+  coordinatorApproveManualReview
+);
+router.post(
+  "/coordinator/manual-review-a1/:id/reject",
+  isCoordinator,
+  coordinatorRejectManualReview
+);
 
 module.exports = router;

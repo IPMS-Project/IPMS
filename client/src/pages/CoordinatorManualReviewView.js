@@ -1,40 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/CoordinatorRequestDetailView.css";
+import "../styles/CoordinatorRequestDetailView.css"; // Reuse same styling
 
-const CoordinatorRequestDetailView = () => {
+const CoordinatorManualReviewView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [requestData, setRequestData] = useState(null);
-  const [supervisorStatus, setSupervisorStatus] = useState(null);
+  const [formData, setFormData] = useState(null);
 
   useEffect(() => {
-    const fetchRequestDetails = async () => {
+    const fetchManualReviewForm = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}`
-        );
-        setRequestData(res.data.requestData);
-        setSupervisorStatus(res.data.supervisorStatus);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/coordinator/manual-review-a1`);
+        const matchedForm = res.data.find((form) => form._id === id);
+        setFormData(matchedForm || null);
       } catch (err) {
-        console.error("Error fetching request details:", err);
+        console.error("Error fetching manual review form:", err);
       }
     };
-
-    fetchRequestDetails();
-  }, [id]); // ✅ Only depends on id
+    fetchManualReviewForm();
+  }, [id]);
 
   const handleApprove = async () => {
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}/approve`
-      );
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/coordinator/manual-review-a1/${id}/approve`);
       alert(res.data.message);
       navigate("/coordinator-dashboard");
     } catch (err) {
       console.error("Approval failed:", err);
-      alert("Error approving the request.");
+      alert("Error approving manual review form.");
     }
   };
 
@@ -45,29 +39,25 @@ const CoordinatorRequestDetailView = () => {
       return;
     }
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/coordinator/request/${id}/reject`,
-        { reason }
-      );
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/coordinator/manual-review-a1/${id}/reject`, { reason });
       alert(res.data.message);
       navigate("/coordinator-dashboard");
     } catch (err) {
       console.error("Rejection failed:", err);
-      alert("Error rejecting the request.");
+      alert("Error rejecting manual review form.");
     }
   };
 
-  if (!requestData) return <h2>Loading request details...</h2>;
+  if (!formData) return <h2>Loading form details...</h2>;
 
   return (
     <div className="request-form">
-      <h2 className="dashboard-title">Internship Request Details</h2>
+      <h2 className="dashboard-title">Manual Review (Failed A1 Form)</h2>
 
       <div className="dashboard-card">
-        <p><b>Student:</b> {requestData.student?.name || "N/A"}</p>
-        <p><b>Email:</b> {requestData.student?.email || "N/A"}</p>
-        <p><b>Company:</b> {requestData.workplace?.name || "N/A"}</p>
-        <p><b>Supervisor Status:</b> {supervisorStatus}</p>
+        <p><b>Student:</b> {formData.student?.userName || "N/A"}</p>
+        <p><b>Email:</b> {formData.student?.email || "N/A"}</p>
+        <p><b>Company:</b> {formData.workplace?.name || "N/A"}</p>
 
         <h3 className="section-title">Tasks & CS Outcomes</h3>
         <table className="data-table">
@@ -78,7 +68,7 @@ const CoordinatorRequestDetailView = () => {
             </tr>
           </thead>
           <tbody>
-            {requestData.tasks.map((task, idx) => (
+            {formData.tasks.map((task, idx) => (
               <tr key={idx}>
                 <td>{task.description}</td>
                 <td>{task.outcomes?.join(", ") || "N/A"}</td>
@@ -97,4 +87,4 @@ const CoordinatorRequestDetailView = () => {
   );
 };
 
-export default CoordinatorRequestDetailView;
+export default CoordinatorManualReviewView;

@@ -1,19 +1,33 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../styles/SupervisorDashboard.css"; 
+import axios from "axios";
+import "../styles/SupervisorDashboard.css";
+
 const CoordinatorDashboard = () => {
-  const [activeTab, setActiveTab] = useState("requests"); // 'requests' or 'reports'
+  const [activeTab, setActiveTab] = useState("requests");
   const navigate = useNavigate();
-  // TEAM A's Internship Requests Logic
+
+  // Internship Requests (Form A1)
   const [requests, setRequests] = useState([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
 
-  // == INTERNSHIP REQUESTS (FORM A1) ==
+  // Weekly Reports (Form A2)
+  const [reports, setReports] = useState([]);
+  const [loadingReports, setLoadingReports] = useState(true);
+
+  // Job Evaluations (Form A3)
+  const [evaluations, setEvaluations] = useState([]);
+  const [loadingEvaluations, setLoadingEvaluations] = useState(true);
+
+  // Manual Reviews (Failed A1)
+  const [manualReviews, setManualReviews] = useState([]);
+  const [loadingManualReviews, setLoadingManualReviews] = useState(true);
+
   useEffect(() => {
-    if (activeTab === "requests") {
-      fetchInternshipRequests();
-    }
+    if (activeTab === "requests") fetchInternshipRequests();
+    if (activeTab === "reports") fetchWeeklyReports();
+    if (activeTab === "evaluations") fetchEvaluations();
+    if (activeTab === "manualReviews") fetchManualReviews();
   }, [activeTab]);
 
   const fetchInternshipRequests = async () => {
@@ -27,25 +41,10 @@ const CoordinatorDashboard = () => {
     }
   };
 
-  // == WEEKLY REPORT (FORM A2) ==
-
-  const [reportGroups, setReportGroups] = useState([]);
-  const [loadingReports, setLoadingReports] = useState(true);
-
-  useEffect(() => {
-    if (activeTab === "reports") {
-      fetchReportGroups();
-    }
-  }, [activeTab]);
-
-  const fetchReportGroups = async () => {
+  const fetchWeeklyReports = async () => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/supervised-groups`);
-      const filtered = res.data?.groups?.filter(group => {
-        const key = `coordinator_reviewed_${group.groupIndex}`;
-        return !localStorage.getItem(key);
-      });
-      setReportGroups(filtered || []);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/coordinator/reports`);
+      setReports(res.data.reports || []);
     } catch (err) {
       console.error("Error fetching reports:", err);
     } finally {
@@ -53,14 +52,28 @@ const CoordinatorDashboard = () => {
     }
   };
 
-  const handleReviewClick = (group) => {
-    localStorage.setItem(`coordinator_reviewed_${group.groupIndex}`, "true");
-    navigate(`/review-cumulative/${group.groupIndex}`);
+  const fetchEvaluations = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/coordinator/evaluations`);
+      setEvaluations(res.data || []);
+    } catch (err) {
+      console.error("Error fetching evaluations:", err);
+    } finally {
+      setLoadingEvaluations(false);
+    }
   };
 
-  
-  // Render UI
-  
+  const fetchManualReviews = async () => {
+    try {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/coordinator/manual-review-a1`);
+      setManualReviews(res.data || []);
+    } catch (err) {
+      console.error("Error fetching manual review forms:", err);
+    } finally {
+      setLoadingManualReviews(false);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <h2>Coordinator Dashboard</h2>
@@ -68,29 +81,33 @@ const CoordinatorDashboard = () => {
       {/* Tabs */}
       <div className="tab-toggle">
         <button onClick={() => setActiveTab("requests")} className={activeTab === "requests" ? "active" : ""}>Internship Requests</button>
-        <button onClick={() => setActiveTab("reports")} className={activeTab === "reports" ? "active" : ""}>Weekly Reports Review</button>
+        <button onClick={() => setActiveTab("reports")} className={activeTab === "reports" ? "active" : ""}>Weekly Reports</button>
+        <button onClick={() => setActiveTab("evaluations")} className={activeTab === "evaluations" ? "active" : ""}>Job Evaluations</button>
+        <button onClick={() => setActiveTab("manualReviews")} className={activeTab === "manualReviews" ? "active" : ""}>Manual Reviews (A1)</button>
       </div>
 
-      {/* Tab: Internship Requests */}
+      {/* Internship Requests */}
       {activeTab === "requests" && (
         <>
-          {loadingRequests ? <p>Loading...</p> : (
+          {loadingRequests ? <p>Loading requests...</p> : (
             <table className="dashboard-table">
               <thead>
                 <tr>
                   <th>Student Name</th>
-                  <th>Student ID</th>
                   <th>Company</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {requests.map(req => (
+                {requests.map((req) => (
                   <tr key={req._id}>
-                    <td>{req.student.studentName}</td>
-                    <td>{req.student_id}</td>
-                    <td>{req.workplace.name}</td>
-                    <td>{req.coordinator_status}</td>
+                    <td>{req.student?.name || "-"}</td>
+                    <td>{req.workplace?.name || "-"}</td>
+                    <td>{req.coordinator_status || "-"}</td>
+                    <td>
+                      <button className="view-details-btn" onClick={() => navigate(`/coordinator/request/${req._id}`)}>View Details</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -99,23 +116,81 @@ const CoordinatorDashboard = () => {
         </>
       )}
 
-      {/* Tab: Weekly Reports Review */}
+      {/* Weekly Reports */}
       {activeTab === "reports" && (
         <>
           {loadingReports ? <p>Loading reports...</p> : (
-            reportGroups.length === 0
-              ? <p>No reports to review</p>
-              : reportGroups.map(group => (
-                <div className="report-group-card" key={group.groupIndex}>
-                  <h4>Weeks: {group.weeks?.join(", ")}</h4>
-                  <ul>
-                    {group.reports.map((r, i) => (
-                      <li key={i}>Week {r.week} — Hours: {r.hours} — Tasks: {r.tasks}</li>
-                    ))}
-                  </ul>
-                  <button onClick={() => handleReviewClick(group)}>Review & Comment</button>
+            reports.length === 0 ? <p>No reports to review</p> : (
+              reports.map((report) => (
+                <div className="report-group-card" key={report._id}>
+                  <h4>Week: {report.week}</h4>
+                  <p>Hours: {report.hours}</p>
+                  <p>Tasks: {report.tasks}</p>
                 </div>
               ))
+            )
+          )}
+        </>
+      )}
+
+      {/* Job Evaluations */}
+      {activeTab === "evaluations" && (
+        <>
+          {loadingEvaluations ? <p>Loading evaluations...</p> : (
+            evaluations.length === 0 ? <p>No evaluations pending</p> : (
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Internee Name</th>
+                    <th>Internee Email</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {evaluations.map((evalItem) => (
+                    <tr key={evalItem._id}>
+                      <td>{evalItem.interneeName}</td>
+                      <td>{evalItem.interneeEmail}</td>
+                      <td>
+                        <button className="review-btn" onClick={() => navigate(`/coordinator/evaluation/${evalItem._id}`)}>Review</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )
+          )}
+        </>
+      )}
+
+      {/* Manual Reviews */}
+      {activeTab === "manualReviews" && (
+        <>
+          {loadingManualReviews ? <p>Loading manual reviews...</p> : (
+            manualReviews.length === 0 ? <p>No manual review forms.</p> : (
+              <table className="dashboard-table">
+                <thead>
+                  <tr>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Company</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {manualReviews.map((form) => (
+                    <tr key={form._id}>
+                      <td>{form.student?.userName || "N/A"}</td>
+                      <td>{form.student?.email || "N/A"}</td>
+                      <td>{form.workplace?.name || "N/A"}</td>
+                      <td>
+                        <button onClick={() => navigate(`/coordinator/manual-review/${form._id}`)}>Review</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )
           )}
         </>
       )}
