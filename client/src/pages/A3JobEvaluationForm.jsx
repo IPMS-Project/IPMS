@@ -46,7 +46,7 @@ const A3JobEvaluationForm = () => {
     supervisorAgreement: false,
     coordinatorSignature: "",
     coordinatorAgreement: false,
-    locked: false, 
+    locked: false, //not locked with fresh form
   });
   const [supervisorDetails, setSupervisorDetails] = useState(null);
   const [errors, setErrors] = useState({});
@@ -180,10 +180,9 @@ const A3JobEvaluationForm = () => {
           supervisorEmail: "",
           supervisorSignature: "",
           supervisorAgreement: false,
-          supervisorSignature: "",
-          supervisorAgreement: false,
           coordinatorSignature: "",
           coordinatorAgreement: false,
+          locked: true, //locked when properly approved
         });
         setRatings({});
         setComments({});

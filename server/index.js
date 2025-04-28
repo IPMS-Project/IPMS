@@ -131,7 +131,7 @@ app.post("/api/evaluation", async (req, res) => {
       coordinatorSignature,
       coordinatorAgreement,
       evaluations,
-      locked: true,
+      locked: false,
     });
 
     await newEvaluation.save();
