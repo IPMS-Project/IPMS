@@ -181,4 +181,31 @@
     color: white;
     border: none;
   }
+  .cumulative-review-container {
+    max-width: 900px; /* make it nicely compact */
+    margin: 40px auto; /* center horizontally */
+    background: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center; /* center the heading text */
+  }
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+  }
   
+  .report-table th, .report-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+  }
+  
+  .report-table th {
+    background-color: #861f1f;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+  }
+    

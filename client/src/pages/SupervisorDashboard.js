@@ -1,3 +1,4 @@
+// SupervisorDashboard.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/SupervisorDashboard.css";
@@ -11,49 +12,29 @@ const SupervisorDashboard = () => {
   const [message, setMessage] = useState("");
   const token = localStorage.getItem("token") || "";
 
-  const email = "vikash.balaji.kokku-1@ou.edu"; // TODO: Replace with dynamic user email later
+  const email = "vikash.balaji.kokku-1@ou.edu"; // Replace with dynamic user email later
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const formRes = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/supervisor/forms`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const formRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/supervisor/forms`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         const formattedForms = formRes.data.map(item => ({
           _id: item._id,
-          interneeName: item.student?.fullName || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
-          interneeEmail: item.student?.ouEmail || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
+          interneeName: item.student?.fullName || "N/A",
+          interneeEmail: item.student?.ouEmail || "N/A",
           form_type: item.form_type,
           createdAt: item.createdAt || item.submittedAt,
           supervisor_status: item.supervisor_status || "pending",
           fullForm: item,
-          workplace: {
-            name: item.workplace?.name || "N/A",
-            website: item.workplace?.website || "N/A",
-            phone: item.workplace?.phone || "N/A",
-          },
-          internshipAdvisor: {
-            name: item.internshipAdvisor?.name || "N/A",
-            jobTitle: item.internshipAdvisor?.jobTitle || "N/A",
-            email: item.internshipAdvisor?.email || "N/A",
-          },
-          creditHours: item.creditHours || 0,
-          startDate: item.startDate || "N/A",
-          endDate: item.endDate || "N/A",
-          tasks: item.tasks || [],
-          status: item.status || "pending",
-          supervisor_comment: item.supervisor_comment || "N/A",
         }));
 
         setRequests(formattedForms);
 
-        // Fetch weekly cumulative reports pending supervisor review
         const weeklyRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/cumulative`, {
           params: { email },
         });
@@ -62,20 +43,6 @@ const SupervisorDashboard = () => {
         setLoading(false);
       } catch (err) {
         console.error(err);
-        if (err.response) {
-          if (err.response.status === 401) {
-            setMessage("Unauthorized. Redirecting to login...");
-            localStorage.removeItem("token");
-            window.location.href = "/";
-          } else if (err.response.status === 403) {
-            setMessage("Forbidden access. Redirecting...");
-            window.location.href = "/";
-          } else if (err.response.status === 500) {
-            setMessage("Server error. Please try again later.");
-          } else {
-            setMessage("Unexpected error. Try again.");
-          }
-        }
         setLoading(false);
       }
     };
@@ -83,34 +50,8 @@ const SupervisorDashboard = () => {
     fetchAllData();
   }, [token]);
 
-  const handleAction = async (id, form_type, action, comment, signature) => {
-    const confirmed = window.confirm(`Are you sure you want to ${action} this request?`);
-    if (!confirmed) return;
-
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/supervisor/form/${form_type}/${id}/${action}`,
-        { comment, signature },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setMessage(res.data.message || `${action} successful`);
-      setRequests(prev => prev.filter(req => req._id !== id));
-      return true;
-    } catch (err) {
-      console.error(err);
-      setMessage(`Failed to ${action} request.`);
-      return false;
-    }
-  };
-
   const openFormView = (form) => setSelectedForm(form);
   const closeFormView = () => setSelectedForm(null);
-
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
   const sortedRequests = [...requests]
@@ -126,7 +67,6 @@ const SupervisorDashboard = () => {
         <p>Loading...</p>
       ) : (
         <>
-          {/* Regular Form Approvals */}
           {sortedRequests.length > 0 ? (
             <table className="dashboard-table">
               <thead>
@@ -164,16 +104,15 @@ const SupervisorDashboard = () => {
             </div>
           )}
 
-          {/* Cumulative Weekly Reports Pending Supervisor Review */}
           {weeklyReports.length > 0 && (
             <div className="weekly-review-section">
               <h3>Pending Weekly Group Reviews</h3>
               {weeklyReports.map((group, idx) => (
                 <div key={idx} className="weekly-group-card">
-                  <p><strong>Weeks:</strong> {group.weeks.join(", ")}</p>
+                  <p><strong>Weeks:</strong> {group.weeks.map(w => w.replace('Week ', '')).join(", ")}</p>
                   <button
                     className="review-btn"
-                    onClick={() => window.location.href = `/review-cumulative/${group.groupIndex}`}
+                    onClick={() => window.location.href = `/review-cumulative/${group.groupIndex}?email=${encodeURIComponent(email)}`}
                   >
                     Review Group
                   </button>
@@ -184,14 +123,10 @@ const SupervisorDashboard = () => {
         </>
       )}
 
-      {/* Form View Modal */}
       {selectedForm && (
         <ViewFormModal
           formData={selectedForm}
           onClose={closeFormView}
-          onAction={(id, action, comment, signature) =>
-            handleAction(id, selectedForm.form_type, action, comment, signature)
-          }
         />
       )}
     </div>

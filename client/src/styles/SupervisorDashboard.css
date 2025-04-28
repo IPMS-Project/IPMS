@@ -1,3 +1,5 @@
+/* Supervisor Dashboard Styles */
+
 .dashboard-container {
   padding: 20px;
   background-color: #f9f9f9;
@@ -6,11 +8,13 @@
 }
 
 .dashboard-container h2 {
-  font-size: 20px;
+  font-size: 24px;
   margin-bottom: 20px;
   color: #333;
+  font-weight: bold;
 }
 
+/* Toggle Button (if used later) */
 .toggle-button {
   position: absolute;
   right: 50px;
@@ -85,14 +89,11 @@
 
 .link-button:hover {
   background: none !important;
-  /* Prevents red background */
   color: #007bff;
-  /* Optional: subtle hover color, or use 'inherit' */
   text-decoration: underline;
 }
 
-
-/* Action buttons */
+/* Action Buttons */
 .action-buttons {
   display: flex;
   gap: 10px;
@@ -150,7 +151,7 @@
   color: #721c24;
 }
 
-/* Empty state */
+/* Empty State */
 .empty-message-container {
   display: flex;
   justify-content: center;
@@ -160,13 +161,13 @@
 
 .empty-message {
   font-size: 28px;
-  color: #000000;
+  color: #000;
   text-align: center;
   margin: 20px 0;
   font-weight: bold;
 }
 
-/* Modal override styles (if needed) */
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -203,4 +204,47 @@
   font-family: monospace;
   white-space: pre-wrap;
   margin-bottom: 15px;
+}
+/* Weekly Review Section */
+.weekly-review-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.weekly-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.weekly-group {
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.weekly-group p {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.review-btn {
+  background-color: #861f1f;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.review-btn:hover {
+  background-color: #6e1919;
 }

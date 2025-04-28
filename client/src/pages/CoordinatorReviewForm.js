@@ -1,74 +1,111 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
-import "../styles/CumulativeReviewForm.css";
+import "../styles/CoordinatorCumulativeReviewForm.css";
 
 const CoordinatorReviewForm = () => {
-  const { groupIndex } = useParams();
   const navigate = useNavigate();
-  const [reports, setReports] = useState([]);
-  const [comment, setComment] = useState("");
-  const [message, setMessage] = useState("");
+  const [group, setGroup] = useState(null);
+  const [coordinatorComment, setCoordinatorComment] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  // Get review details saved in localStorage
+  const email = localStorage.getItem("reviewEmail");
+  const weeks = JSON.parse(localStorage.getItem("reviewWeeks"));
 
   useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/reports/group/${groupIndex}`
-        );
-        if (res.data.success) {
-          setReports(res.data.group.reports);
-        }
-      } catch (err) {
-        console.error("Failed to load group reports", err);
-      }
-    };
+    if (email && weeks) {
+      fetchGroup();
+    } else {
+      console.error("Review email or weeks not found in localStorage");
+      setLoading(false);
+    }
+  }, []);
 
-    fetchGroup();
-  }, [groupIndex]);
-
-  const handleSubmit = async () => {
+  const fetchGroup = async () => {
     try {
-      const promises = reports.map((r) =>
-        axios.put(
-          `${process.env.REACT_APP_API_URL}/api/reports/${r._id}/coordinator-comment`,
-          { coordinatorComments: comment }
-        )
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/reports/fetch-group`,
+        { email, weeks }
       );
-      await Promise.all(promises);
-      setMessage("Coordinator comment submitted successfully!");
-      setTimeout(() => navigate("/coordinator-dashboard"), 1500);
-    } catch (err) {
-      console.error("Failed to submit coordinator comments", err);
-      setMessage("Failed to submit comment.");
+      console.log("Fetched Group:", response.data);
+      setGroup(response.data.group);
+    } catch (error) {
+      console.error("Failed to load group reports", error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleSubmit = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/reports/coordinator-comments`, {
+        email,
+        comments: coordinatorComment,
+        weeks,
+      });
+      alert("Coordinator comment submitted successfully!");
+      navigate("/coordinator-dashboard");
+    } catch (error) {
+      console.error("Error submitting coordinator comments", error.response?.data || error.message);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+  if (loading) return <div>Loading cumulative review...</div>;
+  if (!group) return <div>No group data found.</div>;
+
+  const studentName = group.reports[0]?.name || "Student";
+  const supervisorComment = group.reports[0]?.supervisorComments || "No comment provided.";
+  const supervisorName = group.reports[0]?.supervisorName || "Supervisor";
+
   return (
     <div className="cumulative-review-container">
-      <h2>Coordinator Review - Group {parseInt(groupIndex) + 1}</h2>
+      <h2 className="cumulative-review-header">
+        Cumulative Weekly Report of {studentName} for Weeks {group.weeks.map(w => w.split(" ")[1]).join(", ")}
+      </h2>
 
-      {reports.map((r, idx) => (
-        <div key={r._id} className="review-report-card">
-          <h4>Week {r.week}</h4>
-          <p><strong>Hours:</strong> {r.hours}</p>
-          <p><strong>Tasks:</strong> {r.tasks}</p>
-          <p><strong>Lessons:</strong> {r.lessons}</p>
-          <p><strong>Supervisor Comments:</strong> {r.supervisorComments}</p>
-        </div>
-      ))}
+      <table className="review-table">
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Hours</th>
+            <th>Tasks</th>
+            <th>Lessons</th>
+          </tr>
+        </thead>
+        <tbody>
+          {group.reports.map((report, idx) => (
+            <tr key={idx}>
+              <td>{report.week}</td>
+              <td>{report.hours}</td>
+              <td>{report.tasks}</td>
+              <td>{report.lessons}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="supervisor-comment-box">
+        <strong>Supervisor ({supervisorName}) Comment:</strong>
+        <p>{supervisorComment}</p>
+      </div>
 
       <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        placeholder="Write your coordinator comments..."
-      ></textarea>
+        className="coordinator-comment-area"
+        value={coordinatorComment}
+        onChange={(e) => setCoordinatorComment(e.target.value)}
+        placeholder="Write your coordinator review comment here..."
+      />
 
-      <button onClick={handleSubmit} className="submit-button">
-        Submit Coordinator Comment
-      </button>
-
-      {message && <p className="form-message">{message}</p>}
+      <div className="button-container">
+        <button className="cancel-button" onClick={() => navigate("/coordinator-dashboard")}>
+          Cancel
+        </button>
+        <button className="submit-button" onClick={handleSubmit}>
+          Submit
+        </button>
+      </div>
     </div>
   );
 };

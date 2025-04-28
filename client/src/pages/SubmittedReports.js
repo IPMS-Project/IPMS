@@ -11,10 +11,12 @@ const SubmittedReports = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const email = "vikash.balaji.kokku-1@ou.edu"; // Replace this with dynamic session email later
+        const email = "vikash.balaji.kokku-1@ou.edu"; // Later replace with session email
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine?email=${email}`);
         if (res.data.success) {
           setReports(res.data.reports);
+        } else {
+          setError("Failed to fetch reports.");
         }
       } catch (err) {
         console.error("Error fetching reports", err);
@@ -44,6 +46,7 @@ const SubmittedReports = () => {
               <th>Week</th>
               <th>Hours</th>
               <th>Tasks</th>
+              <th>Lessons</th> {/* ✅ Added Lessons */}
             </tr>
           </thead>
           <tbody>
@@ -51,16 +54,19 @@ const SubmittedReports = () => {
               <tr key={report._id} onClick={() => handleRowClick(report._id)}>
                 <td>{report.week}</td>
                 <td>{report.hours}</td>
-                <td>{report.tasks?.slice(0, 10)}...</td>
+                <td>{report.tasks?.length > 20 ? `${report.tasks.slice(0, 20)}...` : report.tasks}</td>
+                <td>{report.lessons?.length > 20 ? `${report.lessons.slice(0, 20)}...` : report.lessons}</td> {/* ✅ Lessons shown properly */}
               </tr>
             ))}
           </tbody>
         </table>
       )}
 
-      <button className="back-button" onClick={() => navigate("/weekly-report")}>
-        Return
-      </button>
+      <div style={{ textAlign: "center", marginTop: "20px" }}>
+        <button className="back-button" onClick={() => navigate("/weekly-report")}>
+          Return
+        </button>
+      </div>
     </div>
   );
 };

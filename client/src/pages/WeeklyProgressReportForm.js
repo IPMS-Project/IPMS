@@ -29,17 +29,14 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   const [message, setMessage] = useState("");
   const [startDate, setStartDate] = useState(null);
 
-  // Fetch A1 Form + Weekly Reports
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const email = "vikash.balaji.kokku-1@ou.edu"; // TODO: make dynamic later
+        const email = "vikash.balaji.kokku-1@ou.edu"; // TODO: Make dynamic later
         
-        // Fetch A1 Form
         const a1Res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`);
         if (a1Res.data.success) {
           const { name, email: userEmail, supervisorName, supervisorEmail, creditHours, startDate: fetchedStartDate } = a1Res.data.form;
-          
           setFormData(prev => ({
             ...prev,
             name,
@@ -49,16 +46,28 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             creditHours,
             requiredHours: creditHours ? creditHours * 60 : 0,
           }));
-
           setStartDate(fetchedStartDate);
         }
 
-        // Fetch Weekly Reports to calculate completed hours
         const reportsRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine?email=${email}`);
         if (reportsRes.data.success) {
+          const allReports = reportsRes.data.reports || [];
+          
+          let maxWeek = 0;
+          allReports.forEach(r => {
+            if (r.week) {
+              const match = r.week.match(/\d+/);
+              if (match) {
+                const weekNum = parseInt(match[0]);
+                if (weekNum > maxWeek) maxWeek = weekNum;
+              }
+            }
+          });
+
           setFormData(prev => ({
             ...prev,
             completedHours: reportsRes.data.completedHours || 0,
+            week: `Week ${maxWeek + 1}`, // Set to next week
           }));
         }
       } catch (err) {
@@ -70,7 +79,6 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     if (!readOnly) fetchData();
   }, [readOnly]);
 
-  // Load a single report if readonly mode
   useEffect(() => {
     if (readOnly && reportId) {
       axios.get(`${process.env.REACT_APP_API_URL}/api/reports/${reportId}`)
@@ -86,37 +94,23 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     }
   }, [readOnly, reportId]);
 
-  // Auto-calculate current week
-  useEffect(() => {
-    if (startDate && !readOnly) {
-      const today = dayjs();
-      const start = dayjs(startDate);
-      const diffInDays = today.diff(start, "day");
-
-      if (diffInDays >= 0) {
-        const weekNumber = Math.floor(diffInDays / 7) + 1;
-        setFormData(prev => ({
-          ...prev,
-          week: `Week ${Math.min(weekNumber, 15)}`,
-        }));
-      } else {
-        setFormData(prev => ({
-          ...prev,
-          week: "Week 1",
-        }));
-      }
-    }
-  }, [startDate, readOnly]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (readOnly && !(role === "coordinator" && name === "coordinatorComments")) return;
 
     if (name === "hours") {
       const num = parseInt(value, 10);
-      if (num > 40) return setFormData(prev => ({ ...prev, hours: 40 }));
-      if (num < 1 && value !== "") return setFormData(prev => ({ ...prev, hours: 1 }));
+      const remainingHours = Math.max(0, formData.requiredHours - formData.completedHours);
+
+      if (num > remainingHours) {
+        return setFormData(prev => ({ ...prev, hours: remainingHours }));
+      }
+      if (num > 40) {
+        return setFormData(prev => ({ ...prev, hours: 40 }));
+      }
+      if (num < 1 && value !== "") {
+        return setFormData(prev => ({ ...prev, hours: 1 }));
+      }
     }
 
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -124,7 +118,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { week, hours, tasks, lessons, name, email, supervisorName, supervisorEmail } = formData;
+    const { week, hours, tasks, lessons, name, email, supervisorName, supervisorEmail, completedHours, requiredHours } = formData;
 
     if (!name || !email || !supervisorName || !supervisorEmail) {
       return setMessage("Please complete the A1 form first.");
@@ -134,10 +128,19 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
       return setMessage("Please fill in all the required fields.");
     }
 
+    const enteredHours = parseFloat(hours);
+    const remainingHours = requiredHours - completedHours;
+
+    if (enteredHours > remainingHours) {
+      alert(`You can only enter up to ${remainingHours} hours. Please adjust.`);
+      return;
+    }
+
     try {
       const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, formData);
       setMessage(res.data.message || "Report submitted successfully!");
       resetForm();
+      navigate("/submitted-reports");
     } catch (err) {
       console.error(err);
       setMessage("Submission failed. Please try again.");
@@ -251,10 +254,17 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
               placeholder=" "
               required
               min="1"
-              max="40"
+              max={Math.min(40, Math.max(0, formData.requiredHours - formData.completedHours))}
               readOnly={readOnly}
             />
-            <label>Hours Worked</label>
+            <label>
+              Hours Worked
+              {formData.requiredHours && (
+                <span style={{ color: "red", fontSize: "0.8rem" }}>
+                  {" "} (Max {Math.max(0, formData.requiredHours - formData.completedHours)} left)
+                </span>
+              )}
+            </label>
           </div>
         </div>
 
