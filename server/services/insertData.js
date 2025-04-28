@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
-const InternshipRequest = require("../server/models/InternshipRequest"); 
-const User = require("../server/models/User"); // Make sure User model is imported properly
-const Submission = require("../server/models/Submission");
+const InternshipRequest = require("../models/InternshipRequest");
+const User = require("../models/User"); // Make sure User model is imported properly
+const Submission = require("../models/Submission");
 
 async function insertFormData(formData) {
   try {
