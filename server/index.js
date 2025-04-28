@@ -1,35 +1,37 @@
 require("dotenv").config();
-const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const User = require("./models/User");
-const formRoutes = require("./routes/formRoutes");
 
+const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
+const formRoutes = require("./routes/formRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
-const approvalRoutes = require("./routes/approvalRoutes");
-const studentRoutes = require("./routes/studentRoutes");
-
+const approvalRoutes = require("./routes/approvalRoutes"); 
 const outcomeRoutes = require("./routes/outcomeRoutes");
+const presentationRoutes = require("./routes/presentationRoutes");
+
+const User = require("./models/User");
+const Evaluation = require("./models/Evaluation");
 
 // Import cron job manager and register jobs
-const cronJobManager = require("./utils/cronUtils").cronJobManager;
+const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
-const Evaluation = require("./models/Evaluation");
-const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
-const path = require("path");
-
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use("/api/form", formRoutes);
+
+// Mount routes
+app.use("/api/form", formRoutes); // for form submissions
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
+app.use("/api/approval", approvalRoutes); 
 app.use("/api", outcomeRoutes);
+app.use("/api/reports", weeklyReportRoutes);
+app.use("/api/presentation", presentationRoutes);
 
+// Connect MongoDB
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
   autoIndex: true,
@@ -43,7 +45,7 @@ mongoose
   .then(async () => {
     console.log("Connected to Local MongoDB");
     try {
-      await registerAllJobs();
+      await registerAllJobs(); // Register cronjobs
       console.log("Cron jobs initialized successfully");
     } catch (error) {
       console.error("Failed to initialize cron jobs:", error);
@@ -68,6 +70,7 @@ mongoose.connection.on("disconnected", () => {
   }
 });
 
+// Test endpoints
 app.get("/", (req, res) => {
   res.send("IPMS Backend Running");
 });
@@ -76,14 +79,7 @@ app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
 
-app.use("/api/email", emailRoutes);
-app.use("/api/token", tokenRoutes);
-app.use("/api", approvalRoutes);
-
-app.use("/api/reports", weeklyReportRoutes);
-app.use("/api/student", studentRoutes);
-app.use("/api/fourWeekReports", fourWeekReportRoutes);
-
+// Temporary API for creating a user
 app.post("/api/createUser", async (req, res) => {
   try {
     const { userName, email, password, role } = req.body;
@@ -100,20 +96,26 @@ app.post("/api/createUser", async (req, res) => {
   }
 });
 
+// Temporary API for saving an evaluation
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const {
-      interneeName,
-      interneeID,
-      interneeEmail,
-      advisorSignature,
-      advisorAgreement,
-      coordinatorSignature,
-      coordinatorAgreement,
-      ratings,
-      comments,
-    } = req.body;
+    const { interneeName, interneeID, interneeEmail, supervisorSignature, supervisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
 
+    //check if there's an existing evaluation for the given interneeID and email
+    const existingEvaluation = await Evaluation.findOne({ interneeID, interneeEmail });
+
+    if (existingEvaluation) {
+      //If evaluation is locked, prevent update
+      if (existingEvaluation.locked) {
+        return res.status(400).json({ error: "Evaluation is locked and cannot be modified." });
+      }
+    
+      //If evaluation is not in 'draft' status, prevent update
+      if (existingEvaluation.status !== 'draft') {
+        return res.status(400).json({ error: "This evaluation has already been finalized and cannot be modified." });
+      }
+    }
+    
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
       rating: ratings[category],
@@ -124,11 +126,12 @@ app.post("/api/evaluation", async (req, res) => {
       interneeName,
       interneeID,
       interneeEmail,
-      advisorSignature,
-      advisorAgreement,
+      supervisorSignature,
+      supervisorAgreement,
       coordinatorSignature,
       coordinatorAgreement,
       evaluations,
+      locked: false,
     });
 
     await newEvaluation.save();
@@ -139,24 +142,19 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-
-
-
-//Form A.4
-const presentationRoutes = require("./routes/presentationRoutes");
-app.use("/api/presentation", presentationRoutes);
-
+// Graceful shutdown
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
     await mongoose.connection.close();
-    console.log("✅ MongoDB connection closed through app termination");
+    console.log("MongoDB connection closed through app termination");
     process.exit(0);
   } catch (err) {
-    console.error("❌ Error during shutdown:", err);
+    console.error("Error during shutdown:", err);
     process.exit(1);
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
