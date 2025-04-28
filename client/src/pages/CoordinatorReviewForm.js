@@ -14,13 +14,28 @@ const CoordinatorReviewForm = () => {
   const weeks = JSON.parse(localStorage.getItem("reviewWeeks"));
 
   useEffect(() => {
+    const fetchGroup = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/reports/fetch-group`,
+          { email, weeks }
+        );
+        console.log("Fetched Group:", response.data);
+        setGroup(response.data.group);
+      } catch (error) {
+        console.error("Failed to load group reports", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
     if (email && weeks) {
       fetchGroup();
     } else {
       console.error("Review email or weeks not found in localStorage");
       setLoading(false);
     }
-  }, []);
+  }, [email, weeks]);  
 
   const fetchGroup = async () => {
     try {

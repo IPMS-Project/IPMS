@@ -9,7 +9,7 @@ const SupervisorDashboard = () => {
   const [weeklyReports, setWeeklyReports] = useState([]);
   const [selectedForm, setSelectedForm] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
+  const [message] = useState('');
   const token = localStorage.getItem("token") || "";
 
   const email = "vikash.balaji.kokku-1@ou.edu"; // Replace with dynamic user email later

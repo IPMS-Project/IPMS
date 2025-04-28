@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import "../styles/WeeklyProgressReportForm.css";
 
 const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
@@ -27,7 +27,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   });
 
   const [message, setMessage] = useState("");
-  const [startDate, setStartDate] = useState(null);
+ // const [startDate, setStartDate] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
