@@ -11,15 +11,6 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
     setError("");
     onAction(formData._id, action, comment.trim(), signature.trim());
   };
-
-  function calculateWeeksBetween(startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const differenceInMilliseconds = end - start;
-    const differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
-    const differenceInWeeks = differenceInDays / 7;
-    return Math.floor(differenceInWeeks);
-  }
   
   const renderA1 = () => (
     <>
