@@ -1,8 +1,7 @@
 // server/utils/reminderCoordinatorUtils.js
 // Author: Subhash Chandra
 // Reminder system for Coordinator approval on Form A.3 (Sprint 4)
-
-const cronJobManager = require("./cronUtils").cronJobManager;
+const cronJobManager = require("./cronUtils"); 
 const Evaluation = require("../models/Evaluation");
 const emailService = require("../services/emailService");
 const logger = require("./logger");
@@ -11,7 +10,7 @@ const dayjs = require("dayjs");
 function registerCoordinatorReminderJob() {
   cronJobManager.registerJob(
     "CoordinatorReminder",
-    "0 9 * * *", // 🔥 Every day at 9:00 AM (Production cron expression)
+    "0 9 * * *", // Every day at 9:00 AM (Production cron expression)
     async () => {
       try {
         const threeDaysAgo = dayjs().subtract(3, "day").toDate();
@@ -20,7 +19,7 @@ function registerCoordinatorReminderJob() {
         const pendingEvaluations = await Evaluation.find({
           status: "submitted",
           updatedAt: { $lt: threeDaysAgo },
-          coordinatorSignature: { $exists: false } // Coordinator hasn't signed yet
+          coordinatorSignature: null // Coordinator hasn't signed yet
         });
 
         logger.info(`CoordinatorReminder: Found ${pendingEvaluations.length} pending submissions.`);
@@ -63,7 +62,7 @@ function registerCoordinatorReminderJob() {
     },
     {
       timezone: "America/Chicago",
-      runOnInit: false // ✅ Only run daily; don't trigger immediately
+      runOnInit: false //  Only run daily; don't trigger immediately
     }
   );
 }

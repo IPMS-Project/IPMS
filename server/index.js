@@ -48,9 +48,10 @@ mongoose
       await registerAllJobs();
       console.log("Cron jobs initialized successfully");
 
-       // ✅ Register your coordinator reminder job here
+       //Register your coordinator reminder job here
       const { registerCoordinatorReminderJob } = require("./utils/reminderCoordinatorUtils");
       registerCoordinatorReminderJob();
+      //await manualCoordinatorReminderTest(); // This runs immediately for testing
     } catch (error) {
       console.error("Failed to initialize cron jobs:", error);
     }
