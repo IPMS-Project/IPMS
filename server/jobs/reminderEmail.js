@@ -115,44 +115,74 @@ const supervisorReminder = async () => {
           text: `Your submission "${submission.name}" is still awaiting supervisor review.`,
         });
 
-        await NotificationLog.create({
-          submissionId: submission._id,
-          type: "studentEscalation",
-          recipientEmail: student.email,
-          message: `Student notified about supervisor inaction for "${submission.name}".`,
-        });
+		// Log notification in database
+		await NotificationLog.create({
+		    submissionId: submission._id,
+		    type: "studentEscalation",
+		    recipientEmail: student.email,
+		    message: `Student notified about supervisor status on: "${submission.name}"`,
+		});
+		
+		console.log(`Returned to student for resubmit/delete: "${submission.name}"`);
+	    } else if (shouldRemindAgain) {
+		// Gentle reminder to supervisor
+		await emailService.sendEmail({
+		    to: supervisor.email,
+		    subject: `Reminder: Please Review Submission "${submission.name}"`,
+		    html: `<p>This is a reminder to review the submission by ${submission.student_name}.</p>`,
+		    text: `Reminder to review submission "${submission.name}".`,
+		});
 
-        logger.info(`[Escalated] Student notified for: "${submission.name}"`);
-      } else if (shouldRemindAgain) {
-        for (const sup of supervisors) {
-          await emailService.sendEmail({
-            to: sup.ouEmail,
-            subject: `Reminder: Please Review Submission "${submission._id}"`,
-            html: `<p>This is a reminder to review the submission by ${student.email}.</p>`,
-            text: `Reminder to review submission "${submission._id}".`,
-          });
-        }
-
-        submission.supervisor_reminder_count = reminderCount + 1;
-        submission.last_supervisor_reminder_at = new Date();
-
-        try {
-          await submission.save();
-        } catch (err) {
-          logger.error(`Failed to save submission: ${err.message}`);
-        }
-
-        logger.info(
-          `[Reminder Sent] Supervisor: "${supervisor.email}" for "${submission.name}"`
-        );
-      }
+		// Update the document
+		submission.supervisor_reminder_count = reminderCount + 1;
+		submission.last_supervisor_reminder_at = new Date();
+		await submission.save();
+		
+		console.log(`Reminder sent to supervisor for "${submission.name}"`);
+	    }
+	}
+    } catch (err) {
+	console.error("Error in supervisorReminder:", err);
     }
-  } catch (err) {
-    logger.error("[SupervisorReminder Error]:", err.message || err);
+};
+
+const Evaluation = require("../models/Evaluation");
+
+const evaluationReminder = async () => {
+  try {
+    const pendingEvals = await Evaluation.find({
+      evaluations: { $exists: false },
+      advisorAgreement: true,
+    });
+
+    for (const evalDoc of pendingEvals) {
+      const emailHtml = `
+        <p>Dear Supervisor,</p>
+        <p>This is a reminder to complete the <strong>Final Job Performance Evaluation (Form A.3)</strong> for:</p>
+        <ul>
+          <li><strong>Name:</strong> ${evalDoc.interneeName}</li>
+          <li><strong>Sooner ID:</strong> ${evalDoc.interneeID}</li>
+        </ul>
+        <p>The deadline is approaching. Please use the link below to complete the evaluation:</p>
+        <p><a href="${process.env.CLIENT_URL}/evaluation/${evalDoc._id}">Complete A.3 Evaluation</a></p>
+        <p>Thanks,<br/>IPMS Team</p>
+      `;
+
+      await emailService.sendEmail({
+        to: evalDoc.interneeEmail, // or supervisor's email if you have it
+        subject: "Reminder: Pending A.3 Evaluation Submission",
+        html: emailHtml,
+      });
+
+      console.log(`✅ Reminder sent for: ${evalDoc.interneeName}`);
+    }
+  } catch (error) {
+    console.error("❌ Error sending A.3 reminders:", error);
   }
 };
 
 module.exports = {
-  coordinatorReminder,
-  supervisorReminder,
+    coordinatorReminder,
+    supervisorReminder,
+	evaluationReminder,
 };
