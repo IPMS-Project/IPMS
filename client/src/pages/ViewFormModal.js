@@ -1,24 +1,6 @@
 import React, { useState } from "react";
 import "../styles/A1InternshipRequestForm.css";
 
-const outcomeLabels = [
-  "Problem Solving",
-  "Solution Development",
-  "Communication",
-  "Decision-Making",
-  "Collaboration",
-  "Application",
-];
-
-const outcomeDescriptions = [
-    "Understand and solve complex computing problems",
-    "Create, build, and assess computing solutions",
-    "Communicate clearly and confidently",
-    "Make responsible decisions",
-    "Work well within a team",
-    "Apply computer science algorithms to create practical solutions",
-];
-
 const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
     const [comment, setComment] = useState("");
   const [signature, setSignature] = useState("");
@@ -39,10 +21,6 @@ const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
     return Math.floor(differenceInWeeks);
   }
   
-  // Example usage:
-  const weeks = calculateWeeksBetween(formData.startDate, formData.endDate);
-  
-
   const renderA1 = () => (
     <>
       <h2>A1 – Internship Request Form</h2>
