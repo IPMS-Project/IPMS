@@ -37,21 +37,6 @@ const CoordinatorReviewForm = () => {
     }
   }, [email, weeks]);  
 
-  const fetchGroup = async () => {
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/reports/fetch-group`,
-        { email, weeks }
-      );
-      console.log("Fetched Group:", response.data);
-      setGroup(response.data.group);
-    } catch (error) {
-      console.error("Failed to load group reports", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async () => {
     try {
       await axios.post(`${process.env.REACT_APP_API_URL}/api/reports/coordinator-comments`, {

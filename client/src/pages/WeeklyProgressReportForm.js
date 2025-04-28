@@ -34,7 +34,7 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
         
         const a1Res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`);
         if (a1Res.data.success) {
-          const { name, email: userEmail, supervisorName, supervisorEmail, creditHours, startDate: fetchedStartDate } = a1Res.data.form;
+          const { name, email: userEmail, supervisorName, supervisorEmail, creditHours} = a1Res.data.form;
           setFormData(prev => ({
             ...prev,
             name,
