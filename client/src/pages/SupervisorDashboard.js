@@ -138,26 +138,28 @@ const SupervisorDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {sortedRequests.map((req) => {
-              return (
-                <tr key={req._id}>
-                  <td>{req.interneeName || "N/A"}</td>
-                  <td>
-                    <button className="link-button" onClick={() => openFormView(req)}>
-                    {req.interneeEmail || "N/A"}
-                    </button>
-                  </td>
-                  <td>{req.form_type}</td>
-                  <td>{formatDate(req.createdAt)}</td>
-                  <td>
-                    <span className={`status-badge ${req.supervisor_status || req.status}`}>
-                      {req.supervisor_status || req.status}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
+  {sortedRequests.map((req) => {
+    return (
+      <tr
+        key={req._id}
+        className="clickable-row"
+        onClick={() => openFormView(req)}
+        style={{ cursor: "pointer" }}
+      >
+        <td>{req.interneeName || "N/A"}</td>
+        <td>{req.interneeEmail || "N/A"}</td>
+        <td>{req.form_type}</td>
+        <td>{formatDate(req.createdAt)}</td>
+        <td>
+          <span className={`status-badge ${req.supervisor_status || req.status}`}>
+            {req.supervisor_status || req.status}
+          </span>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+
         </table>
       );
     }

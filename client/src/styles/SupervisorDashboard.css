@@ -182,11 +182,11 @@
 
 .modal-box {
   background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 600px;
+  padding: 60px;
+  border-radius: 30px;
+  width: 1000px;
   max-width: 95%;
-  max-height: 85vh;
+  max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
@@ -203,4 +203,38 @@
   font-family: monospace;
   white-space: pre-wrap;
   margin-bottom: 15px;
+}
+
+/* Make modal section headings red, matching dashboard-table header */
+.modal-box .section-title,
+.modal-box h3 {
+  color: #861f1f !important;
+  font-weight: bold;
+}
+
+
+.signature-modal-overlay {
+  position: fixed;
+  z-index: 9999;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(40, 40, 40, 0.32);
+  display: flex; align-items: center; justify-content: center;
+}
+.signature-modal-popup {
+  background: #fff;
+  padding: 32px 36px 28px 36px;
+  border-radius: 14px;
+  min-width: 390px;
+  max-width: 97vw;
+  max-height: 95vh;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.13);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+.signature-modal-title {
+  color: #861f1f;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
 }
