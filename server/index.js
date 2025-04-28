@@ -99,8 +99,16 @@ app.post("/api/createUser", async (req, res) => {
 // Temporary API for saving an evaluation
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
+    const { interneeName, interneeID, interneeEmail, supervisorSignature, supervisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
 
+    //check if there's an existing evaluation for the given interneeID and email
+    const existingEvaluation = await Evaluation.findOne({ interneeID, interneeEmail });
+
+    //if evaluation is locked, prevent update
+    if (existingEvaluation && existingEvaluation.locked) {
+      return res.status(400).json({ error: "Evaluation is locked and cannot be modified." });
+    }
+    
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
       rating: ratings[category],
@@ -111,11 +119,12 @@ app.post("/api/evaluation", async (req, res) => {
       interneeName,
       interneeID,
       interneeEmail,
-      advisorSignature,
-      advisorAgreement,
+      supervisorSignature,
+      supervisorAgreement,
       coordinatorSignature,
       coordinatorAgreement,
       evaluations,
+      locked: false, //set to false initially
     });
 
     await newEvaluation.save();

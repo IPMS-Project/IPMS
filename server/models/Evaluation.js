@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const formMetadata = require('./FormMetadata');
 
-// Signature schema for both advisor and coordinator
+// Signature schema for both supervisor and coordinator
 const signatureSchema = new mongoose.Schema({
   type: {
     type: String,
@@ -69,12 +69,12 @@ const evaluationSchema = new mongoose.Schema({
     validate: [arr => arr.length === 3, 'Exactly 3 evaluation items are required']
   },
 
-  advisorSignature: {
+  supervisorSignature: {
     type: signatureSchema,
     required: true
   },
 
-  advisorAgreement: {
+  supervisorAgreement: {
     type: Boolean,
     required: true
   },
