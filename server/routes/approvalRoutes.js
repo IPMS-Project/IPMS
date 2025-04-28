@@ -16,6 +16,9 @@ const {
   approveJobEvaluation,
   rejectJobEvaluation,
   coordinatorResendRequest,
+  getManualReviewForms,
+  coordinatorApproveManualReview,
+  coordinatorRejectManualReview
 } = require("../controllers/approvalController");
 
 const {
@@ -86,6 +89,25 @@ router.post(
   "/coordinator/evaluation/:id/reject",
   isCoordinator,
   rejectJobEvaluation
+);
+
+// -----------------------------------------------
+// Coordinator Manual Review Routes (NEW)
+// -----------------------------------------------
+router.get(
+  "/coordinator/manual-review-a1",
+  isCoordinator,
+  getManualReviewForms
+);
+router.post(
+  "/coordinator/manual-review-a1/:id/approve",
+  isCoordinator,
+  coordinatorApproveManualReview
+);
+router.post(
+  "/coordinator/manual-review-a1/:id/reject",
+  isCoordinator,
+  coordinatorRejectManualReview
 );
 
 module.exports = router;

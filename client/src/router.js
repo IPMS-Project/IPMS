@@ -16,6 +16,8 @@ import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
+import CoordinatorManualReviewView from "./pages/CoordinatorManualReviewView"; // ✅ Newly added!
+import CoordinatorEvaluationReview from "./pages/CoordinatorEvaluationReview";
 import TokenRenewal from "./pages/TokenRenewal";
 import StudentDashboard from "./pages/StudentDashboard";
 import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
@@ -24,7 +26,6 @@ import SubmittedReports from "./pages/SubmittedReports";
 import CumulativeReviewForm from "./pages/CumulativeReviewForm";
 import CoordinatorReviewForm from "./pages/CoordinatorReviewForm";
 import CoordinatorCumulativeReviewForm from "./pages/CoordinatorCumulativeReviewForm";
-import CoordinatorEvaluationReview from "./pages/CoordinatorEvaluationReview";
 
 // Create and export the router configuration
 const router = createBrowserRouter([
@@ -33,19 +34,10 @@ const router = createBrowserRouter([
     element: <Layout />,
     errorElement: <NotFound />,
     children: [
-      {
-        index: true,
-        element: <Home />,
-      },
-      {
-        path: "signup",
-        element: <SignUp />,
-      },
-      {
-        path: "weekly-report",
-        element: <WeeklyProgressReportForm />,
-      },
-      {
+      { index: true, element: <Home /> },
+      { path: "signup", element: <SignUp /> },
+      { path: "weekly-report", element: <WeeklyProgressReportForm /> },
+      { 
         path: "student-dashboard",
         element: (
           <ProtectedRouteStudent>
@@ -53,70 +45,23 @@ const router = createBrowserRouter([
           </ProtectedRouteStudent>
         ),
       },
-      {
-        path: "a1-form",
-        element: <A1InternshipRequestForm />,
-      },
-      {
-        path: "evaluation",
-        element: <A3JobEvaluationForm />,
-      },
-      {
-        path: "activate/:token",
-        element: <ActivateAccount />,
-      },
-      {
-        path: "presentation",
-        element: <A4PresentationEvaluationForm />,
-      },
-      {
-        path: "supervisor-dashboard",
-        element: <SupervisorDashboard />,
-      },
-      {
-        path: "coordinator-dashboard",
-        element: <CoordinatorDashboard />,
-      },
-      {
-        path: "coordinator/request/:id",
-        element: <CoordinatorRequestDetailView />,
-      },
-      {
-        path: "renew-token/:token",
-        element: <TokenRenewal />,
-      },
-      {
-        path: "four-week-report",
-        element: <WeeklyFourWeekReportForm />,
-      },
-      {
-        path: "submitted-reports",
-        element: <SubmittedReports />,
-      },
-      {
-        path: "submitted-reports/view/:reportId",
-        element: <WeeklyProgressReportForm readOnly={true} />,
-      },
-      {
-        path: "review-cumulative/:groupIndex",
-        element: <CumulativeReviewForm />,
-      },
-      {
-        path: "coordinator-review/:groupIndex",
-        element: <CoordinatorReviewForm />,
-      },
-      {
-        path: "review-cumulative/:groupIndex/coordinator",
-        element: <CoordinatorCumulativeReviewForm />,
-      },
-      {
-        path: "weekly-report/:groupIndex/week-:weekNumber/:studentName",
-        element: <Home />,
-      },
-      {
-        path: "coordinator/evaluation/:id",
-        element: <CoordinatorEvaluationReview />,
-      },
+      { path: "a1-form", element: <A1InternshipRequestForm /> },
+      { path: "evaluation", element: <A3JobEvaluationForm /> },
+      { path: "activate/:token", element: <ActivateAccount /> },
+      { path: "presentation", element: <A4PresentationEvaluationForm /> },
+      { path: "supervisor-dashboard", element: <SupervisorDashboard /> },
+      { path: "coordinator-dashboard", element: <CoordinatorDashboard /> },
+      { path: "coordinator/request/:id", element: <CoordinatorRequestDetailView /> },
+      { path: "coordinator/manual-review/:id", element: <CoordinatorManualReviewView /> },
+      { path: "coordinator/evaluation/:id", element: <CoordinatorEvaluationReview /> },
+      { path: "renew-token/:token", element: <TokenRenewal /> },
+      { path: "four-week-report", element: <WeeklyFourWeekReportForm /> },
+      { path: "submitted-reports", element: <SubmittedReports /> },
+      { path: "submitted-reports/view/:reportId", element: <WeeklyProgressReportForm readOnly={true} /> },
+      { path: "review-cumulative/:groupIndex", element: <CumulativeReviewForm /> },
+      { path: "coordinator-review/:groupIndex", element: <CoordinatorReviewForm /> },
+      { path: "review-cumulative/:groupIndex/coordinator", element: <CoordinatorCumulativeReviewForm /> },
+      { path: "weekly-report/:groupIndex/week-:weekNumber/:studentName", element: <Home /> },
     ],
   },
 ]);

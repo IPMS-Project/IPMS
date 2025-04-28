@@ -124,9 +124,13 @@ const getCoordinatorRequests = async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
       coordinator_status: "pending",
-    });
+      "approvals.0": "advisor",
+      csValidationPassed: true,
+    }).populate("student", "userName email");
+
     res.status(200).json(requests);
   } catch (err) {
+    console.error("Error fetching coordinator requests:", err);
     res.status(500).json({ message: "Failed to fetch internship requests." });
   }
 };
@@ -140,6 +144,7 @@ const getCoordinatorRequestDetails = async (req, res) => {
     const supervisorStatus = requestData.supervisor_status || "Not Submitted";
     res.status(200).json({ requestData, supervisorStatus });
   } catch (err) {
+    console.error("Error fetching coordinator request details:", err);
     res.status(500).json({ message: "Failed to fetch request details." });
   }
 };
@@ -147,52 +152,151 @@ const getCoordinatorRequestDetails = async (req, res) => {
 const coordinatorApproveRequest = async (req, res) => {
   try {
     const request = await InternshipRequest.findById(req.params.id);
-    if (!request)
+    if (!request) {
       return res.status(404).json({ message: "Request not found." });
+    }
 
     request.status = "approved";
     request.coordinator_status = "Approved";
     request.coordinator_comment = "Approved by Coordinator";
     await request.save();
 
-    await EmailService.sendEmail({
-      to: request.student.email,
-      subject: "Internship Request Approved",
-      html: `<p>Your internship request has been approved by the Coordinator.</p>`,
-    });
+    if (request.student?.email) {
+      try {
+        await EmailService.sendEmail({
+          to: request.student.email,
+          subject: "Internship Request Approved",
+          html: `<p>Your internship request has been approved by the Coordinator.</p>`,
+        });
+      } catch (emailError) {
+        console.error("Failed to send approval email:", emailError.message);
+        // Continue even if email fails
+      }
+    } else {
+      console.warn("No student email found. Skipping email notification.");
+    }
 
     res.json({ message: "Request approved successfully." });
   } catch (err) {
+    console.error("Approval failed:", err);
     res.status(500).json({ message: "Approval failed." });
   }
 };
 
 const coordinatorRejectRequest = async (req, res) => {
   const { reason } = req.body;
-  if (!reason)
+  if (!reason) {
     return res.status(400).json({ message: "Rejection reason required." });
+  }
 
   try {
     const request = await InternshipRequest.findById(req.params.id);
-    if (!request)
+    if (!request) {
       return res.status(404).json({ message: "Request not found." });
+    }
 
     request.status = "rejected";
     request.coordinator_status = "Rejected";
     request.coordinator_comment = reason;
     await request.save();
 
-    await EmailService.sendEmail({
-      to: request.student.email,
-      subject: "Internship Request Rejected",
-      html: `<p>Your internship request has been rejected.<br><b>Reason:</b> ${reason}</p>`,
-    });
+    if (request.student?.email) {
+      try {
+        await EmailService.sendEmail({
+          to: request.student.email,
+          subject: "Internship Request Rejected",
+          html: `<p>Your internship request has been rejected.<br><b>Reason:</b> ${reason}</p>`,
+        });
+      } catch (emailError) {
+        console.error("Failed to send rejection email:", emailError.message);
+      }
+    } else {
+      console.warn("No student email found. Skipping email notification.");
+    }
 
     res.json({ message: "Request rejected successfully." });
   } catch (err) {
+    console.error("Rejection failed:", err);
     res.status(500).json({ message: "Rejection failed." });
   }
 };
+
+
+const getManualReviewForms = async (req, res) => {
+  try {
+    const forms = await InternshipRequest.find({
+      csValidationPassed: false,
+      manualReviewStatus: "pending",
+    }).populate("student", "userName email");
+
+    res.status(200).json(forms);
+  } catch (error) {
+    console.error("Error fetching manual review forms:", error);
+    res.status(500).send("Server Error");
+  }
+};
+
+const coordinatorApproveManualReview = async (req, res) => {
+  try {
+    const formId = req.params.id;
+    const request = await InternshipRequest.findByIdAndUpdate(
+      formId,
+      { coordinator_status: "approved", manualReviewStatus: "approved" },
+      { new: true }
+    ).populate("student");
+
+    if (!request)
+      return res.status(404).json({ message: "Request not found" });
+
+    if (request.student?.email) {
+      await EmailService.sendEmail({
+        to: request.student.email,
+        subject: "Internship Request Approved (Manual Review)",
+        html: `<p>Your internship request has been manually reviewed and approved by the Coordinator.</p>`,
+      });
+    }
+
+    res.json({ message: "Manual Review Request Approved Successfully" });
+  } catch (err) {
+    console.error("Manual review approval failed:", err);
+    res.status(500).json({ message: "Approval failed", error: err.message });
+  }
+};
+
+const coordinatorRejectManualReview = async (req, res) => {
+  const { reason } = req.body;
+  if (!reason)
+    return res.status(400).json({ message: "Rejection reason required." });
+
+  try {
+    const formId = req.params.id;
+    const request = await InternshipRequest.findByIdAndUpdate(
+      formId,
+      { coordinator_status: "rejected", manualReviewStatus: "rejected" },
+      { new: true }
+    ).populate("student");
+
+    if (!request)
+      return res.status(404).json({ message: "Request not found" });
+
+    if (request.student?.email) {
+      await EmailService.sendEmail({
+        to: request.student.email,
+        subject: "Internship Request Rejected (Manual Review)",
+        html: `<p>Your internship request has been manually reviewed and rejected.<br><b>Reason:</b> ${reason}</p>`,
+      });
+    }
+
+    res.json({ message: "Manual Review Request Rejected Successfully" });
+  } catch (err) {
+    console.error("Manual review rejection failed:", err);
+    res.status(500).json({ message: "Rejection failed.", error: err.message });
+  }
+};
+
+// =======================================
+//         Coordinator Resend Feature
+// =======================================
 
 const coordinatorResendRequest = async (req, res) => {
   try {
@@ -212,6 +316,10 @@ const coordinatorResendRequest = async (req, res) => {
   }
 };
 
+// =======================================
+//         Coordinator Evaluation
+// =======================================
+
 const getCoordinatorReports = async (req, res) => {
   try {
     const reports = await WeeklyReport.find({}).sort({ submittedAt: -1 });
@@ -225,7 +333,7 @@ const getCoordinatorEvaluations = async (req, res) => {
   try {
     const evaluations = await Evaluation.find({
       advisorAgreement: true,
-      coordinatorAgreement: { $ne: true }, // Only fetch not-yet-approved evaluations
+      coordinatorAgreement: { $ne: true },
     });
     res.status(200).json(evaluations);
   } catch (err) {
@@ -244,50 +352,14 @@ const approveJobEvaluation = async (req, res) => {
     evaluation.updatedAt = new Date();
     await evaluation.save();
 
-    // Build Clean HTML Table without newlines
-    const evaluationTable = `
-      <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%;">
-        <thead style="background-color: #f2f2f2;">
-          <tr>
-            <th>Category</th>
-            <th>Rating</th>
-            <th>Comment</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${evaluation.evaluations
-            .map(
-              (item) => `
-            <tr>
-              <td>${item.category}</td>
-              <td>${item.rating}</td>
-              <td>${item.comment ? item.comment : "N/A"}</td>
-            </tr>
-          `
-            )
-            .join("")}
-        </tbody>
-      </table>
-    `;
-
     await EmailService.sendEmail({
       to: evaluation.interneeEmail,
       subject: "Your Job Evaluation (Form A3) is Approved!",
-      html: `
-        <div style="font-family: Arial, sans-serif;">
-          <p>Dear ${evaluation.interneeName},</p>
-          <p>Your Job Evaluation (Form A3) has been approved by the Coordinator. Please find the evaluation details below. Kindly upload this to Canvas:</p>
-          ${evaluationTable}
-          <p>Best regards,<br/>Internship Program Management System</p>
-        </div>
-      `,
+      html: `<p>Dear ${evaluation.interneeName}, your evaluation is approved! Kindly upload this to Canvas.</p>`,
     });
 
-    res.json({
-      message: "A3 Job Evaluation approved and emailed successfully.",
-    });
+    res.json({ message: "A3 Job Evaluation approved and emailed successfully." });
   } catch (err) {
-    console.error("Approval failed:", err);
     res.status(500).json({ message: "Approval failed." });
   }
 };
@@ -307,13 +379,11 @@ const rejectJobEvaluation = async (req, res) => {
     await EmailService.sendEmail({
       to: evaluation.interneeEmail,
       subject: "Your Job Evaluation (Form A3) Needs Attention",
-      html: `<p>Dear ${evaluation.interneeName},</p>
-             <p>Your Job Evaluation (Form A3) was not approved.<br><b>Reason:</b> ${reason}</p>`,
+      html: `<p>Dear ${evaluation.interneeName}, your A3 evaluation was not approved.<br><b>Reason:</b> ${reason}</p>`,
     });
 
     res.json({ message: "A3 Job Evaluation rejected successfully." });
   } catch (err) {
-    console.error("Rejection failed:", err);
     res.status(500).json({ message: "Rejection failed." });
   }
 };
@@ -323,6 +393,7 @@ const rejectJobEvaluation = async (req, res) => {
 // =======================================
 
 module.exports = {
+  // Student-Side
   getStudentSubmissions,
   deleteStudentSubmission,
   getPendingSubmissions,
@@ -330,12 +401,17 @@ module.exports = {
   rejectSubmission,
   deleteStalledSubmission,
 
+  // Coordinator-Side
   getCoordinatorRequests,
   getCoordinatorRequestDetails,
   coordinatorApproveRequest,
   coordinatorRejectRequest,
   coordinatorResendRequest,
+  getManualReviewForms,
+  coordinatorApproveManualReview,
+  coordinatorRejectManualReview,
 
+  // Coordinator Reports and Evaluations
   getCoordinatorReports,
   getCoordinatorEvaluations,
   approveJobEvaluation,
