@@ -7,7 +7,6 @@ async function insertFormData(formData) {
   try {
     console.log("Received Form Data:\n", JSON.stringify(formData, null, 2));
 
-    // Dynamically find the student based on email
     const student = await User.findOne({ email: formData.email });
 
     if (!student) {
@@ -15,7 +14,7 @@ async function insertFormData(formData) {
     }
 
     const formattedData = {
-      student: student._id,  // ✅ Real user's ID from database
+      student: student._id,
       workplace: {
         name: formData.workplaceName,
         website: formData.website,

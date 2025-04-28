@@ -18,12 +18,11 @@ const InternshipRequest = require("../models/InternshipRequest");
 
 // Supervisor APIs
 router.get("/supervisor/forms", isSupervisor, (req, res) => {
-    // const supervisorId = req.user._id,
     return getSupervisorForms(req, res, {
-        // supervisor_id: supervisorId,
         supervisor_status: { $in: ["pending"] },
-    })
+    });
 });
+
 // Approve route
 router.post("/supervisor/form/:type/:id/approve", isSupervisor, (req, res) =>
     handleSupervisorFormAction(req, res, "approve")
@@ -43,37 +42,6 @@ router.get("/coordinator/requests", isCoordinator, getCoordinatorRequests);
 router.get("/coordinator/request/:id", isCoordinator, getCoordinatorRequestDetails);
 router.post("/coordinator/request/:id/approve", isCoordinator, coordinatorApproveRequest);
 router.post("/coordinator/request/:id/reject", isCoordinator, coordinatorRejectRequest);
-
-const approveFormA3 = async (req, res) => {
-  const { formId } = req.params;
-
-  try {
-    //find the form by formId
-    const form = await Evaluation.findById(formId);
-
-    if (!form) {
-      return res.status(404).json({ message: "Form not found" });
-    }
-
-    //check if form is already locked
-    if (form.locked) {
-      return res.status(403).json({ message: "This form is locked and cannot be edited." });
-    }
-
-    //approve the form
-    form.status = "approved";
-    
-    //lock the form after approval by coordinator
-    form.locked = true;
-
-    await form.save();
-
-    return res.status(200).json({ message: "Form A.3 approved and locked successfully!" });
-  } catch (err) {
-    console.error("Error approving form A.3:", err);
-    return res.status(500).json({ message: "Something went wrong" });
-  }
-};
 
 // NEW Coordinator API: Approve Form A.3
 router.post("/coordinator/form-a3/:formId/approve", isCoordinator, approveFormA3);
