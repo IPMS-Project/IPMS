@@ -146,10 +146,24 @@ const A3JobEvaluationForm = () => {
   // Submit the form to the backend
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (!validateForm() || !formData.supervisorAgreement || !formData.coordinatorAgreement) {
       alert("Please confirm internee details and both signature agreements before submitting.");
       return;
     }
+  
+    // ✅ Build evaluations array with ALL 9 ITEMS
+    const evaluations = evaluationItems.slice(0, 3).map((item) => ({
+      category: item,
+      rating: ratings[item],
+      comment: comments[item] || ""
+    }));
+    
+    if (evaluations.length !== 3 || evaluations.some(ev => !ev.rating)) {
+      alert("Please complete ratings for the required 3 evaluation items before submitting.");
+      return;
+    }
+  
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/api/evaluation`, 
@@ -161,28 +175,27 @@ const A3JobEvaluationForm = () => {
             interneeID: formData.interneeID,
             interneeEmail: formData.interneeEmail,
             supervisorSignature: formData.supervisorSignature,
-            coordinatorSignature: formData.coordinatorSignature,
             supervisorAgreement: formData.supervisorAgreement,
+            coordinatorSignature: formData.coordinatorSignature,
             coordinatorAgreement: formData.coordinatorAgreement,
-            ratings,
-            comments,
+            evaluations,
+            locked: true,   // 🔥 ADD THIS LINE
           }),
-        }
+        }      
       );
+      
       if (response.ok) {
         alert("Evaluation submitted successfully!");
+        // Reset form fields
         setFormData({
           interneeName: "", 
           interneeID: "",
           interneeEmail: "",
-          supervisorName: "",
-          supervisorJobTitle: "",
-          supervisorEmail: "",
           supervisorSignature: "",
           supervisorAgreement: false,
           coordinatorSignature: "",
           coordinatorAgreement: false,
-          locked: true, //locked when properly approved
+          locked: true,
         });
         setRatings({});
         setComments({});
@@ -198,6 +211,7 @@ const A3JobEvaluationForm = () => {
       console.error(err);
     }
   };
+  
 
   // Show preview of signature (text or image)
   const renderSignaturePreview = (field) => {

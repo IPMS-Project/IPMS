@@ -97,30 +97,27 @@ app.post("/api/createUser", async (req, res) => {
 });
 
 // Temporary API for saving an evaluation
-app.post("/api/evaluation", async (req, res) => {
+app.post('/api/evaluation', async (req, res) => {
   try {
-    const { interneeName, interneeID, interneeEmail, supervisorSignature, supervisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
-
-    //check if there's an existing evaluation for the given interneeID and email
-    const existingEvaluation = await Evaluation.findOne({ interneeID, interneeEmail });
-
-    if (existingEvaluation) {
-      //If evaluation is locked, prevent update
-      if (existingEvaluation.locked) {
-        return res.status(400).json({ error: "Evaluation is locked and cannot be modified." });
-      }
+    // ✅ Extract fields directly from req.body
+    const {
+      interneeName,
+      interneeID,
+      interneeEmail,
+      supervisorSignature,
+      supervisorAgreement,
+      coordinatorSignature,
+      coordinatorAgreement,
+      evaluations,
+      locked,
+    } = req.body;
     
-      //If evaluation is not in 'draft' status, prevent update
-      if (existingEvaluation.status !== 'draft') {
-        return res.status(400).json({ error: "This evaluation has already been finalized and cannot be modified." });
-      }
+    
+
+    // ✅ Optional: Validate evaluations exist and have exactly 3 items
+    if (!evaluations || evaluations.length !== 3) {
+      return res.status(400).json({ error: 'Exactly 3 evaluation items must be provided' });
     }
-    
-    const evaluations = Object.keys(ratings).map((category) => ({
-      category,
-      rating: ratings[category],
-      comment: comments[category] || "",
-    }));
 
     const newEvaluation = new Evaluation({
       interneeName,
@@ -131,8 +128,8 @@ app.post("/api/evaluation", async (req, res) => {
       coordinatorSignature,
       coordinatorAgreement,
       evaluations,
-      locked: false,
-    });
+      locked,
+    });    
 
     await newEvaluation.save();
     res.status(201).json({ message: "Evaluation saved successfully!" });
@@ -141,6 +138,7 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
+
 
 // Graceful shutdown
 process.on("SIGINT", async () => {
