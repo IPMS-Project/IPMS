@@ -301,6 +301,7 @@ const A3JobEvaluationForm = () => {
                       checked={ratings[item] === "Satisfactory"}
                       onChange={() => handleRatingChange(item, "Satisfactory")}
                       isInvalid={!!errors[`${item}_rating`]}
+                      disabled={formData.locked} 
                     />
                     <Form.Check
                       type="radio"
@@ -311,6 +312,7 @@ const A3JobEvaluationForm = () => {
                       checked={ratings[item] === "Unsatisfactory"}
                       onChange={() => handleRatingChange(item, "Unsatisfactory")}
                       isInvalid={!!errors[`${item}_rating`]}
+                      disabled={formData.locked} 
                     />
                   </div>
                   
