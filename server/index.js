@@ -15,7 +15,7 @@ const User = require("./models/User");
 const Evaluation = require("./models/Evaluation");
 
 // Import cron job manager and register jobs
-const cronJobManager = require("./utils/cronUtils").cronJobManager;
+const cronJobManager = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
 
 const app = express();
@@ -45,7 +45,7 @@ mongoose
   .then(async () => {
     console.log("Connected to Local MongoDB");
     try {
-      await registerAllJobs();
+      await registerAllJobs(); // Register cronjobs
       console.log("Cron jobs initialized successfully");
     } catch (error) {
       console.error("Failed to initialize cron jobs:", error);
@@ -99,17 +99,7 @@ app.post("/api/createUser", async (req, res) => {
 // Temporary API for saving an evaluation
 app.post("/api/evaluation", async (req, res) => {
   try {
-    const {
-      interneeName,
-      interneeID,
-      interneeEmail,
-      supervisorSignature,
-      supervisorAgreement,
-      coordinatorSignature,
-      coordinatorAgreement,
-      ratings,
-      comments,
-    } = req.body;
+    const { interneeName, interneeID, interneeEmail, advisorSignature, advisorAgreement, coordinatorSignature, coordinatorAgreement, ratings, comments } = req.body;
 
     const evaluations = Object.keys(ratings).map((category) => ({
       category,
@@ -121,8 +111,8 @@ app.post("/api/evaluation", async (req, res) => {
       interneeName,
       interneeID,
       interneeEmail,
-      supervisorSignature,
-      supervisorAgreement,
+      advisorSignature,
+      advisorAgreement,
       coordinatorSignature,
       coordinatorAgreement,
       evaluations,
@@ -135,8 +125,6 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
-
-
 
 // Graceful shutdown
 process.on("SIGINT", async () => {

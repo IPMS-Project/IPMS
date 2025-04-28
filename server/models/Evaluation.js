@@ -91,12 +91,17 @@ const evaluationSchema = new mongoose.Schema({
 
   status: {
     type: String,
-    enum: ['draft', 'submitted'],
+    enum: ['draft', 'submitted', 'approved'],
     default: 'draft'
   },
 
   submittedAt: {
     type: Date
+  },
+
+  locked: {
+    type: Boolean,
+    default: false
   }
 
 }, { timestamps: true });

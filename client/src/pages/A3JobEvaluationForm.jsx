@@ -243,17 +243,17 @@ const A3JobEvaluationForm = () => {
               <h5 style={{ backgroundColor: '#9d2235', color: 'white', padding: '8px', borderRadius: '5px', textAlign: "center", width: '100%',}}>Internee Details</h5>
                 <Form.Group controlId="interneeName">
                   <Form.Label>Name</Form.Label>
-                  <Form.Control type="text" value={formData.interneeName} onChange={(e) => handleChange("interneeName", e.target.value)} isInvalid={!!errors.interneeName} placeholder="Enter full name" style={{ maxWidth: "300px" }}/>
+                  <Form.Control type="text" value={formData.interneeName} onChange={(e) => handleChange("interneeName", e.target.value)} isInvalid={!!errors.interneeName} placeholder="Enter full name" style={{ maxWidth: "300px" }} disabled={formData.locked}/> 
                   <Form.Text className="text-danger">{errors.interneeName}</Form.Text>
                 </Form.Group>
                 <Form.Group controlId="interneeID">
                   <Form.Label>Sooner ID</Form.Label>
-                  <Form.Control type="text" maxLength={9} value={formData.interneeID} onChange={(e) => handleChange("interneeID", e.target.value)} isInvalid={!!errors.interneeID} placeholder="Enter 9-digit student ID" style={{ maxWidth: "300px" }}/>
+                  <Form.Control type="text" maxLength={9} value={formData.interneeID} onChange={(e) => handleChange("interneeID", e.target.value)} isInvalid={!!errors.interneeID} placeholder="Enter 9-digit student ID" style={{ maxWidth: "300px" }} disabled={formData.locked}/>
                   <Form.Text className="text-danger">{errors.interneeID}</Form.Text>
                 </Form.Group>
                 <Form.Group controlId="interneeEmail">
                   <Form.Label>Email</Form.Label>
-                  <Form.Control type="email" value={formData.interneeEmail} onChange={(e) => handleChange("interneeEmail", e.target.value)} isInvalid={!!errors.interneeEmail}  placeholder="Enter student email" style={{ maxWidth: "300px" }}/>
+                  <Form.Control type="email" value={formData.interneeEmail} onChange={(e) => handleChange("interneeEmail", e.target.value)} isInvalid={!!errors.interneeEmail}  placeholder="Enter student email" style={{ maxWidth: "300px" }} disabled={formData.locked}/>
                   <Form.Text className="text-danger">{errors.interneeEmail}</Form.Text>
                   </Form.Group>
             </div>
@@ -351,8 +351,10 @@ const A3JobEvaluationForm = () => {
                     padding: "6px 0",
                   }}
                   onClick={() => {
-                    setActiveSignatureTarget("supervisor");
-                    setShowModal(true);
+                    if (!formData.locked) {
+                      setActiveSignatureTarget("supervisor");
+                      setShowModal(true);
+                    }
                   }}
                 >
                   {renderSignaturePreview("supervisorSignature")}
@@ -367,6 +369,7 @@ const A3JobEvaluationForm = () => {
                     handleChange("supervisorAgreement", e.target.checked)
                   }
                   required
+                  disabled={formData.locked}
                 />
               </Form.Group>
             </Col>
@@ -381,8 +384,10 @@ const A3JobEvaluationForm = () => {
                     padding: "6px 0",
                   }}
                   onClick={() => {
-                    setActiveSignatureTarget("coordinator");
-                    setShowModal(true);
+                    if (!formData.locked) {
+                      setActiveSignatureTarget("coordinator");
+                      setShowModal(true);
+                    }
                   }}
                 >
                   {renderSignaturePreview("coordinatorSignature")}
@@ -397,21 +402,29 @@ const A3JobEvaluationForm = () => {
                     handleChange("coordinatorAgreement", e.target.checked)
                   }
                   required
+                  disabled={formData.locked}
                 />
               </Form.Group>
             </Col>
           </Row>
 
           {/* Submit button */}
-          <div className="text-center">
-            <Button
-              type="submit"
-              className="px-5 text-white"
-              style={{ backgroundColor: "#9d2235", borderColor: "#9d2235" }}
-            >
-              Submit Evaluation
-            </Button>
-          </div>
+          <div className="text-center mt-4">
+  {formData.locked ? (
+    <Alert variant="info">
+      This form has been finalized and is locked for editing.
+    </Alert>
+  ) : (
+    <Button
+      type="submit"
+      className="px-5 text-white"
+      style={{ backgroundColor: "#9d2235", borderColor: "#9d2235" }}
+      disabled={formData.locked} // Ensure the button is also disabled
+    >
+      Submit Evaluation
+    </Button>
+  )}
+</div>
         </Form>
       </Container>
 
