@@ -1,28 +1,28 @@
 require("dotenv").config();
+const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
 
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
 // Models
 const User = require("./models/User");
-const Evaluation = require("./models/Evaluation");
+const formRoutes = require("./routes/formRoutes");
 
 // Routes
-const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
-const formRoutes = require("./routes/formRoutes");
+//const weeklyReportRoutes = require("./routes/weeklyReportRoutes");
+
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const outcomeRoutes = require("./routes/outcomeRoutes");
-const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
-const presentationRoutes = require("./routes/presentationRoutes");
 
 // Cron jobs
 const { cronJobManager } = require("./utils/cronUtils");
 const { registerAllJobs } = require("./jobs/registerCronJobs");
-
+const Evaluation = require("./models/Evaluation");
+const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
+const path=require("path");
 // App initialization
 const app = express();
 app.use(express.json());
@@ -33,13 +33,6 @@ app.use("/api/form", formRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/token", tokenRoutes);
 app.use("/api", outcomeRoutes);
-app.use("/api", approvalRoutes);
-app.use("/api/reports", weeklyReportRoutes);
-app.use("/api/student", studentRoutes);
-app.use("/api/fourWeekReports", fourWeekReportRoutes);
-app.use("/api/presentation", presentationRoutes);
-
-// MongoDB Connection
 const mongoConfig = {
   serverSelectionTimeoutMS: 5000,
   autoIndex: true,
@@ -47,7 +40,6 @@ const mongoConfig = {
   socketTimeoutMS: 45000,
   family: 4,
 };
-
 mongoose
   .connect(process.env.MONGO_URI, mongoConfig)
   .then(async () => {
@@ -87,6 +79,13 @@ app.get("/", (req, res) => {
 app.get("/api/message", (req, res) => {
   res.json({ message: "Hello from the backend!" });
 });
+app.use("api/email", emailRoutes);
+app.use("/api/token", tokenRoutes);
+app.use("/api", approvalRoutes);
+
+app.use("/api/reports", weeklyReportRoutes);
+app.use("/api/student", studentRoutes);
+app.use("/api/fourWeekReports", fourWeekReportRoutes);
 
 // User creation
 app.post("/api/createUser", async (req, res) => {
@@ -142,7 +141,8 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
-
+const presentationRoutes = require("./routes/presentationRoutes");
+app.use("/api/presentation", presentationRoutes);
 // Graceful shutdown
 process.on("SIGINT", async () => {
   try {
