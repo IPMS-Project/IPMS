@@ -5,16 +5,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const User = require("./models/User");
-
 const formRoutes = require("./routes/formRoutes");
 
 const emailRoutes = require("./routes/emailRoutes");
 const tokenRoutes = require("./routes/token");
 const approvalRoutes = require("./routes/approvalRoutes");
 const studentRoutes = require("./routes/studentRoutes");
+
 const outcomeRoutes = require("./routes/outcomeRoutes");
-
-
 
 // Import cron job manager and register jobs
 const cronJobManager = require("./utils/cronUtils").cronJobManager;
@@ -22,6 +20,7 @@ const { registerAllJobs } = require("./jobs/registerCronJobs");
 const Evaluation = require("./models/Evaluation");
 const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
 const path = require("path");
+
 
 
 const cronJobRoutes = require("./routes/cronJobRoutes");
@@ -144,12 +143,10 @@ app.post("/api/evaluation", async (req, res) => {
   }
 });
 
-// Form A.4
 //Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");
 app.use("/api/presentation", presentationRoutes);
 
-// Graceful shutdown (async Mongoose support)
 process.on("SIGINT", async () => {
   try {
     cronJobManager.stopAllJobs();
@@ -161,7 +158,6 @@ process.on("SIGINT", async () => {
     process.exit(1);
   }
 });
-
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
