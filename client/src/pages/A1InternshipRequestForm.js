@@ -354,7 +354,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
           <tbody>
             <tr>
               <td colSpan="3">
-                Name<span className="required-asterisk">*</span>:<br />
+                First Name<span className="required-asterisk">*</span>:<br />
                 <input 
                   type="text" 
                   id="interneeName" 
@@ -389,39 +389,45 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
               </td>
             </tr>
             <tr>
-              {/* <td colSpan="3">
-                Sooner ID<span className="required-asterisk">*</span>:<br />
-                <input 
-                  type="text" 
-                  id="soonerId" 
-                  value={formData.soonerId} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("soonerId")} 
-                />
-                {errors.soonerId && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.soonerId}</div>}
-              </td> */}
-              <td colSpan="3">
-                Website:<br />
-                <input 
-                  type="text" 
-                  id="website" 
-                  value={formData.website} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("website")} 
-                />
-                {errors.website && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.website}</div>}
-              </td>
-              <td colSpan="2">
-                Job Title:<br />
-                <input 
-                  type="text" 
-                  id="advisorJobTitle" 
-                  value={formData.advisorJobTitle} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("advisorJobTitle")} 
-                />
-              </td>
-            </tr>
+  {/* Dummy Uneditable Column (First) */}
+  <td colSpan="3">
+    Last Name:<br />
+    <input 
+      type="text" 
+      // id="website" 
+      // value={formData.website} 
+      // onChange={handleInputChange} 
+      // disabled={!isFieldEditable("website")} 
+    />
+    {errors.website && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.website}</div>}
+  </td>
+
+  {/* Website */}
+  <td colSpan="3">
+    Website:<br />
+    <input 
+      type="text" 
+      id="website" 
+      value={formData.website} 
+      onChange={handleInputChange} 
+      disabled={!isFieldEditable("website")} 
+    />
+    {errors.website && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.website}</div>}
+  </td>
+
+  {/* Job Title */}
+  <td colSpan="2">
+    Job Title:<br />
+    <input 
+      type="text" 
+      id="advisorJobTitle" 
+      value={formData.advisorJobTitle} 
+      onChange={handleInputChange} 
+      disabled={!isFieldEditable("advisorJobTitle")} 
+    />
+  </td>
+</tr>
+
             <tr>
               <td colSpan="3">
                 Email<span className="required-asterisk">*</span>:<br />
