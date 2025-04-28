@@ -10,17 +10,10 @@ router.post("/", async (req, res) => {
   console.log("Received email:", ouEmail);
 
   try {
-    const studentUser = await TokenRequest.findOne({ ouEmail });
-
-    if (!studentUser) {
-      return res
-        .status(404)
-        .json({ message: "Student not found in TokenRequest" });
-    }
-
     const internshipData = await InternshipRequest.findOne({
-      student: studentUser._id,
+      "student.email": ouEmail,
     });
+    
 
     if (!internshipData) {
       // No record found, return a specific flag
@@ -29,8 +22,13 @@ router.post("/", async (req, res) => {
         approvalStatus: "not_submitted",
       });
     }
+    const { supervisor_status, coordinator_status } = internshipData;
 
-    const approvalStatus = internshipData.status;
+
+    const approvalStatus =
+      (supervisor_status == "pending" || supervisor_status == "approved" ) ? supervisor_status : coordinator_status
+    
+    console.log(supervisor_status, coordinator_status)
 
     return res.status(200).json({ message: "Success", approvalStatus });
   } catch (error) {

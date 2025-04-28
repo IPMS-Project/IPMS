@@ -43,6 +43,7 @@ router.post("/request", async (req, res) => {
 
     let plainToken = null;
     let hashedToken = null;
+    const isStudent = role.toLowerCase() === "student";
 
     if (role.toLowerCase() === "student") {
       plainToken = jwt.sign({ ouEmail }, JWT_SECRET, { expiresIn: "180d" });
@@ -54,14 +55,16 @@ router.post("/request", async (req, res) => {
     const request = new TokenRequest({
       fullName,
       ouEmail,
-      soonerId: role.toLowerCase() === "student" ? soonerId : undefined,
+      soonerId: isStudent ? soonerId : undefined,
       password: hashedPassword,
       semester,
       role,
-      academicAdvisor: role.toLowerCase() === "student" ? academicAdvisor : undefined,
-      isStudent: role.toLowerCase() === "student",
-      token: hashedToken,
-      activationLinkSentAt: role.toLowerCase() === "student" ? new Date() : undefined,
+      academicAdvisor: isStudent ? academicAdvisor : undefined,
+      isStudent,
+      ...(isStudent && {
+        token: hashedToken,
+        activationLinkSentAt: new Date(),
+      })
     });
 
     await request.save();

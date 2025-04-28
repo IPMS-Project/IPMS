@@ -125,6 +125,8 @@ const StudentDashboard = () => {
     });
   };
 
+console.log(approvalStatus)
+
   return (
     <div className="student-dashboard">
       
@@ -189,19 +191,16 @@ const StudentDashboard = () => {
           <button
             className="card-button"
             onClick={() => {
-              if (
-                approvalStatus === "not_submitted" ||
-                approvalStatus === "draft"
-              ) {
+              
                 navigate("/a1-form");
-              }
+              
             }}
             disabled={
-              approvalStatus !== "not_submitted" &&
-              approvalStatus !== "draft"
+              approvalStatus === "pending" ||
+              approvalStatus === "approved"
             }
           >
-            {approvalStatus === "approved" ? "Track" : "Request Internship"}
+            {approvalStatus === "approved" ? "Approved"  : approvalStatus === "pending" ? "Under Review" : "Request Internship"}
           </button>
         </div>
 

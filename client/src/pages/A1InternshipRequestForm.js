@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../styles/A1InternshipRequestForm.css";
+import { useNavigate } from "react-router-dom";
 
 const outcomeLabels = [
   "Problem Solving",
@@ -9,6 +10,7 @@ const outcomeLabels = [
   "Collaboration",
   "Application",
 ];
+
 
 const outcomeDescriptions = [
   "Understand and solve complex computing problems",
@@ -86,6 +88,7 @@ const SignatureInput = ({ id, value, onChange, disabled, placeholder }) => {
 };
 
 const A1InternshipRequestForm = ({ userRole = "student" }) => {
+   const navigate = useNavigate();
   const initialState = {
     interneeName: "",
     soonerId: "",
@@ -375,6 +378,9 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
         setSuccessMsg(`Form submitted successfully and sent to ${recipient}`);
         setTimeout(() => setSuccessMsg(""), 15000);
         setFormData(initialState);
+        setTimeout(() => {
+          navigate('/student-dashboard');
+        }, 1000);
       } else {
         setErrors({ tasks: "Outcome alignment failed or returned no tasks." });
       }

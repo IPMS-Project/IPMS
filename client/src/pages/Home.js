@@ -218,7 +218,7 @@ function Home() {
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
-              <Link
+              {/* <Link
                 to="/"
                 style={{
                   color: "#7f1d1d",
@@ -227,7 +227,7 @@ function Home() {
                 }}
               >
                 Forgot password?
-              </Link>
+              </Link> */}
             </div>
 
             <button type="submit" className="login-button">

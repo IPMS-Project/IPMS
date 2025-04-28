@@ -79,7 +79,7 @@ const userTokenRequestSchema = new mongoose.Schema(
     token: {
       type: String,
       required: function () {
-        return this.isStudent;
+        return this.role === "student";
       },
       // Note: unique index will be handled separately below
     },
@@ -114,6 +114,20 @@ const userTokenRequestSchema = new mongoose.Schema(
   }
 );
 
+userTokenRequestSchema.index(
+  { token: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { isStudent: true, token: { $exists: true, $ne: null } }
+  }
+);
+userTokenRequestSchema.index(
+  { soonerId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { isStudent: true, soonerId: { $exists: true, $ne: null } }
+  }
+);
 // Automatically set expiresAt to 5 days after requestedAt
 userTokenRequestSchema.pre('save', function (next) {
   if (!this.expiresAt) {
@@ -134,12 +148,6 @@ userTokenRequestSchema.index(
 );
 
 // ✅ NEW: Make token unique only if token exists (Partial Unique Index)
-userTokenRequestSchema.index(
-  { token: 1 },
-  {
-    unique: true,
-    partialFilterExpression: { token: { $exists: true, $ne: null } },
-  }
-);
+
 
 module.exports = mongoose.model('UserTokenRequest', userTokenRequestSchema);

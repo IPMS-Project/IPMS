@@ -22,12 +22,28 @@ const Task = new mongoose.Schema({
   
 });
 const formA1 = new mongoose.Schema({
-    ...formMetadata,
-    student: { 
-        type: ObjectId,
-        required: true,
-        ref: 'UserTokenRequest'
+    // student: { 
+    //     type: ObjectId,
+    //     required: true,
+    //     ref: 'UserTokenRequest'
+    // },
+    student:{
+        name:{
+            type: String,
+            required: true,
+        },
+        email:{
+            unique: true,
+            type: String,
+            required:true,
+        },
     },
+    ...formMetadata,
+    // student: { 
+    //     type: ObjectId,
+    //     required: true,
+    //     ref: 'UserTokenRequest'
+    // },
     workplace: {
         name: {
             type: String,
