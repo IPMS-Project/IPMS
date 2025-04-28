@@ -8,17 +8,26 @@ const StudentDashboard = () => {
   const user = JSON.parse(localStorage.getItem("ipmsUser"));
   const ouEmail = user?.email;
   const [approvalStatus, setApprovalStatus] = useState("not_submitted");
+  const [a3Eligibility, setA3Eligibility] = useState({
+    checked: false,
+    eligible: false,
+    completedHours: 0,
+    requiredHours: 0,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/student`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ ouEmail }),
-        });
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/student`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ ouEmail }),
+          }
+        );
 
         const data = await res.json();
         setApprovalStatus(data.approvalStatus);
@@ -32,6 +41,38 @@ const StudentDashboard = () => {
     }
   }, [ouEmail]);
   console.log(approvalStatus);
+
+  useEffect(() => {
+    const checkA3Eligibility = async () => {
+      if (!ouEmail) return;
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/reports/A3-eligibility`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: ouEmail }),
+          }
+        );
+        const data = await res.json();
+        setA3Eligibility({
+          checked: true,
+          eligible: data.eligibleForA3,
+          completedHours: data.completedHours,
+          requiredHours: data.requiredHours,
+        });
+      } catch (err) {
+        setA3Eligibility({
+          checked: true,
+          eligible: false,
+          completedHours: 0,
+          requiredHours: 0,
+        });
+        console.error("Error checking A3 eligibility", err);
+      }
+    };
+    checkA3Eligibility();
+  }, [ouEmail]);
 
   return (
     <div className="student-dashboard">
@@ -131,6 +172,44 @@ const StudentDashboard = () => {
             }}
           >
             Request
+          </button>
+        </div>
+
+        {/* ------ FORM A3 Card ------ */}
+        <div className="card-section">
+          <div className="card-content">
+            <h3>Final Evaluation (Form A3)</h3>
+            {!a3Eligibility.checked ? (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                Checking eligibility...
+              </p>
+            ) : a3Eligibility.eligible ? (
+              <p style={{ fontSize: "0.85rem", color: "green" }}>
+                You have completed {a3Eligibility.completedHours} of{" "}
+                {a3Eligibility.requiredHours} hours. Eligible for final
+                evaluation.
+              </p>
+            ) : (
+              <p style={{ fontSize: "0.85rem", color: "#888" }}>
+                You have completed {a3Eligibility.completedHours} of{" "}
+                {a3Eligibility.requiredHours} hours.
+                <br />
+                Complete all required hours to unlock A3 Final Evaluation.
+              </p>
+            )}
+          </div>
+          <button
+            className="card-button"
+            disabled={!a3Eligibility.eligible}
+            onClick={() => {
+              if (a3Eligibility.eligible) navigate("/evaluation");
+            }}
+            style={{
+              backgroundColor: !a3Eligibility.eligible ? "#ccc" : "",
+              cursor: !a3Eligibility.eligible ? "not-allowed" : "pointer",
+            }}
+          >
+            {a3Eligibility.eligible ? "Open Final Evaluation" : "Locked"}
           </button>
         </div>
       </div>

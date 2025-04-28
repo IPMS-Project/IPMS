@@ -21,13 +21,13 @@ describe("registerCronJobs", () => {
           timezone: "Asia/Kolkata",
         },
       },
-	supervisorApprovalReminder: {
-	    schedule: "0 8 * * *",
-	    job: jest.fn(),
-	    options: {
-		timezone: "Asia/Kolkata",
-	    },
-	},
+      supervisorApprovalReminder: {
+        schedule: "0 8 * * *",
+        job: jest.fn(),
+        options: {
+          timezone: "Asia/Kolkata",
+        },
+      },
     });
 
     await registerAllJobs();
@@ -44,14 +44,14 @@ describe("registerCronJobs", () => {
       }
     );
 
-      expect(cronJobManager.registerJob).toHaveBeenCalledWith(
-	  "supervisorApprovalReminder",
-	  "0 8 * * *",
-	  expect.any(Function),
-	  {
-	      timezone: "Asia/Kolkata",
-	      runOnInit: false,
-	  }
-      );
+    expect(cronJobManager.registerJob).toHaveBeenCalledWith(
+      "supervisorApprovalReminder",
+      "0 8 * * *",
+      expect.any(Function),
+      {
+        timezone: "Asia/Kolkata",
+        runOnInit: false,
+      }
+    );
   });
 });

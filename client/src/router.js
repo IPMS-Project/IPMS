@@ -19,6 +19,7 @@ import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 import TokenRenewal from "./pages/TokenRenewal";
 import StudentDashboard from "./pages/StudentDashboard";
 import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
+import ProtectedRouteA3 from "./pages/ProtectedRouteA3";
 import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
 import SubmittedReports from "./pages/SubmittedReports";
 import CumulativeReviewForm from "./pages/CumulativeReviewForm";
@@ -58,7 +59,11 @@ const router = createBrowserRouter([
       },
       {
         path: "evaluation",
-        element: <A3JobEvaluationForm />,
+        element: (
+          <ProtectedRouteA3>
+            <A3JobEvaluationForm />
+          </ProtectedRouteA3>
+        ),
       },
       {
         path: "activate/:token",

@@ -1,4 +1,4 @@
-const InternshipRequest = require("../models/internshiprequest");
+const InternshipRequest = require("../models/InternshipRequest");
 const WeeklyReport = require("../models/WeeklyReport");
 
 exports.getA1ByEmail = async (req, res) => {
@@ -6,12 +6,11 @@ exports.getA1ByEmail = async (req, res) => {
     const { email } = req.params;
 
     // Find A1 form by matching the student's email via the populated 'student' reference
-    const form = await InternshipRequest.findOne()
-      .populate({
-        path: "student",
-        match: { email }, // only match where user's email matches
-        select: "name email"
-      });
+    const form = await InternshipRequest.findOne().populate({
+      path: "student",
+      match: { email }, // only match where user's email matches
+      select: "name email",
+    });
 
     // If student wasn't matched via population or form doesn't exist
     if (!form || !form.student) {
@@ -25,7 +24,10 @@ exports.getA1ByEmail = async (req, res) => {
     const reports = await WeeklyReport.find({ email });
 
     // Sum up the completed hours
-    const completedHours = reports.reduce((sum, report) => sum + (report.hours || 0), 0);
+    const completedHours = reports.reduce(
+      (sum, report) => sum + (report.hours || 0),
+      0
+    );
 
     // Calculate required hours
     const creditHours = form.creditHours || 0;
@@ -40,8 +42,8 @@ exports.getA1ByEmail = async (req, res) => {
         supervisorEmail: form.internshipAdvisor?.email || "",
         creditHours,
         completedHours,
-        requiredHours
-      }
+        requiredHours,
+      },
     });
   } catch (err) {
     console.error("Error fetching A1 form:", err);

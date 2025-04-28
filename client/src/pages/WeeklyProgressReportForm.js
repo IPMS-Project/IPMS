@@ -44,14 +44,16 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
           console.error("Failed to load report", err);
         });
     }
-  }, [readOnly, reportId]);   
+  }, [readOnly, reportId]);
 
   // Auto-fill A1 data
   useEffect(() => {
     const fetchA1Data = async () => {
       try {
-        const email = "vikash@example.com"; // TODO: replace with real session email
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`);
+        const email = "Jayman.B.Kalathiya-1@ou.edu"; // TODO: replace with real session email
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`
+        );
 
         if (res.data.success) {
           const {
@@ -72,12 +74,15 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
             supervisorEmail,
             creditHours,
             completedHours,
-            requiredHours: requiredHours || (creditHours ? creditHours * 60 : 0),
+            requiredHours:
+              requiredHours || (creditHours ? creditHours * 60 : 0),
           }));
         }
       } catch (err) {
         console.error("A1 form not found or failed to fetch.");
-        setMessage("⚠️ You must submit the A1 form before submitting weekly reports.");
+        setMessage(
+          "⚠️ You must submit the A1 form before submitting weekly reports."
+        );
       }
     };
 
@@ -87,12 +92,14 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (readOnly && !(role === "coordinator" && name === "coordinatorComments")) return;
+    if (readOnly && !(role === "coordinator" && name === "coordinatorComments"))
+      return;
 
     if (name === "hours") {
       const num = parseInt(value);
       if (num > 40) return setFormData((prev) => ({ ...prev, hours: 40 }));
-      if (num < 1 && value !== "") return setFormData((prev) => ({ ...prev, hours: 1 }));
+      if (num < 1 && value !== "")
+        return setFormData((prev) => ({ ...prev, hours: 1 }));
     }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -100,7 +107,16 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { week, hours, tasks, lessons, name, email, supervisorName, supervisorEmail } = formData;
+    const {
+      week,
+      hours,
+      tasks,
+      lessons,
+      name,
+      email,
+      supervisorName,
+      supervisorEmail,
+    } = formData;
 
     if (!name || !email || !supervisorName || !supervisorEmail) {
       return setMessage("Please complete the A1 form first.");
@@ -111,7 +127,10 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
     }
 
     try {
-      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/reports`, formData);
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/reports`,
+        formData
+      );
       setMessage(res.data.message || "Report submitted successfully!");
       setFormData({
         name: "",
@@ -151,37 +170,79 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
 
   return (
     <div className="a2-form-container">
-      <h2>Weekly Progress Report</h2>
+      <h2 className="a2-form-title">Weekly Progress Report</h2>
 
-      <button className="view-submissions-btn" onClick={() => navigate("/submitted-reports")}>
+      <button
+        className="view-submissions-btn"
+        onClick={() => navigate("/submitted-reports")}
+      >
         View Previous Submissions
       </button>
 
       <form onSubmit={handleSubmit} className="a2-form">
         {/* Identity Fields */}
-        {["name", "email", "supervisorName", "supervisorEmail", "coordinatorName", "coordinatorEmail"].map((field) => (
+        {[
+          "name",
+          "email",
+          "supervisorName",
+          "supervisorEmail",
+          "coordinatorName",
+          "coordinatorEmail",
+        ].map((field) => (
           <div className="form-group" key={field}>
-            <label>{field.replace(/([A-Z])/g, " $1").replace("Email", "Email*").replace("Name", "Name*")}</label>
-            <input type={field.includes("Email") ? "email" : "text"} name={field} value={formData[field]} readOnly required />
+            <label>
+              {field
+                .replace(/([A-Z])/g, " $1")
+                .replace("Email", "Email*")
+                .replace("Name", "Name*")}
+            </label>
+            <input
+              type={field.includes("Email") ? "email" : "text"}
+              name={field}
+              value={formData[field]}
+              readOnly
+              required
+            />
           </div>
         ))}
 
         {/* Progress Display */}
         {!readOnly && (
           <div className="form-group progress-info">
-            <p><strong>Credit Hours:</strong> {formData.creditHours || "--"}</p>
-            <p><strong>Required Hours:</strong> {formData.requiredHours || "--"}</p>
-            <p><strong>Completed Hours:</strong> {formData.completedHours || "--"}</p>
+            <p>
+              <strong>Credit Hours:</strong> {formData.creditHours || "--"}
+            </p>
+            <p>
+              <strong>Required Hours:</strong> {formData.requiredHours || "--"}
+            </p>
+            <p>
+              <strong>Completed Hours:</strong>{" "}
+              {formData.completedHours || "--"}
+            </p>
             {formData.requiredHours && (
               <>
                 <p>
                   <strong>Progress:</strong>{" "}
-                  {Math.min(100, Math.round((formData.completedHours / formData.requiredHours) * 100))}%
+                  {Math.min(
+                    100,
+                    Math.round(
+                      (formData.completedHours / formData.requiredHours) * 100
+                    )
+                  )}
+                  %
                 </p>
                 <div className="progress-bar-outer">
                   <div
                     className="progress-bar-inner"
-                    style={{ width: `${Math.min(100, Math.round((formData.completedHours / formData.requiredHours) * 100))}%` }}
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        Math.round(
+                          (formData.completedHours / formData.requiredHours) *
+                            100
+                        )
+                      )}%`,
+                    }}
                   ></div>
                 </div>
               </>
@@ -195,10 +256,18 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
         <div className="week-hours-row">
           <div className="form-group">
             <label>Week</label>
-            <select name="week" value={formData.week} onChange={handleChange} disabled={readOnly} required>
+            <select
+              name="week"
+              value={formData.week}
+              onChange={handleChange}
+              disabled={readOnly}
+              required
+            >
               <option value="">-- Select Week --</option>
               {Array.from({ length: 15 }, (_, i) => (
-                <option key={i} value={`Week ${i + 1}`}>Week {i + 1}</option>
+                <option key={i} value={`Week ${i + 1}`}>
+                  Week {i + 1}
+                </option>
               ))}
             </select>
           </div>
@@ -230,7 +299,9 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
               required
               readOnly={readOnly}
             />
-            <label>{field === "tasks" ? "Tasks Performed" : "Lessons Learned"}</label>
+            <label>
+              {field === "tasks" ? "Tasks Performed" : "Lessons Learned"}
+            </label>
             <div className="textarea-count">{formData[field].length}/300</div>
           </div>
         ))}
@@ -243,16 +314,27 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
               value={formData[field]}
               onChange={handleChange}
               placeholder=" "
-              readOnly={field === "supervisorComments" || !(readOnly && role === "coordinator")}
+              readOnly={
+                field === "supervisorComments" ||
+                !(readOnly && role === "coordinator")
+              }
             />
-            <label>{field === "supervisorComments" ? "Supervisor Comments" : "Coordinator Comments"}</label>
+            <label>
+              {field === "supervisorComments"
+                ? "Supervisor Comments"
+                : "Coordinator Comments"}
+            </label>
             <div className="textarea-count">{formData[field].length}/300</div>
           </div>
         ))}
 
         {/* Buttons */}
         {readOnly && role === "coordinator" && (
-          <button className="submit-button" type="button" onClick={handleCoordinatorSubmit}>
+          <button
+            className="submit-button"
+            type="button"
+            onClick={handleCoordinatorSubmit}
+          >
             Submit Coordinator Comment
           </button>
         )}
@@ -264,7 +346,11 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
         )}
       </form>
 
-      {message && <p className={`form-message ${message.includes("⚠️") ? "error" : ""}`}>{message}</p>}
+      {message && (
+        <p className={`form-message ${message.includes("⚠️") ? "error" : ""}`}>
+          {message}
+        </p>
+      )}
     </div>
   );
 };
