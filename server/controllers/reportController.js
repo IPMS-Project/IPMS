@@ -1,7 +1,7 @@
 const WeeklyReport = require("../models/WeeklyReport");
 const SupervisorReview = require("../models/SupervisorReview");
 const CoordinatorReview = require("../models/CoordinatorReview");
-const InternshipRequest = require("../models/internshiprequest");
+const InternshipRequest = require("../models/internshipRequest");
 const { sendStudentProgressEmail } = require("../jobs/reminderEmail");
 
 const STATIC_USER_ID = "vikash123";
@@ -16,7 +16,7 @@ const reportController = {
       }
 
       const newReport = new WeeklyReport({
-        studentId: STATIC_USER_ID,
+        student_id: STATIC_USER_ID,
         name,
         email,
         supervisorName,
@@ -61,7 +61,7 @@ const reportController = {
   getReportsByStudent: async (req, res) => {
     try {
       const { userId } = req.params;
-      const reports = await WeeklyReport.find({ studentId: userId }).sort({ week: 1 });
+      const reports = await WeeklyReport.find({ student_id: userId }).sort({ week: 1 });
 
       return res.status(200).json({ success: true, reports });
     } catch (error) {
@@ -72,10 +72,10 @@ const reportController = {
 
   getMyReports: async (req, res) => {
     try {
-      const studentId = req.user?.id || STATIC_USER_ID;
-      const reports = await WeeklyReport.find({ studentId }).sort({ week: 1 });
+      const student_id = req.user?.id || STATIC_USER_ID;
+      const reports = await WeeklyReport.find({ student_id }).sort({ week: 1 });
 
-      const reviews = await SupervisorReview.find({ studentId });
+      const reviews = await SupervisorReview.find({ student_id });
 
       const weekToComment = {};
       reviews.forEach((review) => {
@@ -99,7 +99,7 @@ const reportController = {
 
   getCumulativeReports: async (req, res) => {
     try {
-      const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ createdAt: 1 });
+      const reports = await WeeklyReport.find({ student_id: STATIC_USER_ID }).sort({ createdAt: 1 });
 
       if (!reports.length) {
         return res.status(200).json({ success: true, cumulativeReports: [] });
@@ -111,7 +111,7 @@ const reportController = {
         const groupIndex = i / 4;
 
         const isReviewed = await SupervisorReview.findOne({
-          studentId: STATIC_USER_ID,
+          student_id: STATIC_USER_ID,
           groupIndex,
         });
 
@@ -137,7 +137,7 @@ const reportController = {
       const { groupIndex } = req.params;
       const index = parseInt(groupIndex);
 
-      const reports = await WeeklyReport.find({ studentId: STATIC_USER_ID }).sort({ createdAt: 1 });
+      const reports = await WeeklyReport.find({ student_id: STATIC_USER_ID }).sort({ createdAt: 1 });
 
       if (!reports.length) {
         return res.status(404).json({ success: false, message: "No reports found." });
@@ -181,14 +181,22 @@ const reportController = {
 
   submitSupervisorComments: async (req, res) => {
     try {
-      const { groupIndex, comments, weeks } = req.body;
+      const { coordinator_status, groupIndex, comments, weeks } = req.body;
+
+      if (coordinator_status == "reject") {
+        await WeeklyReport.updateMany(
+          { student_id: STATIC_USER_ID, week: { $in: weeks }, coordinator_status, coordinator_responded: true },
+          { $set: { supervisorComments: comments } }
+        );
+        return res.status(200).json({ success: true, message: "Supervisor successfully rejected weekly report." });
+      }
 
       if (!comments || !weeks || weeks.length === 0) {
         return res.status(400).json({ success: false, message: "Invalid comment data." });
       }
 
       const newReview = new SupervisorReview({
-        studentId: STATIC_USER_ID,
+        student_id: STATIC_USER_ID,
         groupIndex,
         weeks,
         comments,
@@ -197,7 +205,7 @@ const reportController = {
       await newReview.save();
 
       await WeeklyReport.updateMany(
-        { studentId: STATIC_USER_ID, week: { $in: weeks } },
+        { student_id: STATIC_USER_ID, week: { $in: weeks }, coordinator_status, coordinator_responded: true },
         { $set: { supervisorComments: comments } }
       );
 
@@ -212,14 +220,14 @@ const reportController = {
   getSupervisorReviewedGroups: async (req, res) => {
     try {
       const supervisorReviews = await SupervisorReview.find({
-        studentId: STATIC_USER_ID
+        student_id: STATIC_USER_ID
       });
 
       const reviewedGroups = [];
 
       for (const review of supervisorReviews) {
         const reports = await WeeklyReport.find({
-          studentId: STATIC_USER_ID,
+          student_id: STATIC_USER_ID,
           week: { $in: review.weeks }
         });
 
@@ -255,10 +263,10 @@ const reportController = {
       }
 
       const firstWeek = weeks[0];
-      const firstReport = await WeeklyReport.findOne({ studentId: STATIC_USER_ID, week: firstWeek });
+      const firstReport = await WeeklyReport.findOne({ student_id: STATIC_USER_ID, week: firstWeek });
 
       const newReview = new CoordinatorReview({
-        studentId: STATIC_USER_ID,
+        student_id: STATIC_USER_ID,
         groupIndex,
         weeks,
         supervisorComments: firstReport?.supervisorComments || "",
@@ -268,7 +276,7 @@ const reportController = {
       await newReview.save();
 
       await WeeklyReport.updateMany(
-        { studentId: STATIC_USER_ID, week: { $in: weeks } },
+        { student_id: STATIC_USER_ID, week: { $in: weeks } },
         { $set: { coordinatorComments: comments } }
       );
 
