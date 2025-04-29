@@ -4,18 +4,17 @@ const InternshipRequest = require("../models/InternshipRequest");
 const { insertFormData } = require("../services/insertData");
 const emailService = require("../services/emailService"); // Missing import added
 
-// -----------------------------------------
-// GET internship requests (pending supervisor action)
-// -----------------------------------------
+
+
 router.get("/internshiprequests", async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
-      supervisor_status: { $in: [null, "pending"] },
-    })
-      .sort({ createdAt: 1 }) // oldest first
-      .select(
-        "student workplace name supervisor_status coordinator_status createdAt"
-      );
+      supervisor_status: "pending",
+      
+      supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
+    }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
+
+
     res.status(200).json(requests);
   } catch (err) {
     console.error("Error fetching internship requests:", err);
@@ -30,17 +29,16 @@ router.get("/internshiprequests", async (req, res) => {
 // -----------------------------------------
 function validateFormData(formData) {
   const requiredFields = [
-    "soonerId",
-    "workplaceName",
-    "website",
-    "phone",
-    "advisorName",
-    "advisorJobTitle",
-    "advisorEmail",
-    "creditHours",
-    "startDate",
-    "endDate",
-    "tasks",
+
+    'workplaceName',
+    'phone',
+    'advisorName',
+    'advisorEmail',
+    'creditHours',
+    'startDate',
+    'endDate',
+    'tasks'
+
   ];
 
   for (const field of requiredFields) {
@@ -49,8 +47,6 @@ function validateFormData(formData) {
     }
   }
 
-  if (!/^[0-9]{9}$/.test(formData.soonerId))
-    return `Sooner ID must be a 9-digit number, not ${formData.soonerId}`;
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
     return "Tasks must be a non-empty array.";
