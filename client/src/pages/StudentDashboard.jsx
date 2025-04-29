@@ -11,7 +11,7 @@ const StudentDashboard = () => {
   const backendUrl = process.env.REACT_APP_API_URL;
   const ouEmail = user?.email;
 
-  const backendUrl = process.env.REACT_APP_API_URL;
+  
   const studentId = localStorage.getItem("studentId");
 
   const [approvalStatus, setApprovalStatus] = useState("not_submitted");
