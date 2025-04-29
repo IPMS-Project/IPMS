@@ -25,8 +25,8 @@ const SupervisorDashboard = () => {
 
         const formatted = response.data.map(item => ({
           _id: item._id,
-          interneeName: item.student?.fullName || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
-          interneeEmail: item.student?.ouEmail || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
+          interneeName: item.student?.name || item.studentId?.fullName || item.interneeId?.fullName || "N/A",
+          interneeEmail: item.student?.email || item.studentId?.ouEmail || item.interneeId?.ouEmail || "N/A",
           form_type: item.form_type,
           createdAt: item.createdAt || item.submittedAt,
           supervisor_status: item.supervisor_status || "pending",

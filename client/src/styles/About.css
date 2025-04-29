@@ -1,0 +1,112 @@
+  .about-wrapper {
+    max-width: 1100px;
+    margin: auto;
+    padding: 2rem;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+  }
+  
+  .about-heading {
+    text-align: center;
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    color: #2a4d69;
+  }
+  
+  .about-banner {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .about-summary {
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+  
+  .section {
+    margin-bottom: 3rem;
+  }
+  
+  .feature-cards {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+  
+  .feature-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    transition: 0.3s ease;
+  }
+  
+  .feature-card:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  }
+  
+  .feature-card .icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .section-heading {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .user-role-cards {
+    display: flex;
+    justify-content: space-around;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .user-card {
+    background: #fff;
+    padding: 1.2rem;
+    text-align: center;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    width: 250px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  }
+  
+  .user-card img {
+    width: 200px;
+    margin-bottom: 0.8rem;
+  }
+  
+  .cta-footer {
+    background-color: #8b0000;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+    border-radius: 8px;
+  }
+  
+  .cta-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.8rem 1.6rem;
+    background: white;
+    color: #8b0000;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: background 0.3s ease;
+  }
+  
+  .cta-button:hover {
+    background: #f0f0f0;
+  }
+  
