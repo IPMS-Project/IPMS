@@ -21,8 +21,7 @@ const mongoose = require('mongoose');
  * - deletedAt: Marks soft deletion if the student cancels.
  * - status: Optional string enum for tracking token state.
  * - activationLinkSentAt: Timestamp when the activation email was sent.
- * - password: Encrypted password for login authentication.
-
+ *
  * Additional Features:
  * - Automatically sets `expiresAt` to 6 months from `requestedAt`.
  * - Uses `timestamps` to auto-generate `createdAt` and `updatedAt`.
@@ -79,10 +78,11 @@ const userTokenRequestSchema = new mongoose.Schema(
     },
     token: {
       type: String,
-      required: [true, 'Token is required'],
-      unique: true,
+      required: function () {
+        return this.role === "student";
+      },
+      // Note: unique index will be handled separately below
     },
-  
     isActivated: {
       type: Boolean,
       default: false,
@@ -105,7 +105,7 @@ const userTokenRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'activated', 'expired', 'deleted','deactivated'],
+      enum: ['pending', 'activated', 'expired', 'deleted', 'deactivated'],
       default: 'pending',
     },
   },
@@ -114,6 +114,20 @@ const userTokenRequestSchema = new mongoose.Schema(
   }
 );
 
+userTokenRequestSchema.index(
+  { token: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { isStudent: true, token: { $exists: true, $ne: null } }
+  }
+);
+userTokenRequestSchema.index(
+  { soonerId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { isStudent: true, soonerId: { $exists: true, $ne: null } }
+  }
+);
 // Automatically set expiresAt to 5 days after requestedAt
 userTokenRequestSchema.pre('save', function (next) {
   if (!this.expiresAt) {
@@ -124,12 +138,16 @@ userTokenRequestSchema.pre('save', function (next) {
   next();
 });
 
+// Auto-expire unactivated requests after 5 days
 userTokenRequestSchema.index(
   { requestedAt: 1 },
   {
-    expireAfterSeconds: 432000,
+    expireAfterSeconds: 432000, // 5 days
     partialFilterExpression: { isActivated: false },
   }
 );
+
+// ✅ NEW: Make token unique only if token exists (Partial Unique Index)
+
 
 module.exports = mongoose.model('UserTokenRequest', userTokenRequestSchema);

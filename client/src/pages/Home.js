@@ -37,7 +37,6 @@ function Home() {
 
     const { email: ouEmail, password, role } = formData;
 
-
     if (!ouEmail || !password || !role) {
       return Swal.fire({
         icon: "warning",
@@ -55,31 +54,34 @@ function Home() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ouEmail, password, role }),
-        },
+        }
       );
 
       const data = await response.json();
 
       if (response.ok) {
         const user = data.user;
-        if(role === "student"){
-           // Store only required fields
-        const limitedUserInfo = {
-          fullName: user.fullName,
-          id: user._id,
-          email:user.ouEmail
-        };
-        
-        localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
-        navigate("/student-dashboard");
-        }else if(role === "supervisor"){
+        if (role === "student") {
+          // Store only required fields
+          const limitedUserInfo = {
+            fullName: user.fullName,
+            id: user._id,
+            email: user.ouEmail,
+            academicAdvisor: user.academicAdvisor,
+            semester: user.semester,
+          };
+
+          localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+          localStorage.setItem("ouEmail", user.ouEmail);
+          navigate("/student-dashboard");
+        } else if (role === "supervisor") {
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",
             text: `Welcome back, ${role}!`,
           });
           navigate("/supervisor-dashboard");
-        }else{
+        } else {
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",
@@ -88,23 +90,21 @@ function Home() {
           navigate("/coordinator-dashboard");
         }
 
-       
-
         // Swal.fire({
         //   icon: "success",
         //   title: "Login Successful",
         //   text: `Welcome back, `,
         // });
-
-       
       } else {
         Swal.fire({
           icon: "error",
           title: "Login Failed",
-          html: data.message + " " + 
-        (data.renewalLink 
-         ? `Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.` 
-         : "Something went wrong."),
+          html:
+            data.message +
+            " " +
+            (data.renewalLink
+              ? `Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.`
+              : "Something went wrong."),
         });
       }
     } catch (error) {
@@ -151,7 +151,6 @@ function Home() {
                         role: r,
                       })
                     }
-                
                   >
                     <Icon />
                     <p className="role-label">
@@ -219,16 +218,7 @@ function Home() {
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
-              <Link
-                to="/"
-                style={{
-                  color: "#7f1d1d",
-                  fontWeight: "500",
-                  textDecoration: "underline",
-                }}
-              >
-                Forgot password?
-              </Link>
+              
             </div>
 
             <button type="submit" className="login-button">

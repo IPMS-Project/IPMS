@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../styles/A1InternshipRequestForm.css";
-
+import { useNavigate } from "react-router-dom";
 
 const outcomeLabels = [
   "Problem Solving",
@@ -10,6 +10,7 @@ const outcomeLabels = [
   "Collaboration",
   "Application",
 ];
+
 
 const outcomeDescriptions = [
   "Understand and solve complex computing problems",
@@ -25,7 +26,7 @@ const signatureFonts = [
   { name: "Great Vibes", class: "font-great-vibes" },
   { name: "Pacifico", class: "font-pacifico" },
   { name: "Satisfy", class: "font-satisfy" },
-  { name: "Caveat", class: "font-caveat" }
+  { name: "Caveat", class: "font-caveat" },
 ];
 
 
@@ -61,9 +62,11 @@ const SignatureInput = ({ id, value, onChange, disabled, placeholder }) => {
       />
       {showFonts && nameInput && (
         <div className="signature-font-options">
-          <div className="signature-font-preview-header">Select a signature style:</div>
+          <div className="signature-font-preview-header">
+            Select a signature style:
+          </div>
           {signatureFonts.map((font) => (
-            <div 
+            <div
               key={font.class}
               className={`signature-font-preview ${font.class}`}
               onClick={() => selectFont(font.class)}
@@ -76,11 +79,7 @@ const SignatureInput = ({ id, value, onChange, disabled, placeholder }) => {
       {nameInput && (
         <div className={`signature-preview ${selectedFont}`}>
           {nameInput}
-          <input 
-            type="hidden" 
-            id={id} 
-            value={nameInput} 
-          />
+          <input type="hidden" id={id} value={nameInput} />
         </div>
       )}
     </div>
@@ -88,6 +87,7 @@ const SignatureInput = ({ id, value, onChange, disabled, placeholder }) => {
 };
 
 const A1InternshipRequestForm = ({ userRole = "student" }) => {
+   const navigate = useNavigate();
   const initialState = {
     interneeName: "",
     // soonerId: "",
@@ -108,6 +108,31 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
   };
 
   const [formData, setFormData] = useState(initialState);
+
+  useEffect(() => {
+    const ouEmail = localStorage.getItem("ouEmail");
+
+    fetch(
+      `${
+        process.env.REACT_APP_API_URL
+      }/api/student/me?ouEmail=${encodeURIComponent(ouEmail)}`
+    )
+      .then((res) => {
+        console.log("Fetch status:", res.status);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Fetch returned:", data);
+        setFormData((f) => ({
+          ...f,
+          interneeName: data.interneeName,
+          soonerId: data.soonerId,
+          interneeEmail: data.interneeEmail,
+        }));
+      })
+      .catch((err) => console.error("Prefill error:", err));
+  }, []);
+
   const [successMsg, setSuccessMsg] = useState("");
   const [errors, setErrors] = useState({});
   const [dateError, setDateError] = useState("");
@@ -115,11 +140,18 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
   const isFieldEditable = (fieldType) => {
     switch (userRole) {
       case "student":
-        return !["advisorSignature", "coordinatorApproval", "supervisorComments", "coordinatorComments"].includes(fieldType);
+        return ![
+          "advisorSignature",
+          "coordinatorApproval",
+          "supervisorComments",
+          "coordinatorComments",
+        ].includes(fieldType);
       case "supervisor":
         return ["advisor", "supervisorComments"].includes(fieldType);
       case "coordinator":
-        return ["coordinator", "coordinatorComments", "advisor"].includes(fieldType);
+        return ["coordinator", "coordinatorComments", "advisor"].includes(
+          fieldType
+        );
       default:
         return true;
     }
@@ -149,7 +181,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
       }
     }
     if (errors[id]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[id];
         return newErrors;
@@ -176,7 +208,9 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const descriptions = formData.tasks.map((task) => task.description.trim()).filter(Boolean);
+      const descriptions = formData.tasks
+        .map((task) => task.description.trim())
+        .filter(Boolean);
       if (descriptions.length > 0) {
         fetch(`${process.env.REACT_APP_API_URL}/api/align-outcomes`, {
           method: "POST",
@@ -186,8 +220,12 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
           .then((res) => res.json())
           .then((data) => {
             const updatedTasks = formData.tasks.map((task) => {
-              const match = data.results.find((r) => r.task === task.description);
-              return match ? { ...task, outcomes: match.matched_outcomes } : { ...task, outcomes: [] };
+              const match = data.results.find(
+                (r) => r.task === task.description
+              );
+              return match
+                ? { ...task, outcomes: match.matched_outcomes }
+                : { ...task, outcomes: [] };
             });
             setFormData((prev) => ({ ...prev, tasks: updatedTasks }));
           })
@@ -198,10 +236,14 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
   }, [formData.tasks]);
 
   const renderOutcomeCell = (task, outcome, key) => {
-    const normalizedOutcome = outcome.charAt(0).toLowerCase() + outcome.replace(/\s+/g, "").slice(1);
+    const normalizedOutcome =
+      outcome.charAt(0).toLowerCase() + outcome.replace(/\s+/g, "").slice(1);
     const isMatched = task.outcomes.includes(normalizedOutcome);
     return (
-      <td key={key} style={{ backgroundColor: isMatched ? "#c6f6d5" : "", padding: "4px" }}>
+      <td
+        key={key}
+        style={{ backgroundColor: isMatched ? "#c6f6d5" : "", padding: "4px" }}
+      >
         <input
           type="text"
           value={isMatched ? "✔" : ""}
@@ -230,12 +272,18 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     //if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
     //else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
     if (!formData.interneeEmail) newErrors.interneeEmail = "Email is required";
-    else if (!emailPattern.test(formData.interneeEmail)) newErrors.interneeEmail = "Invalid email format";
-    if (!formData.workplaceName) newErrors.workplaceName = "Workplace name is required";
-    else if (!namePattern.test(formData.workplaceName)) newErrors.workplaceName = "Workplace name should contain only letters and spaces";
-    if (formData.website && !formData.website.includes('.')) newErrors.website = "Please enter a valid website address";
+    else if (!emailPattern.test(formData.interneeEmail))
+      newErrors.interneeEmail = "Invalid email format";
+    if (!formData.workplaceName)
+      newErrors.workplaceName = "Workplace name is required";
+    else if (!namePattern.test(formData.workplaceName))
+      newErrors.workplaceName =
+        "Workplace name should contain only letters and spaces";
+    if (formData.website && !formData.website.includes("."))
+      newErrors.website = "Please enter a valid website address";
     if (!formData.phone) newErrors.phone = "Phone is required";
-    else if (!phonePattern.test(formData.phone)) newErrors.phone = "Phone must be 10 digits";
+    else if (!phonePattern.test(formData.phone))
+      newErrors.phone = "Phone must be 10 digits";
     if (!formData.startDate) newErrors.startDate = "Start date is required";
     if (!formData.endDate) newErrors.endDate = "End date is required";
     if (!formData.advisorName) newErrors.advisorName = "Supervisor name is required";
@@ -254,11 +302,14 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   const submitFormData = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/form/submit`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/form/submit`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
       if (!response.ok) throw new Error("Failed to submit form");
       const data = await response.json();
       return data;
@@ -270,11 +321,14 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   const sendTaskDescriptions = async (descriptions) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/align-outcomes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tasks: descriptions }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/align-outcomes`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tasks: descriptions }),
+        }
+      );
       if (!response.ok) throw new Error("Failed to send task descriptions");
       const data = await response.json();
       return data.results.map(({ task, matched_outcomes }) => ({
@@ -290,16 +344,27 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    const taskDescriptions = formData.tasks.map((task) => task.description.trim()).filter(Boolean);
+    const taskDescriptions = formData.tasks
+      .map((task) => task.description.trim())
+      .filter(Boolean);
     try {
       const aligned = await sendTaskDescriptions(taskDescriptions);
       if (aligned && aligned.length > 0) {
         setFormData((prev) => ({ ...prev, tasks: aligned }));
         const submissionResponse = await submitFormData();
-        const recipient = submissionResponse.manual ? "coordinator for manual review!" : "supervisor!";
+        const recipient = submissionResponse.manual
+          ? "coordinator for manual review!"
+          : "supervisor!";
         setSuccessMsg(`Form submitted successfully and sent to ${recipient}`);
         setTimeout(() => setSuccessMsg(""), 15000);
         setFormData(initialState);
+          
+      const timeoutId = setTimeout(() => {
+        navigate('/student-dashboard');
+      }, 1000);
+
+     
+      return () => clearTimeout(timeoutId);
       } else {
         setErrors({ tasks: "Outcome alignment failed or returned no tasks." });
       }
@@ -310,22 +375,22 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   useEffect(() => {
     const fonts = [
-      'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&display=swap',
-      'https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap',
-      'https://fonts.googleapis.com/css2?family=Pacifico&display=swap',
-      'https://fonts.googleapis.com/css2?family=Satisfy&display=swap',
-      'https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap'
+      "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&display=swap",
+      "https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap",
+      "https://fonts.googleapis.com/css2?family=Pacifico&display=swap",
+      "https://fonts.googleapis.com/css2?family=Satisfy&display=swap",
+      "https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap",
     ];
     const links = [];
-    fonts.forEach(font => {
-      const link = document.createElement('link');
+    fonts.forEach((font) => {
+      const link = document.createElement("link");
       link.href = font;
-      link.rel = 'stylesheet';
+      link.rel = "stylesheet";
       document.head.appendChild(link);
       links.push(link);
     });
     return () => {
-      links.forEach(link => document.head.removeChild(link));
+      links.forEach((link) => document.head.removeChild(link));
     };
   }, []);
 
@@ -354,29 +419,41 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   // disabled={!isFieldEditable("interneeName")} 
                   disabled
                 />
-                {errors.interneeName && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeName}</div>}
+                {errors.interneeName && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.interneeName}
+                  </div>
+                )}
               </td>
               <td colSpan="3">
                 Name<span className="required-asterisk">*</span>:<br />
-                <input 
-                  type="text" 
-                  id="workplaceName" 
-                  value={formData.workplaceName} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("workplaceName")} 
+                <input
+                  type="text"
+                  id="workplaceName"
+                  value={formData.workplaceName}
+                  onChange={handleInputChange}
+                  disabled={!isFieldEditable("workplaceName")}
                 />
-                {errors.workplaceName && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.workplaceName}</div>}
+                {errors.workplaceName && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.workplaceName}
+                  </div>
+                )}
               </td>
               <td colSpan="2">
                 Name<span className="required-asterisk">*</span>:<br />
-                <input 
-                  type="text" 
-                  id="advisorName" 
-                  value={formData.advisorName} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("advisorName")} 
+                <input
+                  type="text"
+                  id="advisorName"
+                  value={formData.advisorName}
+                  onChange={handleInputChange}
+                  disabled={!isFieldEditable("advisorName")}
                 />
-                {errors.advisorName && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.advisorName}</div>}
+                {errors.advisorName && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.advisorName}
+                  </div>
+                )}
               </td>
             </tr>
             <tr>
@@ -427,37 +504,49 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   disabled
                  
                 />
-                {errors.interneeEmail && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeEmail}</div>}
+                {errors.interneeEmail && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.interneeEmail}
+                  </div>
+                )}
               </td>
               <td colSpan="3">
                 Phone<span className="required-asterisk">*</span>:<br />
-                <input 
-                  type="text" 
-                  id="phone" 
-                  value={formData.phone} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("phone")} 
+                <input
+                  type="text"
+                  id="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  disabled={!isFieldEditable("phone")}
                 />
-                {errors.phone && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.phone}</div>}
+                {errors.phone && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.phone}
+                  </div>
+                )}
               </td>
               <td colSpan="2">
                 Email<span className="required-asterisk">*</span>:<br />
-                <input 
-                  type="email" 
-                  id="advisorEmail" 
-                  value={formData.advisorEmail} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("advisorEmail")} 
+                <input
+                  type="email"
+                  id="advisorEmail"
+                  value={formData.advisorEmail}
+                  onChange={handleInputChange}
+                  disabled={!isFieldEditable("advisorEmail")}
                 />
-                {errors.advisorEmail && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.advisorEmail}</div>}
+                {errors.advisorEmail && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.advisorEmail}
+                  </div>
+                )}
               </td>
             </tr>
             <tr>
               <td colSpan="3">
                 Credit Hours<span className="required-asterisk">*</span>:<br />
-                <select 
-                  id="creditHours" 
-                  value={formData.creditHours} 
+                <select
+                  id="creditHours"
+                  value={formData.creditHours}
                   onChange={handleCreditHourChange}
                   disabled={!isFieldEditable("creditHours")}
                 >
@@ -466,47 +555,59 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   <option value="2">2 Credits</option>
                   <option value="3">3 Credits</option>
                 </select>
-                {errors.creditHours && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.creditHours}</div>}
+                {errors.creditHours && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.creditHours}
+                  </div>
+                )}
               </td>
               <td colSpan="3">
-  <label htmlFor="startDate">
-    Start Date<span className="required-asterisk">*</span>:
-  </label><br />
-  <div className="date-input-wrapper">
-    <input 
-      type="date"
-      id="startDate"
-      value={formData.startDate}
-      onChange={handleInputChange}
-      disabled={!isFieldEditable("startDate")}
-    />
-  </div>
-  {errors.startDate && <div className="error-text">{errors.startDate}</div>}
-</td>
+                <label htmlFor="startDate">
+                  Start Date<span className="required-asterisk">*</span>:
+                </label>
+                <br />
+                <div className="date-input-wrapper">
+                  <input
+                    type="date"
+                    id="startDate"
+                    value={formData.startDate}
+                    onChange={handleInputChange}
+                    disabled={!isFieldEditable("startDate")}
+                  />
+                </div>
+                {errors.startDate && (
+                  <div className="error-text">{errors.startDate}</div>
+                )}
+              </td>
 
-<td colSpan="2">
-  <label htmlFor="endDate">
-    End Date<span className="required-asterisk">*</span>:
-  </label><br />
-  <div className="date-input-wrapper">
-    <input
-      type="date"
-      id="endDate"
-      value={formData.endDate}
-      min={formData.startDate}
-      onChange={handleInputChange}
-      disabled={!isFieldEditable("endDate")}
-    />
-  </div>
-  {dateError && <div className="error-text">{dateError}</div>}
-  {errors.endDate && <div className="error-text">{errors.endDate}</div>}
-</td>
-
+              <td colSpan="2">
+                <label htmlFor="endDate">
+                  End Date<span className="required-asterisk">*</span>:
+                </label>
+                <br />
+                <div className="date-input-wrapper">
+                  <input
+                    type="date"
+                    id="endDate"
+                    value={formData.endDate}
+                    min={formData.startDate}
+                    onChange={handleInputChange}
+                    disabled={!isFieldEditable("endDate")}
+                  />
+                </div>
+                {dateError && <div className="error-text">{dateError}</div>}
+                {errors.endDate && (
+                  <div className="error-text">{errors.endDate}</div>
+                )}
+              </td>
             </tr>
           </tbody>
         </table>
 
-        <h3 className="section-title">Task Details & Program Outcomes<span className="required-asterisk">*</span></h3>
+        <h3 className="section-title">
+          Task Details & Program Outcomes
+          <span className="required-asterisk">*</span>
+        </h3>
         <div className="table-box">
           <div className="job-description-box">
             <strong>Job Description Details:</strong>
@@ -522,7 +623,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                 <th style={{ width: "20%" }}>Task</th>
                 {outcomeLabels.map((label, j) => (
                   <th key={`label-${j}`} style={{ width: "13.33%" }}>
-                    {label}<br />
+                    {label}
+                    <br />
                     <small>({outcomeDescriptions[j]})</small>
                   </th>
                 ))}
@@ -537,16 +639,26 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                       placeholder={`Task ${i + 1}`}
                       value={task.description}
                       onChange={(e) => handleTaskChange(i, e.target.value)}
-                      style={{ width: "100%", padding: "4px", boxSizing: "border-box" }}
+                      style={{
+                        width: "100%",
+                        padding: "4px",
+                        boxSizing: "border-box",
+                      }}
                       disabled={!isFieldEditable("task")}
                     />
                   </td>
-                  {outcomeLabels.map((label, j) => renderOutcomeCell(task, label, `${i}-${j}`))}
+                  {outcomeLabels.map((label, j) =>
+                    renderOutcomeCell(task, label, `${i}-${j}`)
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
-          {errors.tasks && <div style={{ color: "red", fontSize: "0.8rem", marginTop: "5px" }}>{errors.tasks}</div>}
+          {errors.tasks && (
+            <div style={{ color: "red", fontSize: "0.8rem", marginTop: "5px" }}>
+              {errors.tasks}
+            </div>
+          )}
         </div>
 
         <h3 className="section-title">Signatures:</h3>
@@ -556,7 +668,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
               <td className="signature-cell" colSpan="1">
                 Internee Signature<span className="required-asterisk">*</span>:<br />
                 <div className="signature-field">
-                  <SignatureInput 
+                  <SignatureInput
                     id="interneeSignature"
                     value={formData.interneeSignature}
                     onChange={handleInputChange}
@@ -564,7 +676,11 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                     placeholder="Enter your full name"
                   />
                 </div>
-                {errors.interneeSignature && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeSignature}</div>}
+                {errors.interneeSignature && (
+                  <div style={{ color: "red", fontSize: "0.8rem" }}>
+                    {errors.interneeSignature}
+                  </div>
+                )}
               </td>
               </tr>
           </tbody>

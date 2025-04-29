@@ -19,6 +19,8 @@ import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
 import TokenRenewal from "./pages/TokenRenewal";
 import StudentDashboard from "./pages/StudentDashboard";
 import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
 import SubmittedReports from "./pages/SubmittedReports";
 import CumulativeReviewForm from "./pages/CumulativeReviewForm";
@@ -83,6 +85,14 @@ const router = createBrowserRouter([
       {
         path: "renew-token/:token",
         element: <TokenRenewal />,
+      },
+      {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
       },
       {
         path: "four-week-report",
