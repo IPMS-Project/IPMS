@@ -126,6 +126,9 @@ const CoordinatorDashboard = () => {
                   <h4>Week: {report.week}</h4>
                   <p>Hours: {report.hours}</p>
                   <p>Tasks: {report.tasks}</p>
+                  <td>
+                    <button className="review-btn" onClick={() => navigate(`/review-cumulative/${report._id}/coordinator`)}>Review</button>
+                  </td>
                 </div>
               ))
             )
