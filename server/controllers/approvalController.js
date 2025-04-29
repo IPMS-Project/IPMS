@@ -49,8 +49,7 @@ const getSupervisorForms = async (req, res) => {
       supervisor_status: { $in: ["pending"] },
     };
 
-    const a1Forms = await InternshipRequest.find(filterA1)
-                                           .populate("student", "fullName ouEmail");
+    const a1Forms = await InternshipRequest.find(filterA1);
 
     const typedA1 = a1Forms.map((form) => ({
       ...form.toObject(),
