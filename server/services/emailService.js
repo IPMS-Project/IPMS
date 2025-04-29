@@ -45,11 +45,11 @@ class EmailService {
         };
       }
 
-      // OPTIONAL SAFEGUARD: Only allow sending if student role
-      if (options.role && options.role.toLowerCase() !== "student") {
-        console.log(`Email skipped: Role is ${options.role}, not student.`);
-        return { success: true, message: "Email skipped for non-student." };
-      }
+      // // OPTIONAL SAFEGUARD: Only allow sending if student role
+      // if (options.role && options.role.toLowerCase() !== "student") {
+      //   console.log(`Email skipped: Role is ${options.role}, not student.`);
+      //   return { success: true, message: "Email skipped for non-student." };
+      // }
 
       const mailOptions = {
         from: options.from || this.defaultSender,

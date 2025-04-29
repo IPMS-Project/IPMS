@@ -389,9 +389,13 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
         setSuccessMsg(`Form submitted successfully and sent to ${recipient}`);
         setTimeout(() => setSuccessMsg(""), 15000);
         setFormData(initialState);
-        setTimeout(() => {
-          navigate('/student-dashboard');
-        }, 1000);
+          
+      const timeoutId = setTimeout(() => {
+        navigate('/student-dashboard');
+      }, 1000);
+
+     
+      return () => clearTimeout(timeoutId);
       } else {
         setErrors({ tasks: "Outcome alignment failed or returned no tasks." });
       }
