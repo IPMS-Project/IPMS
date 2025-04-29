@@ -9,7 +9,9 @@ const CumulativeReviewForm = () => {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const email = "vikash.balaji.kokku-1@ou.edu"; // TODO: Replace dynamically later
+  //const email = "rohan.mukka-1@ou.edu"; // TODO: Replace dynamically later
+  const ipmsUser = localStorage.getItem("ipmsUser");
+  const email = ipmsUser ? JSON.parse(ipmsUser).email : null;
   const token = localStorage.getItem("token") || "";
 
   useEffect(() => {

@@ -30,8 +30,9 @@ const WeeklyProgressReportForm = ({ role = "student", readOnly = false }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const email = "vikash.balaji.kokku-1@ou.edu"; // TODO: Make dynamic later
-        
+        //const email = "vikash.mukka-1@ou.edu"; // TODO: Make dynamic later
+        const ipmsUser = localStorage.getItem("ipmsUser");
+        const email = ipmsUser ? JSON.parse(ipmsUser).email : null;
         const a1Res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/a1/${email}`);
         if (a1Res.data.success) {
           const { name, email: userEmail, supervisorName, supervisorEmail, creditHours} = a1Res.data.form;

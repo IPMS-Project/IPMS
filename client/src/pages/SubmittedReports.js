@@ -11,7 +11,9 @@ const SubmittedReports = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const email = "vikash.balaji.kokku-1@ou.edu"; // Later replace with session email
+        //const email = "rohan.mukka-1@ou.edu"; // Later replace with session email
+        const ipmsUser = localStorage.getItem("ipmsUser");
+        const email = ipmsUser ? JSON.parse(ipmsUser).email : null;
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/reports/mine?email=${email}`);
         if (res.data.success) {
           setReports(res.data.reports);

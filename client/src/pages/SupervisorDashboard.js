@@ -12,8 +12,9 @@ const SupervisorDashboard = () => {
   const [message] = useState('');
   const token = localStorage.getItem("token") || "";
 
-  const email = "vikash.balaji.kokku-1@ou.edu"; // Replace with dynamic user email later
-
+  //const email = "rohan.mukka-1@ou.edu"; // Replace with dynamic user email later
+  const ipmsUser = localStorage.getItem("ipmsUser");
+  const email = ipmsUser ? JSON.parse(ipmsUser).email : null;
   useEffect(() => {
     const fetchAllData = async () => {
       try {
