@@ -22,6 +22,12 @@ const fourWeekReportRoutes = require("./routes/fourWeekReportRoutes");
 const path = require("path");
 
 
+
+const cronJobRoutes = require("./routes/cronJobRoutes");
+
+// Author Subhash Chandra: Form A3 Reminder Job Logic
+const { registerReminderA3Job } = require("./utils/reminderA3Utils");
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -94,9 +100,7 @@ app.post("/api/createUser", async (req, res) => {
     res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to create user", error: error.message });
+    res.status(500).json({ message: "Failed to create user", error: error.message });
   }
 });
 
@@ -138,9 +142,6 @@ app.post("/api/evaluation", async (req, res) => {
     res.status(500).json({ error: "Failed to save evaluation" });
   }
 });
-
-
-
 
 //Form A.4
 const presentationRoutes = require("./routes/presentationRoutes");

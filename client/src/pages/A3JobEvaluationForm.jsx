@@ -46,8 +46,9 @@ const A3JobEvaluationForm = () => {
     coordinatorSignature: "",
     coordinatorAgreement: false,
   });
+  // const [advisorDetails, setAdvisorDetails] = useState(null);
   const [errors, setErrors] = useState({});
-
+  
   // Ratings and comments
   const [ratings, setRatings] = useState({});
   const [comments, setComments] = useState({});
@@ -172,6 +173,9 @@ const A3JobEvaluationForm = () => {
           interneeName: "", 
           interneeID: "",
           interneeEmail: "",
+          advisorName: "",
+          advisorJobTitle: "",
+          advisorEmail: "",
           advisorSignature: "",
           advisorAgreement: false,
           coordinatorSignature: "",
@@ -231,7 +235,7 @@ const A3JobEvaluationForm = () => {
         style={{ backgroundColor: "#fff", maxWidth: "900px", width: "100%" }}
       >
         <Form onSubmit={handleSubmit}>
-          <Row className="justify-content-center">
+          <Row className="justify-content-center" style={{ marginBottom: "20px" }}>
             <Col xs={12}> 
             <div className="border-box">
               <h5 style={{ backgroundColor: '#9d2235', color: 'white', padding: '8px', borderRadius: '5px', textAlign: "center", width: '100%',}}>Internee Details</h5>
@@ -239,7 +243,6 @@ const A3JobEvaluationForm = () => {
                   <Form.Label>Name</Form.Label>
                   <Form.Control type="text" value={formData.interneeName} onChange={(e) => handleChange("interneeName", e.target.value)} isInvalid={!!errors.interneeName} placeholder="Enter full name" style={{ maxWidth: "300px" }}/>
                   <Form.Text className="text-danger">{errors.interneeName}</Form.Text>
-                  
                 </Form.Group>
                 <Form.Group controlId="interneeID">
                   <Form.Label>Sooner ID</Form.Label>
@@ -252,8 +255,24 @@ const A3JobEvaluationForm = () => {
                   <Form.Text className="text-danger">{errors.interneeEmail}</Form.Text>
                   </Form.Group>
             </div>
+            <div className="border-box mt-4">
+                <h5 style={{ backgroundColor: '#9d2235', color: 'white', padding: '8px', borderRadius: '5px', textAlign: "center", width: '100%' }}> Internship Advisor Details </h5>
+                <Form.Group>
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control type="text" value={formData.advisorName} readOnly style={{ maxWidth: "300px" }} />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Job Title</Form.Label>
+                  <Form.Control type="text" value={formData.advisorJobTitle} readOnly style={{ maxWidth: "300px" }} />
+                </Form.Group>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control type="email" value={formData.advisorEmail} readOnly style={{ maxWidth: "300px" }} />
+                  </Form.Group>
+            </div>
           </Col>
           </Row>
+          
           <Table bordered responsive className="text-center custom-table">
             <thead>
               <tr>

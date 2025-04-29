@@ -1,5 +1,12 @@
 const CronJob = require("../models/CronJob");
-const { coordinatorReminder, supervisorReminder } = require("./reminderEmail");
+
+// Import ALL required reminder jobs from all branches
+const {
+  coordinatorReminder,
+  supervisorReminder,
+  evaluationReminder,
+} = require("./reminderEmail");
+
 const { checkAndSendReminders } = require("./tokenExpiryCheck");
 const autoDeactivateCronjobs = require("./autoDeactivateCronjobs");
 
@@ -26,6 +33,10 @@ async function getCronJobs() {
           schedule: job.schedule,
           job: async () => {
             try {
+              await CronJob.findByIdAndUpdate(job._id, {
+                lastRun: new Date(),
+              });
+              await jobFunctions[job.name]();
               // Update last execution time
               await CronJob.findByIdAndUpdate(job._id, {
                 lastRun: new Date(),
