@@ -77,34 +77,40 @@ const getSupervisorForms = async (req, res) => {
       //      Fetching A3 Forms
       // ----------------------------
       const allA2Forms = await WeeklyReport.find();   
-      const studentIdsWithA2 = allA2Forms.map((form) => form.studentId);
+      const studentIdsWithA2 = allA2Forms.map((form) => form.email);
 
-      const filterA3 = {
-        interneeId: { $in: studentIdsWithA2 },
-        supervisor_status: { $in: ["pending"] },
-      };
+      const allA1Forms = await InternshipRequest.find({}, "student.email internshipAdvisor.email");
 
-      const a3Forms = await Evaluation.find(filterA3)
-                                      .populate({
-                                          path: 'internshipId',      // Link to A3
-                                          match: { 'internshipAdvisor.email': supervisor.ouEmail }, // Filter inside A3
-                                          select: 'internshipAdvisor.email', // Only bring back needed fields
-                                      })
-                                      .populate("interneeId", "fullName ouEmail")
-                                      .then(docs => docs.filter(doc => doc.internshipId));
+      const emailToAdvisorMap = new Map();
+      allA1Forms.forEach(form => {
+          if (form.student?.email && form.internshipAdvisor?.email) {
+              emailToAdvisorMap.set(form.student.email, form.internshipAdvisor.email);
+          }
+      });
+
+      const pendingA3Forms = await Evaluation.find({
+          supervisor_status: { $in: ["pending"] },
+          interneeEmail: { $in: studentIdsWithA2 },
+      });
+
+      const a3Forms = pendingA3Forms.filter(form => {
+          const interneeEmail = form.interneeEmail;
+          const advisorEmail = emailToAdvisorMap.get(interneeEmail);
+          return advisorEmail === supervisor.ouEmail;
+      });
 
       const typedA3 = a3Forms.map((form) => ({
-      ...form.toObject(),
-      form_type: "A3",
-    }));
+          ...form.toObject(),
+          form_type: "A3",
+      }));
 
-    // ----------------------------
-    //      Combine All Forms
-    // ----------------------------
-    const allForms = [...typedA1, ...typedA2, ...typedA3];
+      // ----------------------------
+      //      Combine All Forms
+      // ----------------------------
+      const allForms = [...typedA1, ...typedA2, ...typedA3];
 
-    // Sort by createdAt
-    allForms.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      // Sort by createdAt
+      allForms.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     // Respond
     return res.status(200).json(allForms);
@@ -160,13 +166,13 @@ const handleSupervisorFormAction = async (req, res, action) => {
         
     let student_mail = null;
     if (form_type === "A1") {
-         student_mail = form.student?.ouEmail;
+         student_mail = form.student.email;
     }
     else if (form_type === "A2") {
         student_mail = form.studentId?.ouEmail;
     }
     else if (form_type === "A3") {
-        student_mail = form.interneeId?.ouEmail;
+        student_mail = form.interneeEmail;
     }
     else {
         console.error(`Unknown form type: ${form_type}`);
