@@ -71,17 +71,26 @@ function Home() {
             semester: user.semester,
           };
 
+            localStorage.clear();
           localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
           localStorage.setItem("ouEmail", user.ouEmail);
           navigate("/student-dashboard");
         } else if (role === "supervisor") {
-          Swal.fire({
-            icon: "success",
-            title: "Login Successful 🌟",
-            text: `Welcome back, ${role}!`,
-          });
+          // Store only required fields
+          const limitedUserInfo = {
+            role: role,
+          };
           const token = data.user.token;
+
+            localStorage.clear();
+          localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
           localStorage.setItem("token", token);
+
+          Swal.fire({
+              icon: "success",
+              title: "Login Successful 🌟",
+              text: `Welcome back, ${role}!`,
+          });
           navigate("/supervisor-dashboard");
         } else {
           Swal.fire({
