@@ -22,12 +22,20 @@ const Task = new mongoose.Schema({
   
 });
 const formA1 = new mongoose.Schema({
-    ...formMetadata,
-    student: { 
-        type: ObjectId,
-        required: true,
-        ref: 'UserTokenRequest'
+    
+    student:{
+        name:{
+            type: String,
+            required: true,
+        },
+        email:{
+            unique: true,
+            type: String,
+            required:true,
+        },
     },
+    ...formMetadata,
+   
     workplace: {
         name: {
             type: String,
@@ -61,11 +69,7 @@ const formA1 = new mongoose.Schema({
         type: [Task],
         required: true
     },
-    // status: {
-    //     type: String,
-    //     required: true,
-    //     enum: ['draft', 'submitted','pending manual review' ,'approved']
-    // },
+    
     approvals: {
       type: [String],
       enum: ["advisor", "coordinator"],

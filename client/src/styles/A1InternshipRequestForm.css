@@ -220,4 +220,57 @@
     width: 90%;
     max-width: 1200px;
     border-radius: 12px;
+
+  }
+
+  .success-msg, .error-msg {
+    animation: fadeIn 0.5s;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .required-asterisk {
+    color: #d93025;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-left: 2px;
+    vertical-align: middle;
+  }
+
+  button[type="submit"] {
+    box-shadow: 0 2px 8px rgba(44, 110, 203, 0.08);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  button[type="submit"]:active {
+    background: #1e5dad;
+    box-shadow: 0 1px 2px #777;
+  }
+
+  input, select, textarea {
+    margin-bottom: 10px;
+  }
+  textarea {
+    min-height: 90px;
+    resize: vertical;
+  }
+
+  .section-card {
+    background: #f7fafd;
+    border-radius: 8px;
+    box-shadow: 0 1px 8px rgba(44, 110, 203, 0.04);
+    padding: 18px 20px 14px 20px;
+    margin-bottom: 28px;
+    border-left: 5px solid #007bff22;
+  }
+  
+  .section-title {
+    color: #2451a0;
+    border-left: 4px solid #007bffcc;
+    padding-left: 10px;
+    margin-bottom: 16px;
+    font-size: 1.18rem;
+    background: transparent;
   }
