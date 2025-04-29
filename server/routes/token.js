@@ -24,7 +24,7 @@ router.post("/request", async (req, res) => {
     if (!fullName || !ouEmail || !password || !semester || !role) {
       return res.status(400).json({ error: "All fields are required." });
     }
-
+   
     const existing = await TokenRequest.findOne({ ouEmail });
     if (existing) {
       return res.status(401).json({ error: "Token request already exists for this email." });

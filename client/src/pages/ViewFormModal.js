@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import "../styles/SupervisorDashboard.css";
+import "../styles/A1InternshipRequestForm.css";
 
-const ViewFormModal = ({ formData, onClose, onAction }) => {
-  const [comment, setComment] = useState("");
+const ViewFormModal = ({ formData, onClose, onAction, onActionComplete }) => {
+    const [comment, setComment] = useState("");
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
-
   const handleDecision = (action) => {
     if (!comment.trim()) return setError("Comment is required.");
     if (!signature.trim()) return setError("Signature is required.");
@@ -13,7 +12,6 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
     onAction(formData._id, action, comment.trim(), signature.trim());
   };
 
-  // ✅ Inserted rendering helpers
   const renderA1 = () => (
     <>
       <h2>A1 – Internship Request Form</h2>
@@ -27,13 +25,15 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
           <tbody>
             <tr>
               <td><strong>Student Name:</strong> {formData.interneeName || "N/A"}</td>
-              <td><strong>Student ID:</strong> {formData.soonerId || "N/A"}</td>
               <td><strong>Email:</strong> {formData.interneeEmail || "N/A"}</td>
             </tr>
             <tr>
               <td><strong>Workplace Name:</strong> {formData.workplace?.name || "N/A"}</td>
-              <td><strong>Phone:</strong> {formData.workplace?.phone || "N/A"}</td>
               <td><strong>Website:</strong> {formData.workplace?.website || "N/A"}</td>
+            </tr>
+            <tr>
+            <td><strong>Workplace Phone:</strong> {formData.workplace?.phone || "N/A"}</td>
+            <td></td>
             </tr>
             <tr>
               <td><strong>Advisor Name:</strong> {formData.internshipAdvisor?.name || "N/A"}</td>
@@ -65,32 +65,77 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
     </>
   );
 
+  const renderA2 = () => (
+    <>
+      <h1>A2 – Weekly Evaluation</h1>
+      <table className="dashboard-table">
+      <thead>
+            <tr>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+        <tbody>
+          <tr>
+            <td><strong>Name:</strong> <p>{formData.interneeName || "N/A"}</p></td>
+            <td><strong>Email:</strong> <p>{formData.interneeEmail || "N/A"}</p></td>
+          </tr>
+          <tr>
+            <td><strong>Current Week:</strong> <p>{formData.fullForm.week|| "N/A"}</p></td>
+            <td><strong>Hours:</strong> <p>{formData.fullForm.hours|| "N/A"}</p></td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <div style={{ marginTop: "15px" }}>
+        <strong>Tasks Performed</strong>
+        <p>{formData.tasks || "No tasks provided"}</p>
+      </div>
+      <div style={{ marginTop: "15px" }}>
+        <strong>Lessons Learned</strong>
+        <p>{formData.lessons || "No lessons provided"}</p>
+      </div>
+    </>
+  );
+
     const renderA3 = () => (
         <>
-        <h2>A3 – Final Job Performance Evaluation</h2>
-        <p><strong>Name:</strong> {formData.interneeName}</p>
-        <p><strong>Email:</strong> {formData.interneeEmail}</p>
-        <p><strong>Sooner ID:</strong> {formData.interneeID}</p>
+        <h1>A3 – Final Performance Eval</h1>
+        <table className="dashboard-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><p><strong>Name:</strong> {formData.interneeName}</p></td>
+              <td><p><strong>Email:</strong> {formData.interneeEmail}</p></td>
+            </tr>
+          </tbody>
+        </table>
+        
 
         <h3>Evaluation Items</h3>
         <table className="dashboard-table">
-        <thead>
-        <tr>
-        <th>Category</th>
-        <th>Rating</th>
-        <th>Comment</th>
-        </tr>
-        </thead>
-        <tbody>
-        {formData.evaluations?.map((item, i) => (
-            <tr key={i}>
-            <td>{item.category}</td>
-            <td>{item.rating}</td>
-            <td>{item.comment || "-"}</td>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Rating</th>
+              <th>Comment</th>
             </tr>
-        ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {formData.fullForm.evaluations?.map((item, i) => (
+              <tr key={i}>
+                <td>{item.category}</td>
+                <td>{item.rating}</td>
+                <td>{item.comment || "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
     </>
   );
 
@@ -120,14 +165,25 @@ const ViewFormModal = ({ formData, onClose, onAction }) => {
     </>
   );
 
-    return (
-      <div className="modal-overlay">
-        <div className="modal-box" style={{ maxHeight: "90vh", overflowY: "auto" }}>
-          {formData.form_type === "A1" ? renderA1() : renderA3()}
-          {renderSignaturesAndActions()}
-        </div>
+  let renderedComponent;
+
+  if (formData.form_type === "A1") {
+    renderedComponent = renderA1();
+  } else if (formData.form_type === "A2") {
+    renderedComponent = renderA2();
+  } else {
+    renderedComponent = renderA3();
+  }
+  
+  return (
+    <div className="modal-overlay">
+      <div className="modal-box" style={{ maxHeight: "90vh", overflowY: "auto" }}>
+        {renderedComponent}
+        {renderSignaturesAndActions()}
       </div>
-    );
+    </div>
+  );
+  
 };
 
 export default ViewFormModal;

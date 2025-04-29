@@ -54,8 +54,6 @@ const userTokenRequestSchema = new mongoose.Schema(
       required: function () {
         return this.role === 'student';
       },
-      unique: true,
-      match: [/^\d{9}$/, 'Sooner ID must be exactly 9 digits'],
     },
     role: {
       type: String,

@@ -1,4 +1,4 @@
-const InternshipRequest = require("../models/internshiprequest");
+const InternshipRequest = require("../models/InternshipRequest");
 const WeeklyReport = require("../models/WeeklyReport");
 
 exports.getA1ByEmail = async (req, res) => {

@@ -67,88 +67,131 @@ const getAllForms = async (filter = {}) => {
     A3: require("../models/Evaluation"),
   };
 
-  const formPromises = Object.entries(models).map(
-    async ([form_type, Model]) => {
-      const results = await Model.find(filter);
-      return results;
-    }
-  );
+  const formPromises = Object.entries(models).map(async ([formType, Model]) => {
+    const forms = await Model.find(filter);
+    return forms.map(form => ({
+      ...form.toObject(),
+      form_type: formType // dynamically add the type
+    }));
+  });
 
-  const allResults = await Promise.all(formPromises);
-  return allResults.flat();
+  const allForms = await Promise.all(formPromises);
+    return allForms.flat(); // flatten into a single array
 };
+
+const findSupervisorFromForm = async (form) => {
+    let supervisor = null;
+    try {
+        if (form.form_type === "A1") {
+            supervisor = await UserTokenRequest.findOne({ ouEmail: form.internshipAdvisor.email });
+        }
+        else if (form.form_type === "A2") {
+            supervisor = await UserTokenRequest.findOne({ ouEmail: form.supervisorEmail });
+        }
+        else if (form.form_type === "A3") {
+            const internship_a1 = await InternshipRequest.findById(form.internshipId);
+            supervisor = await UserTokenRequest.findOne({ ouEmail: internship_a1.internshipAdvisor.email });
+        }
+        else {
+            logger.error(`Unknown form type: ${form.form_type}`);
+        }
+    }
+    catch (err) {
+        logger.error(`Error retrieving supervisor: ${err.message}`);
+    }
+    return supervisor;
+}
+
+const getStudentFromForm = async (form) => {
+    let student = null;
+    try {
+        if (form.form_type === "A1") {
+            student = await UserTokenRequest.findById(form.student);
+        }
+        else if (form.form_type === "A2") {
+            student = await UserTokenRequest.findById(form.studentId);
+        }
+        else if (form.form_type === "A3") {
+            student = await UserTokenRequest.findById(form.interneeId);
+        }
+        else {
+            logger.error(`Unknown form type: ${form.form_type}`);
+        }
+    }
+    catch (err) {
+        logger.error(`Error retrieving student: ${err.message}`);
+    }
+    
+    return student;
+}
 
 // Supervisor reminder: weekly progress reports pending review
 const supervisorReminder = async () => {
   const now = dayjs();
   const fiveWorkingDaysAgo = now.subtract(7, "day").toDate();
 
-  try {
-    const pendingSubs = await Submission.find({
-      supervisor_status: "pending",
-      createdAt: { $lt: fiveWorkingDaysAgo },
-    });
+    try {
+        const models = {
+            A1: require("../models/InternshipRequest"),
+            A2: require("../models/WeeklyReport"),
+            A3: require("../models/Evaluation"),
+        };
+        
+        const pendingSubs = await getAllForms({
+            supervisor_status: "pending",
+            last_supervisor_reminder_at: { $lt: fiveWorkingDaysAgo },
+        });
 
-    const supervisors = await UserTokenRequest.find({
-      role: "supervisor",
-      isActivated: true,
-    });
+      for (const submission of pendingSubs) {
 
-    for (const submission of pendingSubs) {
-      const student = await User.findById(submission.student_id);
-      const supervisor = await User.findById(submission.supervisor_id);
+          const student = await getStudentFromForm(submission);
 
-      if (!student || !supervisor) continue;
-
-      const reminderCount = submission.supervisor_reminder_count || 0;
-      const lastReminded =
-        submission.last_supervisor_reminder_at || submission.createdAt;
-      const nextReminderDue = dayjs(lastReminded).add(5, "day");
-      const shouldRemindAgain = now.isAfter(nextReminderDue);
+          const reminderCount = submission.supervisor_reminder_count || 0;
+          const lastReminded = submission.last_supervisor_reminder_at || submission.createdAt;
+          const nextReminderDue = dayjs(lastReminded).add(5, "day");
+          const shouldRemindAgain = now.isAfter(nextReminderDue);
 
       if (reminderCount >= 2 && shouldRemindAgain) {
         await emailService.sendEmail({
-          to: student.email,
-          subject: `Supervisor Not Responding for "${submission.name}"`,
-          html: `<p>Your submission "<strong>${submission.name}</strong>" has not been reviewed by your supervisor after multiple reminders.</p>
-                 <p>Please consider resending or deleting the request.</p>`,
-          text: `Your submission "${submission.name}" is still awaiting supervisor review.`,
+          to: student.ouEmail,
+          subject: `Supervisor Not Responding for "${submission.form_type}"`,
+          html: `<p>Your submission "${submission.form_type}" has not been reviewed by the supervisor after multiple reminders.</p>
+                 <p>Please consider resending the form or deleting the request.</p>`,
+          text: `Your submission "${submission.form_type}" is still awaiting supervisor review.`,
         });
 
         await NotificationLog.create({
           submissionId: submission._id,
           type: "studentEscalation",
           recipientEmail: student.email,
-          message: `Student notified about supervisor inaction for "${submission.name}".`,
+          message: `Student notified about supervisor inaction for "${submission._id}".`,
         });
 
-        logger.info(`[Escalated] Student notified for: "${submission.name}"`);
+        logger.info(`[Escalated] Student notified for: "${submission._id}"`);
       } else if (shouldRemindAgain) {
-        for (const sup of supervisors) {
+
+          const supervisor = await findSupervisorFromForm(submission);
           await emailService.sendEmail({
-            to: sup.ouEmail,
-            subject: `Reminder: Please Review Submission "${submission._id}"`,
-            html: `<p>This is a reminder to review the submission by ${student.email}.</p>`,
-            text: `Reminder to review submission "${submission._id}".`,
+              to: supervisor?.ouEmail,
+              subject: `Reminder: Please Review Submission ${submission.form_type} of ${student.fullName}`,
+              html: `<p>This is a reminder to review the submission by ${student.ouEmail}.</p>`,
+              text: `Reminder: Please Review Submission ${submission.form_type} of ${student.fullName}`,
           });
-        }
+          
+          const updatedSubmission = await models[submission.form_type].findByIdAndUpdate(
+              submission._id,
+              {
+                  supervisor_status: "pending",
+                  supervisor_reminder_count: reminderCount + 1,
+                  last_supervisor_reminder_at: new Date(),
+              },
+          );
 
-        submission.supervisor_reminder_count = reminderCount + 1;
-        submission.last_supervisor_reminder_at = new Date();
-
-        try {
-          await submission.save();
-        } catch (err) {
-          logger.error(`Failed to save submission: ${err.message}`);
-        }
-
-        logger.info(
-          `[Reminder Sent] Supervisor: "${supervisor.email}" for "${submission.name}"`
-        );
+          logger.info(`[Reminder Sent] Supervisor: "${supervisor.ouEmail}" for "${submission._id}"`);
       }
     }
   } catch (err) {
-    logger.error("[SupervisorReminder Error]:", err.message || err);
+    logger.error("[SupervisorReminder Error]:", err.message);
   }
 };
 
