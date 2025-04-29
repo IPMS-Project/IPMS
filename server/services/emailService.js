@@ -18,8 +18,8 @@ class EmailService {
     });
 
     this.defaultSender =
-    process.env.EMAIL_DEFAULT_SENDER ||
-    "Internship Program Management System <noreply@ipms.edu>";
+      process.env.EMAIL_DEFAULT_SENDER ||
+      "Internship Program Management System <noreply@ipms.edu>";
   }
 
   /**
@@ -33,6 +33,7 @@ class EmailService {
    * @param {Array} [options.attachments] - Array of attachment objects
    * @param {Array} [options.cc] - Carbon copy recipients
    * @param {Array} [options.bcc] - Blind carbon copy recipients
+   * @param {string} [options.role] - User role (optional, to conditionally skip email)
    * @returns {Promise<Object>} - Result of the email sending operation
    */
   async sendEmail(options) {
@@ -44,6 +45,7 @@ class EmailService {
         };
       }
 
+
       const mailOptions = {
         from: options.from || this.defaultSender,
         to: options.to,
@@ -52,7 +54,7 @@ class EmailService {
         text: options.text || options.html.replace(/<[^>]*>/g, ""),
         attachments: options.attachments || [],
       };
-      
+
       // Add optional fields if provided
       if (options.cc) mailOptions.cc = options.cc;
       if (options.bcc) mailOptions.bcc = options.bcc;
@@ -66,6 +68,7 @@ class EmailService {
     }
   }
 }
+
 // Create and export a singleton instance
 const emailService = new EmailService();
 module.exports = emailService;

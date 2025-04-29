@@ -16,11 +16,13 @@ import A4PresentationEvaluationForm from "./pages/A4PresentationEvaluationForm";
 import SupervisorDashboard from "./pages/SupervisorDashboard";
 import CoordinatorDashboard from "./pages/CoordinatorDashboard";
 import CoordinatorRequestDetailView from "./pages/CoordinatorRequestDetailView";
-import CoordinatorManualReviewView from "./pages/CoordinatorManualReviewView"; // ✅ Newly added!
+import CoordinatorManualReviewView from "./pages/CoordinatorManualReviewView";
 import CoordinatorEvaluationReview from "./pages/CoordinatorEvaluationReview";
 import TokenRenewal from "./pages/TokenRenewal";
 import StudentDashboard from "./pages/StudentDashboard";
 import ProtectedRouteStudent from "./pages/ProtectedRouteStudent";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import WeeklyFourWeekReportForm from "./pages/WeeklyFourWeekReportForm";
 import SubmittedReports from "./pages/SubmittedReports";
 import CumulativeReviewForm from "./pages/CumulativeReviewForm";
@@ -45,6 +47,7 @@ const router = createBrowserRouter([
           </ProtectedRouteStudent>
         ),
       },
+
       { path: "a1-form", element: <A1InternshipRequestForm /> },
       { path: "evaluation", element: <A3JobEvaluationForm /> },
       { path: "activate/:token", element: <ActivateAccount /> },
@@ -62,6 +65,16 @@ const router = createBrowserRouter([
       { path: "coordinator-review/:groupIndex", element: <CoordinatorReviewForm /> },
       { path: "review-cumulative/:groupIndex/coordinator", element: <CoordinatorCumulativeReviewForm /> },
       { path: "weekly-report/:groupIndex/week-:weekNumber/:studentName", element: <Home /> },
+
+      {
+        path: "about",
+        element: <About />,
+      },
+      {
+        path: "contact",
+        element: <Contact />,
+      },
+
     ],
   },
 ]);

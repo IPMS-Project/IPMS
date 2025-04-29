@@ -54,12 +54,19 @@ function Home() {
       if (response.ok) {
         const user = data.user;
         if (role === "student") {
+
           const limitedUserInfo = {
             fullName: user.fullName,
             id: user._id,
             email: user.ouEmail,
+
+            academicAdvisor: user.academicAdvisor,
+            semester: user.semester,
           };
+
           localStorage.setItem("ipmsUser", JSON.stringify(limitedUserInfo));
+          localStorage.setItem("ouEmail", user.ouEmail);
+
           navigate("/student-dashboard");
         } else if (role === "supervisor") {
           Swal.fire({
@@ -68,7 +75,9 @@ function Home() {
             text: `Welcome back, Supervisor!`,
           });
           navigate("/supervisor-dashboard");
-        } else if (role === "coordinator") {
+
+        } else {
+
           Swal.fire({
             icon: "success",
             title: "Login Successful 🌟",
@@ -76,15 +85,19 @@ function Home() {
           });
           navigate("/coordinator-dashboard");
         }
+
       } else {
         Swal.fire({
           icon: "error",
           title: "Login Failed",
           html:
             data.message +
+
+            " " +
             (data.renewalLink
-              ? ` Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.`
-              : " Something went wrong."),
+              ? `Please click <a href="${data.renewalLink}" target="_blank" rel="noopener noreferrer">here</a> to request a new token.`
+              : "Something went wrong."),
+
         });
       }
     } catch (error) {
@@ -187,16 +200,7 @@ function Home() {
                 <input type="checkbox" style={{ marginRight: "6px" }} />
                 Remember me
               </label>
-              <Link
-                to="/"
-                style={{
-                  color: "#7f1d1d",
-                  fontWeight: "500",
-                  textDecoration: "underline",
-                }}
-              >
-                Forgot password?
-              </Link>
+              
             </div>
 
             <button type="submit" className="login-button">
