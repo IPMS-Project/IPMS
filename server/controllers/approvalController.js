@@ -157,10 +157,20 @@ const handleSupervisorFormAction = async (req, res, action) => {
     if (comment) {
         emailBody += `<p>Comment: ${comment}</p>`;
     }
-
-    const student_id = form.studentId || form.student || form.interneeId;
-    const student = await UserTokenRequest.findById(student_id);
-    const student_mail = student?.ouEmail;
+        
+    let student_mail = null;
+    if (form_type === "A1") {
+         student_mail = form.student?.ouEmail;
+    }
+    else if (form_type === "A2") {
+        student_mail = form.studentId?.ouEmail;
+    }
+    else if (form_type === "A3") {
+        student_mail = form.interneeId?.ouEmail;
+    }
+    else {
+        console.error(`Unknown form type: ${form_type}`);
+    }
 
     try {  
         await EmailService.sendEmail({
