@@ -3,15 +3,12 @@ const router = express.Router();
 const InternshipRequest = require("../models/InternshipRequest");
 const { insertFormData } = require("../services/insertData");
 
-// router.post("/internshiprequests/:id/approve", approveSubmission);
-// router.post("/internshiprequests/:id/reject", rejectSubmission);
 
-// UPDATED: GET route to fetch internship requests pending supervisor action
 router.get("/internshiprequests", async (req, res) => {
   try {
     const requests = await InternshipRequest.find({
       supervisor_status: "pending",
-      // approvals: "advisor", // advisor has approved
+      
       supervisor_status: { $in: [null, "pending"] } // not yet reviewed by supervisor
     }).sort({ createdAt: 1 })  .populate("student", "userName")  // oldest first
 
@@ -25,12 +22,9 @@ router.get("/internshiprequests", async (req, res) => {
 // Validate required fields
 function validateFormData(formData) {
   const requiredFields = [
-    'soonerId',
     'workplaceName',
-    'website',
     'phone',
     'advisorName',
-    'advisorJobTitle',
     'advisorEmail',
     'creditHours',
     'startDate',
@@ -44,23 +38,11 @@ function validateFormData(formData) {
     }
   }
 
-  if (!/^[0-9]{9}$/.test(formData.soonerId))
-    return `Sooner ID must be a 9-digit number, not ${formData.soonerId}`;
 
   if (!Array.isArray(formData.tasks) || formData.tasks.length === 0) {
     return 'Tasks must be a non-empty array';
   }
-  // for (const [index, task] of formData.tasks.entries()) {
-  //   if (!task.description || !task.outcomes) {
-  //     return `Task at index ${index} is missing description or outcomes`;
-  //   }
-  // }
-
-  // uncomment below if student has to fill in task outcomes
-  // const filledTasks = formData.tasks.filter((task) => task.description && task.outcomes );  
-  // if (filledTasks.length < 3)
-  //   return `At least 3 tasks must have description and outcomes; only ${filledTasks.length} do`;
-
+  
   const tasks = formData.tasks;
   console.log(tasks);
   if (tasks.filter((task) => task.description && task.description.trim() !== '').length < 3)

@@ -20,7 +20,6 @@ const outcomeDescriptions = [
   "Apply computer science algorithms to create practical solutions",
 ];
 
-// Signature font options
 const signatureFonts = [
   { name: "Dancing Script", class: "font-dancing-script" },
   { name: "Great Vibes", class: "font-great-vibes" },
@@ -29,7 +28,7 @@ const signatureFonts = [
   { name: "Caveat", class: "font-caveat" }
 ];
 
-// Signature Font Picker Component
+
 const SignatureInput = ({ id, value, onChange, disabled, placeholder }) => {
   const [showFonts, setShowFonts] = useState(false);
   const [selectedFont, setSelectedFont] = useState(signatureFonts[0].class);
@@ -91,7 +90,7 @@ const SignatureInput = ({ id, value, onChange, disabled, placeholder }) => {
 const A1InternshipRequestForm = ({ userRole = "student" }) => {
   const initialState = {
     interneeName: "",
-    soonerId: "",
+    // soonerId: "",
     interneeEmail: "",
     workplaceName: "",
     website: "",
@@ -102,10 +101,8 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     advisorJobTitle: "",
     advisorEmail: "",
     interneeSignature: "",
-    advisorSignature: "",
-    coordinatorApproval: "",
     creditHours: "",
-    tasks: Array(5).fill({ description: "", outcomes: [] }), // Updated for outcomes
+    tasks: Array(5).fill({ description: "", outcomes: [] }), 
     supervisorComments: "",
     coordinatorComments: "",
   };
@@ -223,15 +220,15 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
 
   const validateForm = () => {
     const namePattern = /^[A-Za-z\s]+$/;
-    const numberPattern = /^[0-9]+$/;
+    // const numberPattern = /^[0-9]+$/;
     const phonePattern = /^[0-9]{10}$/;
     const emailPattern = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
     const newErrors = {};
 
     if (!formData.interneeName) newErrors.interneeName = "Internee name is required";
     else if (!namePattern.test(formData.interneeName)) newErrors.interneeName = "Name should contain only letters and spaces";
-    if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
-    else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
+    //if (!formData.soonerId) newErrors.soonerId = "Sooner ID is required";
+    //else if (!numberPattern.test(formData.soonerId)) newErrors.soonerId = "Sooner ID should be numeric";
     if (!formData.interneeEmail) newErrors.interneeEmail = "Email is required";
     else if (!emailPattern.test(formData.interneeEmail)) newErrors.interneeEmail = "Invalid email format";
     if (!formData.workplaceName) newErrors.workplaceName = "Workplace name is required";
@@ -247,12 +244,6 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
     else if (!emailPattern.test(formData.advisorEmail)) newErrors.advisorEmail = "Invalid supervisor email format";
     if (!formData.interneeSignature) newErrors.interneeSignature = "Internee signature is required";
     else if (!namePattern.test(formData.interneeSignature)) newErrors.interneeSignature = "Signature should contain only letters and spaces";
-    if (formData.advisorSignature && !namePattern.test(formData.advisorSignature)) {
-      newErrors.advisorSignature = "Signature should contain only letters and spaces";
-    }
-    if (formData.coordinatorApproval && !namePattern.test(formData.coordinatorApproval)) {
-      newErrors.coordinatorApproval = "Approval should contain only letters and spaces";
-    }
     if (!formData.creditHours) newErrors.creditHours = "Please select credit hours";
     const tasksFilled = formData.tasks.filter((task) => task.description.trim() !== "").length >= 3;
     if (!tasksFilled) newErrors.tasks = "At least 3 tasks are required";
@@ -354,7 +345,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
           <tbody>
             <tr>
               <td colSpan="3">
-                Name<span className="required-asterisk">*</span>:<br />
+                First Name<span className="required-asterisk">*</span>:<br />
                 <input 
                   type="text" 
                   id="interneeName" 
@@ -389,39 +380,42 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
               </td>
             </tr>
             <tr>
-              <td colSpan="3">
-                Sooner ID<span className="required-asterisk">*</span>:<br />
-                <input 
-                  type="text" 
-                  id="soonerId" 
-                  value={formData.soonerId} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("soonerId")} 
-                />
-                {errors.soonerId && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.soonerId}</div>}
-              </td>
-              <td colSpan="3">
-                Website:<br />
-                <input 
-                  type="text" 
-                  id="website" 
-                  value={formData.website} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("website")} 
-                />
-                {errors.website && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.website}</div>}
-              </td>
-              <td colSpan="2">
-                Job Title:<br />
-                <input 
-                  type="text" 
-                  id="advisorJobTitle" 
-                  value={formData.advisorJobTitle} 
-                  onChange={handleInputChange} 
-                  disabled={!isFieldEditable("advisorJobTitle")} 
-                />
-              </td>
-            </tr>
+ 
+  <td colSpan="3">
+    Last Name:<br />
+    <input 
+      type="text" 
+      
+    />
+    {errors.website && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.website}</div>}
+  </td>
+
+  
+  <td colSpan="3">
+    Website:<br />
+    <input 
+      type="text" 
+      id="website" 
+      value={formData.website} 
+      onChange={handleInputChange} 
+      disabled={!isFieldEditable("website")} 
+    />
+    {errors.website && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.website}</div>}
+  </td>
+
+  
+  <td colSpan="2">
+    Job Title:<br />
+    <input 
+      type="text" 
+      id="advisorJobTitle" 
+      value={formData.advisorJobTitle} 
+      onChange={handleInputChange} 
+      disabled={!isFieldEditable("advisorJobTitle")} 
+    />
+  </td>
+</tr>
+
             <tr>
               <td colSpan="3">
                 Email<span className="required-asterisk">*</span>:<br />
@@ -431,7 +425,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                   value={formData.interneeEmail} 
                   onChange={handleInputChange} 
                   disabled
-                  // disabled={!isFieldEditable("interneeEmail")} 
+                 
                 />
                 {errors.interneeEmail && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeEmail}</div>}
               </td>
@@ -559,7 +553,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
         <table>
           <tbody>
             <tr>
-              <td className="signature-cell" colSpan="3">
+              <td className="signature-cell" colSpan="1">
                 Internee Signature<span className="required-asterisk">*</span>:<br />
                 <div className="signature-field">
                   <SignatureInput 
@@ -572,75 +566,7 @@ const A1InternshipRequestForm = ({ userRole = "student" }) => {
                 </div>
                 {errors.interneeSignature && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.interneeSignature}</div>}
               </td>
-              <td className="signature-cell" colSpan="3">
-                Internship Supervisor Signature:<br />
-                <div className="signature-field">
-                  <SignatureInput 
-                    id="advisorSignature"
-                    value={formData.advisorSignature}
-                    onChange={handleInputChange}
-                    disabled={!isFieldEditable("advisorSignature")}
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                {errors.advisorSignature && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.advisorSignature}</div>}
-              </td>
-              <td className="signature-cell" colSpan="2">
-                Internship Coordinator Approval:<br />
-                <div className="signature-field">
-                  <SignatureInput 
-                    id="coordinatorApproval"
-                    value={formData.coordinatorApproval}
-                    onChange={handleInputChange}
-                    disabled={!isFieldEditable("coordinatorApproval")}
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                {errors.coordinatorApproval && <div style={{ color: "red", fontSize: "0.8rem" }}>{errors.coordinatorApproval}</div>}
-              </td>
-            </tr>
-            {/* <tr>
-              <td colSpan="3">
-                <label htmlFor="supervisorComments" style={{ fontWeight: "bold" }}>Supervisor Comments:</label><br />
-                <textarea
-                  id="supervisorComments"
-                  value={formData.supervisorComments}
-                  onChange={handleInputChange}
-                  placeholder="Enter any comments or feedback for this internship request"
-                  style={{ 
-                    width: "100%", 
-                    padding: "8px", 
-                    boxSizing: "border-box",
-                    minHeight: "80px",
-                    resize: "vertical",
-                    marginTop: "5px",
-                    border: "1px solid #ccc",
-                    borderRadius: "3px"
-                  }}
-                  disabled={!isFieldEditable("supervisorComments")}
-                />
-              </td>
-              <td colSpan="5">
-                <label htmlFor="coordinatorComments" style={{ fontWeight: "bold" }}>Coordinator Comments:</label><br />
-                <textarea
-                  id="coordinatorComments"
-                  value={formData.coordinatorComments}
-                  onChange={handleInputChange}
-                  placeholder="Enter any comments or feedback regarding this internship request"
-                  style={{ 
-                    width: "100%",
-                    padding: "8px", 
-                    boxSizing: "border-box",
-                    minHeight: "80px",
-                    resize: "vertical",
-                    marginTop: "5px",
-                    border: "1px solid #ccc",
-                    borderRadius: "3px"
-                  }}
-                  disabled={!isFieldEditable("coordinatorComments")}
-                />
-              </td>
-            </tr> */}
+              </tr>
           </tbody>
         </table>
 
